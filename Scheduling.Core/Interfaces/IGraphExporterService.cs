@@ -1,6 +1,8 @@
-﻿namespace Scheduling.Core.Graph.Interfaces
+﻿using Scheduling.Core.Graph;
+
+namespace Scheduling.Core.Interfaces
 {
-    public interface IGraphExporter
+    public interface IGraphExporterService
     {
         void ExportTableGraphToGraphviz(DisjunctiveGraphModel graph, string dir, string filename);
     }

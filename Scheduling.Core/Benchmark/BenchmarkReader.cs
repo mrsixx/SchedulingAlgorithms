@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Scheduling.Core.Graph.Interfaces
+namespace Scheduling.Core.Benchmark
 {
-    internal class IGraphBuilder
+    internal class BenchmarkReader
     {
     }
 }

@@ -1,14 +1,16 @@
-﻿using QuickGraph.Graphviz;
+﻿using QuickGraph;
+using QuickGraph.Graphviz;
 using QuickGraph.Graphviz.Dot;
-using Scheduling.Core.Graph.Interfaces;
+using Scheduling.Core.Graph;
+using Scheduling.Core.Interfaces;
 
-namespace Scheduling.Core.Graph
+namespace Scheduling.Core.Services
 {
-    public class GraphExporter : IGraphExporter
+    public class GraphExporterService : IGraphExporterService
     {
         public void ExportTableGraphToGraphviz(DisjunctiveGraphModel graph, string dir, string filename)
         {
-            void exportAlgorithm(GraphvizAlgorithm<OperationVertex, VertexEdge> graphviz)
+            void exportAlgorithm(GraphvizAlgorithm<Node, IEdge<Node>> graphviz)
             {
                 graphviz.GraphFormat.IsCompounded = true;
                 graphviz.CommonVertexFormat.Font = new GraphvizFont("Arial", 8);
@@ -18,23 +20,34 @@ namespace Scheduling.Core.Graph
                 graphviz.CommonVertexFormat.Shape = GraphvizVertexShape.Circle;
                 graphviz.CommonEdgeFormat.Font = new GraphvizFont("Arial", 3);
                 graphviz.CommonEdgeFormat.Label.Angle = 0;
-                graphviz.CommonEdgeFormat.TailArrow = new GraphvizArrow(GraphvizArrowShape.Normal);
 
                 graphviz.FormatVertex += (sender, args) =>
                 {
-                    if (args.Vertex.Id == 0)
-                        args.VertexFormatter.Label = "src";
-                    else if (args.Vertex.Id == Int32.MaxValue)
-                        args.VertexFormatter.Label = "sink";
+                    if (args.Vertex.Id == DisjunctiveGraphModel.SOURCE_ID)
+                        args.VertexFormatter.Label = "⊗";
+                    else if (args.Vertex.Id == DisjunctiveGraphModel.SINK_ID)
+                        args.VertexFormatter.Label = "⊥";
                     else
                         args.VertexFormatter.Label = args.Vertex.Id.ToString();
 
-                    args.VertexFormatter.ToolTip = "banana";
+                    //args.VertexFormatter.ToolTip = "banana";
                 };
 
                 graphviz.FormatEdge += (sender, args) =>
                 {
-                    //args.EdgeFormat.Label.Value = args.Edge.;
+                    if (args.Edge is Disjunction edge)
+                    {
+                        args.EdgeFormatter.TailArrow = new GraphvizArrow(GraphvizArrowShape.None);
+                        args.EdgeFormatter.HeadArrow = new GraphvizArrow(GraphvizArrowShape.None);
+                        args.EdgeFormatter.Style = GraphvizEdgeStyle.Dashed;
+
+                    }
+                    else if (args.Edge is Conjunction arc)
+                    {
+                        args.EdgeFormatter.TailArrow = new GraphvizArrow(GraphvizArrowShape.None);
+                        args.EdgeFormatter.HeadArrow = new GraphvizArrow(GraphvizArrowShape.Normal);
+
+                    }
                 };
 
                 var location = Path.Combine(dir, $"{filename}.dot");

@@ -3,35 +3,54 @@
 namespace Scheduling.Core.Graph
 {
     [Serializable]
-    public class DisjunctiveGraphModel : BidirectionalGraph<OperationVertex, VertexEdge>
+    public class DisjunctiveGraphModel : UndirectedGraph<Node, IEdge<Node>>
     {
-        public DisjunctiveGraphModel() : base(allowParallelEdges: true)
+        public const int SOURCE_ID = 0;
+        public const int SINK_ID = -1;
+
+        public DisjunctiveGraphModel() : base(allowParallelEdges: true) { }
+
+        public bool HasConjunction(int sourceId, int targetId) => TryGetConjunction(sourceId, targetId, out _);
+        public bool TryGetConjunction(int sourceId, int targetId, out Conjunction arc)
         {
-        }
-    }
+            var nodes = Vertices.ToList();
+            var sourceNode = nodes.Find(node => node.Id == sourceId);
+            var targetNode = nodes.Find(node => node.Id == targetId);
 
-    [Serializable]
-    public class OperationVertex
-    {
-        public OperationVertex(int id)
+            var hasNodes = sourceNode != null && targetNode != null;
+
+            if (hasNodes
+                && TryGetEdge(sourceNode, targetNode, out IEdge<Node> edge)
+                && edge is Conjunction conjunction)
+            {
+                arc = conjunction;
+                return true;
+            }
+
+            arc = default;
+            return false;
+        }
+
+
+        public bool HasDisjunction(int sourceId, int targetId) => TryGetConjunction(sourceId, targetId, out _);
+        public bool TryGetDisjunction(int sourceId, int targetId, out Conjunction arc)
         {
-            Id = id;
+            var nodes = Vertices.ToList();
+            var sourceNode = nodes.Find(node => node.Id == sourceId);
+            var targetNode = nodes.Find(node => node.Id == targetId);
+
+            var hasNodes = sourceNode != null && targetNode != null;
+
+            if (hasNodes
+                && TryGetEdge(sourceNode, targetNode, out IEdge<Node> edge)
+                && edge is Conjunction conjunction)
+            {
+                arc = conjunction;
+                return true;
+            }
+
+            arc = default;
+            return false;
         }
-
-        public int Id { get; set; }
-    }
-
-    [Serializable]
-    public class VertexEdge : IEdge<OperationVertex>
-    {
-        public VertexEdge(OperationVertex source, OperationVertex target)
-        {
-            Source = source;
-            Target = target;
-        }
-
-        public OperationVertex Source { get; }
-
-        public OperationVertex Target { get; }
     }
 }
