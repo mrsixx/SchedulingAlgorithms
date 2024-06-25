@@ -23,9 +23,9 @@ namespace Scheduling.Core.Services
 
                 graphviz.FormatVertex += (sender, args) =>
                 {
-                    if (args.Vertex.Id == DisjunctiveGraphModel.SOURCE_ID)
+                    if (args.Vertex.IsSourceNode)
                         args.VertexFormatter.Label = "⊗";
-                    else if (args.Vertex.Id == DisjunctiveGraphModel.SINK_ID)
+                    else if (args.Vertex.IsSinkNode)
                         args.VertexFormatter.Label = "⊥";
                     else
                         args.VertexFormatter.Label = args.Vertex.Id.ToString();
@@ -62,7 +62,7 @@ namespace Scheduling.Core.Services
         public string Run(GraphvizImageType imageType, string dot, string outputFileName)
         {
             using (StreamWriter writer = new StreamWriter(outputFileName))
-                writer.Write(dot);
+                writer.Write(dot.Replace("graph G", "digraph G"));
 
             return Path.GetFileName(outputFileName);
         }

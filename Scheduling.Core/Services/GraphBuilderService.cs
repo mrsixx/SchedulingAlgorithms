@@ -1,4 +1,5 @@
 ﻿using QuickGraph.Serialization;
+using Scheduling.Core.Extensions;
 using Scheduling.Core.Graph;
 using Scheduling.Core.Interfaces;
 using Scheduling.Core.Models;
@@ -10,56 +11,37 @@ namespace Scheduling.Core.Services
         public DisjunctiveGraphModel BuildDisjunctiveGraph(List<Job> jobs, List<Machine> machines)
         {
             var graph = new DisjunctiveGraphModel();
-            Node source = new(DisjunctiveGraphModel.SOURCE_ID), sink = new(DisjunctiveGraphModel.SINK_ID);
-            graph.AddVertex(source);
-            graph.AddVertex(sink);
+            graph.AddVertex(graph.Source);
+            graph.AddVertex(graph.Sink);
             jobs.ForEach(job =>
             {
-                var latest = source;
+                // 1st operation of each job linked with source
+                var previous = graph.Source;
                 job.Operations.Select(o => new Node(o.Id))
                     .ToList()
                     .ForEach(operation =>
                     {
                         graph.AddVertex(operation);
-                        graph.AddEdge(new Conjunction(latest, operation));
-                        latest = operation;
+                        graph.AddEdge(new Conjunction(previous, operation));
+                        previous = operation;
                     });
-                graph.AddEdge(new Conjunction(latest, sink));
+
+                //last operation of each job linked with sink
+                graph.AddEdge(new Conjunction(previous, graph.Sink));
             });
 
             // create disjunctions between every operation running on same pool
-            jobs.SelectMany(job => job.Operations)
-            .GroupBy(o => o.MachinePoolId)
-            .ToList()
-            .ForEach(grp =>
-            {
-                var machinePoolOperations = grp.ToList();
-                var cartesianProduct = from o1 in machinePoolOperations
-                                       from o2 in machinePoolOperations
-                                       select new Tuple<Operation, Operation>(o1, o2);
-
-                var edges = new List<Tuple<int, int>>();
-                foreach (var (o1, o2) in cartesianProduct)
+            jobs.GeneratePossibleDisjunctions()
+                .ToList()
+                .ForEach(pair =>
                 {
-                    if (o1.Id != o2.Id)
-                    {
-                        if (edges.Any((e) => e.Item1 == o2.Id && e.Item2 == o1.Id))
-                            continue;
-
-                        var node1 = graph.Vertices.ToList().Find(o => o.Id == o1.Id);
-                        var node2 = graph.Vertices.ToList().Find(o => o.Id == o2.Id);
-                        if (node1 is null || node2 is null)
-                            continue;
-
+                    var (o1, o2) = pair;
+                    // if some node not found
+                    if (graph.TryGetNode(o1.Id, out Node node1) && graph.TryGetNode(o2.Id, out Node node2))
                         graph.AddEdge(new Disjunction(node1, node2));
-                        edges.Add(new Tuple<int, int>(node1.Id, node2.Id));
-                    }
-                }
 
-            });
-
-
-            return graph;
+                });
+                return graph;
         }
 
         public DisjunctiveGraphModel BuildDisjunctiveGraphByBenchmarkFile(string benchmarkFile)

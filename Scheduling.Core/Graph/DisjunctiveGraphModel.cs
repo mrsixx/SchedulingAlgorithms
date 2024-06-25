@@ -1,56 +1,81 @@
 ﻿using QuickGraph;
+using Scheduling.Core.Interfaces;
+using System.Xml.Linq;
 
 namespace Scheduling.Core.Graph
 {
     [Serializable]
-    public class DisjunctiveGraphModel : UndirectedGraph<Node, IEdge<Node>>
+    public class DisjunctiveGraphModel : UndirectedGraph<Node, IEdge<Node>>, IDisjunctiveGraph
     {
-        public const int SOURCE_ID = 0;
-        public const int SINK_ID = -1;
+        public DisjunctiveGraphModel() : base(allowParallelEdges: true)
+        {
+            Source = new(Node.SOURCE_ID);
+            Sink = new(Node.SINK_ID);
+        }
 
-        public DisjunctiveGraphModel() : base(allowParallelEdges: true) { }
+        public Node Source { get; }
+
+        public Node Sink { get; }
+
+
+        public bool HasNode(int id) => TryGetNode(id, out _);
+
+        public bool TryGetNode(int id, out Node node)
+        {
+            var vertex = Vertices.ToList().Find(node => node.Id == id);
+            if(vertex != null)
+            {
+                node = vertex;
+                return true;
+            }
+
+            node = default;
+            return false;
+        }
 
         public bool HasConjunction(int sourceId, int targetId) => TryGetConjunction(sourceId, targetId, out _);
-        public bool TryGetConjunction(int sourceId, int targetId, out Conjunction arc)
+        
+        public bool TryGetConjunction(int sourceId, int targetId, out Conjunction conjunction)
         {
-            var nodes = Vertices.ToList();
-            var sourceNode = nodes.Find(node => node.Id == sourceId);
-            var targetNode = nodes.Find(node => node.Id == targetId);
-
-            var hasNodes = sourceNode != null && targetNode != null;
+            bool hasSrc = TryGetNode(sourceId, out Node sourceNode), 
+                 hasTarget = TryGetNode(targetId, out Node targetNode);
+            var hasNodes =  hasSrc && hasTarget;
 
             if (hasNodes
-                && TryGetEdge(sourceNode, targetNode, out IEdge<Node> edge)
-                && edge is Conjunction conjunction)
+                && TryGetEdge(sourceNode, targetNode, out IEdge<Node> link)
+                && link is Conjunction arc)
             {
-                arc = conjunction;
+                conjunction = arc;
                 return true;
             }
 
-            arc = default;
+            conjunction = default;
             return false;
         }
 
-
-        public bool HasDisjunction(int sourceId, int targetId) => TryGetConjunction(sourceId, targetId, out _);
-        public bool TryGetDisjunction(int sourceId, int targetId, out Conjunction arc)
+        public bool HasDisjunction(int sourceId, int targetId) => TryGetDisjunction(sourceId, targetId, out _);
+        
+        public bool TryGetDisjunction(int sourceId, int targetId, out Disjunction disjunction)
         {
-            var nodes = Vertices.ToList();
-            var sourceNode = nodes.Find(node => node.Id == sourceId);
-            var targetNode = nodes.Find(node => node.Id == targetId);
+            bool hasSrc = TryGetNode(sourceId, out Node sourceNode), 
+                 hasTarget = TryGetNode(targetId, out Node targetNode);
+            var hasNodes = hasSrc && hasTarget;
 
-            var hasNodes = sourceNode != null && targetNode != null;
+            // lowerIds always in the edge source
+            if (hasNodes && sourceId < targetId)
+                (sourceNode, targetNode) = (targetNode, sourceNode);
 
             if (hasNodes
-                && TryGetEdge(sourceNode, targetNode, out IEdge<Node> edge)
-                && edge is Conjunction conjunction)
+                && TryGetEdge(sourceNode, targetNode, out IEdge<Node> link)
+                && link is Disjunction edge)
             {
-                arc = conjunction;
+                disjunction = edge;
                 return true;
             }
 
-            arc = default;
+            disjunction = default;
             return false;
         }
+
     }
 }
