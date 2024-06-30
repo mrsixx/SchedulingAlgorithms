@@ -1,4 +1,4 @@
-﻿namespace Scheduling.Core.Models
+﻿namespace Scheduling.Core.FJSP
 {
     public class Operation
     {

@@ -1,8 +1,6 @@
-using QuickGraph.Contracts;
 using Scheduling.Core.Extensions;
-using Scheduling.Core.Graph;
+using Scheduling.Core.FJSP;
 using Scheduling.Core.Interfaces;
-using Scheduling.Core.Models;
 using Scheduling.Core.Services;
 
 namespace Scheduling.Tests
@@ -27,14 +25,8 @@ namespace Scheduling.Tests
             var disjunctiveGraphModel = _graphBuilderService.BuildDisjunctiveGraph(jobs, machines);
 
             Assert.Equal(10, disjunctiveGraphModel.VertexCount); // 8 operations + source and sink nodes
-            Assert.Equal(16, disjunctiveGraphModel.EdgeCount);
-
-            // subsequent operations turns into conjunctions
-            foreach (var job in jobs)
-                for (int i = 0; i < job.Operations.Count - 1; i++)
-                    Assert.True(disjunctiveGraphModel.HasConjunction(job.Operations[i].Id, job.Operations[i + 1].Id));
+            Assert.Equal(18, disjunctiveGraphModel.EdgeCount);
         }
-
 
         [Fact]
         public void BuildDisjunctiveGraph_OperationsSequence_MustTurnsIntoConjunctions()
@@ -58,27 +50,33 @@ namespace Scheduling.Tests
             var disjunctiveGraphModel = _graphBuilderService.BuildDisjunctiveGraph(jobs, machines);
 
             // subsequent operations turned into conjunctions
-            foreach (var (o1, o2) in jobs.CartesianProductOfJobsOperations())
+            foreach (var (o1, o2) in jobs.SelectMany(j => j.Operations).CartesianProductOfOperations())
             {
-                if (o1.Id == o2.Id)
-                    Assert.False(disjunctiveGraphModel.HasDisjunction(o1.Id, o2.Id));
-                else
+                if(o1.Id != o2.Id && o1.MachinePoolId == o2.MachinePoolId)
                     Assert.True(disjunctiveGraphModel.HasDisjunction(o1.Id, o2.Id));
+                else
+                    Assert.False(disjunctiveGraphModel.HasDisjunction(o1.Id, o2.Id));
+
             }
         }
 
-        private static (List<Job>, List<Machine>) BuildInstance()
+        private static (List<Job>, List<MachinePool>) BuildInstance()
         {
             Func<Machine, double> weight = machine => 1.0;
-            var machines = new List<Machine> { new Machine(1, 1), new Machine(2, 1), new Machine(3, 2), new Machine(4, 3), new Machine(5, 3), new Machine(6, 4) };
-            var job1 = new Job(1);
-            job1.Operations.AddRange(new List<Operation> { new Operation(1, 1, weight), new Operation(2, 2, weight), new Operation(3, 4, weight) });
-            var job2 = new Job(2);
-            job2.Operations.AddRange(new List<Operation> { new Operation(4, 2, weight), new Operation(5, 3, weight) });
-            var job3 = new Job(3);
-            job3.Operations.AddRange(new List<Operation> { new Operation(6, 1, weight), new Operation(7, 2, weight), new Operation(8, 3, weight) });
+            MachinePool pool1 = new(1), pool2 = new(2), pool3 = new(3), pool4 = new(4);
+            pool1.Machines.AddRange(new List<Machine> { new Machine(1), new Machine(2) });
+            pool2.Machines.AddRange(new List<Machine> { new Machine(3) });
+            pool3.Machines.AddRange(new List<Machine> { new Machine(4), new Machine(5) });
+            pool4.Machines.AddRange(new List<Machine> { new Machine(6) });
+
+            Job job1 = new(1), job2 = new(2), job3 = new(3);
+            job1.Operations.AddRange(new List<Operation> { new Operation(1, pool1.Id, weight), new Operation(2, pool2.Id, weight), new Operation(3, pool4.Id, weight) });
+            job2.Operations.AddRange(new List<Operation> { new Operation(4, pool2.Id, weight), new Operation(5, pool3.Id, weight) });
+            job3.Operations.AddRange(new List<Operation> { new Operation(6, pool1.Id, weight), new Operation(7, pool2.Id, weight), new Operation(8, pool3.Id, weight) });
+
             var jobs = new List<Job> { job1, job2, job3 };
-            return (jobs, machines);
+            var pools = new List<MachinePool> { pool1, pool2, pool3, pool4 };
+            return (jobs, pools);
         }
     }
 }

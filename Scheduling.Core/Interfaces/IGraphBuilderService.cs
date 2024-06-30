@@ -1,5 +1,5 @@
 ﻿using Scheduling.Core.Graph;
-using Scheduling.Core.Models;
+using Scheduling.Core.FJSP;
 
 namespace Scheduling.Core.Interfaces
 {
@@ -7,6 +7,6 @@ namespace Scheduling.Core.Interfaces
     {
         DisjunctiveGraphModel BuildDisjunctiveGraphByBenchmarkFile(string benchmarkFile);
 
-        DisjunctiveGraphModel BuildDisjunctiveGraph(List<Job> jobs, List<Machine> machines);
+        DisjunctiveGraphModel BuildDisjunctiveGraph(List<Job> jobs, List<MachinePool> machinePools);
     }
 }

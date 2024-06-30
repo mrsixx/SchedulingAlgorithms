@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Scheduling.Console": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\mathe\\Downloads\\flexiblejobshop_setup\\flexiblejobshop_setup\\instances\\Fattahi_setup_12.fjs\r\nC:\\Users\\mathe\\Downloads\\flexiblejobshop_setup\\flexiblejobshop_setup\\instances\\Fattahi_setup_12.dot"
+    }
+  }
+}
