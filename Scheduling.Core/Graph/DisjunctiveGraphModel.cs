@@ -1,4 +1,4 @@
-﻿using QuickGraph;
+﻿using QuikGraph;
 using Scheduling.Core.Interfaces;
 using System.Xml.Linq;
 

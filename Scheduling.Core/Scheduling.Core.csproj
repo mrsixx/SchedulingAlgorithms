@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Xenko.QuickGraph" Version="3.7.0" />
-    <PackageReference Include="Xenko.QuickGraph.Graphviz" Version="3.7.0" />
+    <PackageReference Include="QuikGraph" Version="2.5.0" />
+    <PackageReference Include="QuikGraph.Graphviz" Version="2.5.0" />
   </ItemGroup>
 
 </Project>

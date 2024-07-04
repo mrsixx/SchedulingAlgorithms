@@ -1,6 +1,6 @@
-﻿using QuickGraph;
-using QuickGraph.Graphviz;
-using QuickGraph.Graphviz.Dot;
+﻿using QuikGraph;
+using QuikGraph.Graphviz;
+using QuikGraph.Graphviz.Dot;
 using Scheduling.Core.Graph;
 using Scheduling.Core.Interfaces;
 using System.Drawing;
@@ -27,11 +27,11 @@ namespace Scheduling.Core.Services
                 graphviz.FormatVertex += (sender, args) =>
                 {
                     if (args.Vertex.IsSourceNode)
-                        args.VertexFormatter.Label = "⊗";
+                        args.VertexFormat.Label = "⊗";
                     else if (args.Vertex.IsSinkNode)
-                        args.VertexFormatter.Label = "⊥";
+                        args.VertexFormat.Label = "⊥";
                     else
-                        args.VertexFormatter.Label = args.Vertex.Id.ToString();
+                        args.VertexFormat.Label = args.Vertex.Id.ToString();
 
                     //args.VertexFormatter.ToolTip = "banana";
                 };
@@ -40,26 +40,25 @@ namespace Scheduling.Core.Services
                 {
                     if (args.Edge is Disjunction edge)
                     {
-                        args.EdgeFormatter.TailArrow = new GraphvizArrow(GraphvizArrowShape.None);
-                        args.EdgeFormatter.HeadArrow = new GraphvizArrow(GraphvizArrowShape.None);
-                        args.EdgeFormatter.Style = GraphvizEdgeStyle.Dashed;
+                        args.EdgeFormat.TailArrow = new GraphvizArrow(GraphvizArrowShape.None);
+                        args.EdgeFormat.HeadArrow = new GraphvizArrow(GraphvizArrowShape.None);
+                        args.EdgeFormat.Style = GraphvizEdgeStyle.Dashed;
 
                         if (!colorDictionary.ContainsKey(edge.MachineId))
                         {
-                            byte r = Convert.ToByte(Random.Shared.Next(0, 255)), 
-                            g = Convert.ToByte(Random.Shared.Next(0, 255)), 
-                            b = Convert.ToByte(Random.Shared.Next(0, 255));
-                            colorDictionary.Add(edge.MachineId, new GraphvizColor(byte.MinValue, r, g, b));
+                            byte[] rgb = new byte[4];
+                            Random.Shared.NextBytes(rgb);
+                            var color = Color.FromKnownColor(KnownColor.DarkRed);
+                            colorDictionary.Add(edge.MachineId, new GraphvizColor((byte)color.A, (byte)color.R, (byte)color.G, (byte)color.B));
                         }
 
-
-                        ///args.EdgeFormatter.StrokeGraphvizColor  = colorDictionary[edge.MachineId];
+                        args.EdgeFormat.StrokeColor  = colorDictionary[edge.MachineId];
 
                     }
                     else if (args.Edge is Conjunction arc)
                     {
-                        args.EdgeFormatter.TailArrow = new GraphvizArrow(GraphvizArrowShape.None);
-                        args.EdgeFormatter.HeadArrow = new GraphvizArrow(GraphvizArrowShape.Normal);
+                        args.EdgeFormat.TailArrow = new GraphvizArrow(GraphvizArrowShape.None);
+                        args.EdgeFormat.HeadArrow = new GraphvizArrow(GraphvizArrowShape.Normal);
 
                     }
                 };
@@ -78,7 +77,7 @@ namespace Scheduling.Core.Services
             using (StreamWriter writer = new(outputFileName))
             {
                 var content = dot.Replace("graph G", "digraph G");
-                content = Regex.Replace(content, "GraphvizColor", "color");
+                content = Regex.Replace(content, "--", "->");
                 writer.Write(content);
             }
 
