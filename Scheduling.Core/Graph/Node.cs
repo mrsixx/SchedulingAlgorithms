@@ -1,4 +1,6 @@
-﻿namespace Scheduling.Core.Graph
+﻿using Scheduling.Core.FJSP;
+
+namespace Scheduling.Core.Graph
 {
     [Serializable]
     public class Node
@@ -12,10 +14,20 @@
             Id = id;
         }
 
+        public Node(Operation operation)
+        {
+            Id = operation.Id;
+            Operation = operation;
+        }
+
         public int Id { get; set; }
+
+        public Operation? Operation { get; set; }
 
         public bool IsSourceNode => Id == SOURCE_ID;
 
         public bool IsSinkNode => Id == SINK_ID;
+
+        public bool IsDummyOperation => Operation is null;
     }
 }

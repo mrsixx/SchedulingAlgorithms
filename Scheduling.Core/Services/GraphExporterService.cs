@@ -12,6 +12,9 @@ namespace Scheduling.Core.Services
     {
         public void ExportDisjunctiveGraphToGraphviz(DisjunctiveGraphModel graph, string outputFile)
         {
+            var colors = Enum.GetValues(typeof(KnownColor))
+               .Cast<KnownColor>()
+               .Select(Color.FromKnownColor).ToList();
             void exportAlgorithm(GraphvizAlgorithm<Node, IEdge<Node>> graphviz)
             {
                 graphviz.GraphFormat.IsCompounded = true;
@@ -44,21 +47,22 @@ namespace Scheduling.Core.Services
                         args.EdgeFormat.HeadArrow = new GraphvizArrow(GraphvizArrowShape.None);
                         args.EdgeFormat.Style = GraphvizEdgeStyle.Dashed;
 
-                        if (!colorDictionary.ContainsKey(edge.MachineId))
+                        if (!colorDictionary.ContainsKey(edge.Machine.Id))
                         {
-                            byte[] rgb = new byte[4];
-                            Random.Shared.NextBytes(rgb);
-                            var color = Color.FromKnownColor(KnownColor.DarkRed);
-                            colorDictionary.Add(edge.MachineId, new GraphvizColor((byte)color.A, (byte)color.R, (byte)color.G, (byte)color.B));
+                            var color = colors[Random.Shared.Next(0, colors.Count)];
+                            colors.Remove(color);
+                            var graphColor = new GraphvizColor(color.A, color.R, color.G, color.B);
+                            colorDictionary.Add(edge.Machine.Id, graphColor);
                         }
 
-                        args.EdgeFormat.StrokeColor  = colorDictionary[edge.MachineId];
-
+                        args.EdgeFormat.StrokeColor  = colorDictionary[edge.Machine.Id];
+                        args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = $"({edge.ProcessingTime.Item1};{edge.ProcessingTime.Item2})", FontColor = colorDictionary[edge.Machine.Id] };
                     }
                     else if (args.Edge is Conjunction arc)
                     {
                         args.EdgeFormat.TailArrow = new GraphvizArrow(GraphvizArrowShape.None);
                         args.EdgeFormat.HeadArrow = new GraphvizArrow(GraphvizArrowShape.Normal);
+                        args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = arc.Weight.ToString() };
 
                     }
                 };

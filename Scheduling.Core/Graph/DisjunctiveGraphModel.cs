@@ -17,6 +17,9 @@ namespace Scheduling.Core.Graph
 
         public Node Sink { get; }
 
+        public int ConjuntionCount => Edges.Count(e => e is Conjunction);
+
+        public int DisjuntionCount => Edges.Count(e => e is Disjunction);
 
         public bool HasNode(int id) => TryGetNode(id, out _);
 

@@ -7,6 +7,6 @@ namespace Scheduling.Core.Interfaces
     {
         DisjunctiveGraphModel BuildDisjunctiveGraphByBenchmarkFile(string benchmarkFile);
 
-        DisjunctiveGraphModel BuildDisjunctiveGraph(List<Job> jobs, List<MachinePool> machinePools);
+        DisjunctiveGraphModel BuildDisjunctiveGraph(List<Job> jobs);
     }
 }

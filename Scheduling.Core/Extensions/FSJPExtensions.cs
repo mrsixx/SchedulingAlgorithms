@@ -4,7 +4,7 @@ namespace Scheduling.Core.Extensions
 {
     public static class FSJPExtensions
     {
-        public static IEnumerable<Tuple<Operation, Operation, Machine>> GeneratePossibleDisjunctions(this IEnumerable<Operation> operations, IEnumerable<MachinePool> machinePools)
+        public static IEnumerable<Tuple<Operation, Operation, Machine>> GeneratePossibleDisjunctions(this IEnumerable<Operation> operations)
         {
             //var operationsByPool = jobs.SelectMany(job => job.Operations).GroupBy(o => o.MachinePoolId);
             var pairs = operations.CartesianProductOfOperations()
@@ -18,25 +18,11 @@ namespace Scheduling.Core.Extensions
                     return acc;
                 });
 
-            var machinesByOperation = operations.Aggregate(
-                new Dictionary<int, IEnumerable<Machine>>(),
-                (acc, o) =>
-                {
-                    var machines = machinePools.Single(pool => pool.Id == o.MachinePoolId).Machines;
-                    acc.Add(o.Id, machines);
-                    return acc;
-                });
-
             return pairs.SelectMany(pair =>
             {
                 var (o1, o2) = pair;
-                if(machinesByOperation.TryGetValue(o1.Id, out IEnumerable<Machine> o1Pool) && machinesByOperation.TryGetValue(o2.Id, out IEnumerable<Machine> o2Pool))
-                {
-                    var intersection = o1Pool.IntersectBy(o2Pool.Select(m => m.Id), m => m.Id);
-                    return intersection.Select(machine => new Tuple<Operation, Operation, Machine>(o1, o2, machine));
-                }
-                
-                return new List<Tuple<Operation, Operation, Machine>>();
+                var intersection = o1.EligibleMachines.IntersectBy(o2.EligibleMachines.Select(m => m.Id), m => m.Id);
+                return intersection.Select(machine => new Tuple<Operation, Operation, Machine>(o1, o2, machine));
             });
         }
 
@@ -52,5 +38,8 @@ namespace Scheduling.Core.Extensions
                                    select new Tuple<Operation, Operation>(o1, o2);
             return cartesianProduct;
         }
+
+        public static bool BelongsToTheSameMachinePoolThan(this Operation @this, Operation that)
+            => @this.EligibleMachines.Intersect(that.EligibleMachines).Any();
     }
 }
