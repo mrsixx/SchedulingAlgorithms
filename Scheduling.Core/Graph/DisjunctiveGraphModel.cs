@@ -79,6 +79,11 @@ namespace Scheduling.Core.Graph
             disjunction = default;
             return false;
         }
-
+        
+        public void SetInitialPheromoneAmount(double amount)
+        {
+            foreach (var edge in Edges.Cast<BaseEdge>())
+                edge.DepositPheromone(amount);
+        }
     }
 }

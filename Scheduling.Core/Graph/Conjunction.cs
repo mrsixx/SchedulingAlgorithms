@@ -1,9 +1,10 @@
 ﻿using QuikGraph;
+using Scheduling.Core.Interfaces;
 
 namespace Scheduling.Core.Graph
 {
     [Serializable]
-    public class Conjunction : IEdge<Node>
+    public class Conjunction : BaseEdge
     {
         public Conjunction(Node source, Node target, double weight)
         {
@@ -12,10 +13,13 @@ namespace Scheduling.Core.Graph
             Weight = weight;
         }
 
-        public Node Source { get; }
+        public override Node Source { get; }
 
-        public Node Target { get; }
+        public override Node Target { get; }
 
         public double Weight { get; }
+
+        public override string Log => $"{Source.Id} -[{Weight}]-> {Target.Id}";
+
     }
 }

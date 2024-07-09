@@ -1,21 +1,20 @@
 ﻿namespace Scheduling.Core.FJSP
 {
-    public class Job
+    public class Job(int id)
     {
-        public Job(int id)
+        public Job(int id, DateTime releaseDate) : this(id)
         {
-            Id = id;
-            Operations = new List<Operation>();
+            ReleaseDate = releaseDate;
         }
 
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
 
         public decimal Weight { get; set; }
 
-        public DateTime ReleaseDate { get; set; }
+        public DateTime ReleaseDate { get; set; } = DateTime.Now;
 
         public DateTime DueDate { get; set; }
 
-        public List<Operation> Operations { get; }
+        public List<Operation> Operations { get; } = [];
     }
 }

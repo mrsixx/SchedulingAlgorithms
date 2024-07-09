@@ -8,12 +8,13 @@ namespace Scheduling.Core.Services
 {
     public class GraphBuilderService : IGraphBuilderService
     {
-        public DisjunctiveGraphModel BuildDisjunctiveGraph(List<Job> jobs)
+        public DisjunctiveGraphModel BuildDisjunctiveGraph(IEnumerable<Job> jobs)
         {
             var graph = new DisjunctiveGraphModel();
             graph.AddVertex(graph.Source);
             graph.AddVertex(graph.Sink);
-            jobs.ForEach(job =>
+            jobs.ToList()
+                .ForEach(job =>
             {
                 // 1st operation of each job linked with source
                 Node previousNode = graph.Source;
@@ -25,7 +26,7 @@ namespace Scheduling.Core.Services
                         var operationNode = new Node(operation);
                         graph.AddVertex(operationNode);
                         if(previousOperation is null)
-                            graph.AddEdge(new Conjunction(previousNode, operationNode, weight: 0));
+                            graph.AddEdge(new Conjunction(previousNode, operationNode, weight: job.ReleaseDate.Ticks));
                         else
                             operation.EligibleMachines.ForEach(m => graph.AddEdge(new Conjunction(previousNode, operationNode, operation.ProcessingTime(m))));
                         previousNode = operationNode;
@@ -33,7 +34,8 @@ namespace Scheduling.Core.Services
                     });
 
                 //last operation of each job linked with sink
-                graph.AddEdge(new Conjunction(previousNode, graph.Sink, 0));
+                if(previousOperation is not null)
+                    previousOperation.EligibleMachines.ForEach(m => graph.AddEdge(new Conjunction(previousNode, graph.Sink, previousOperation.ProcessingTime(m))));
             });
 
             // create disjunctions between every operation running on same pool

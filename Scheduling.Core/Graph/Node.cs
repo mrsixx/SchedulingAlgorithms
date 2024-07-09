@@ -29,5 +29,7 @@ namespace Scheduling.Core.Graph
         public bool IsSinkNode => Id == SINK_ID;
 
         public bool IsDummyOperation => Operation is null;
+
+        public override string ToString() => Id.ToString();
     }
 }

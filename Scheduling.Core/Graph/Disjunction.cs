@@ -1,10 +1,11 @@
 ﻿using QuikGraph;
 using Scheduling.Core.FJSP;
+using Scheduling.Core.Interfaces;
 
 namespace Scheduling.Core.Graph
 {
     [Serializable]
-    public class Disjunction : IUndirectedEdge<Node>
+    public class Disjunction : BaseEdge, IUndirectedEdge<Node>
     {
         public Disjunction(Node u, Node v, Machine machine)
         {
@@ -20,13 +21,17 @@ namespace Scheduling.Core.Graph
             );
         }
 
-        public Node Source { get; }
+        public override Node Source { get; }
 
-        public Node Target { get; }
+        public override Node Target { get; }
+
+        public override string Log => $"{Source.Id} --[{ProcessingTime.Item1};{ProcessingTime.Item2}]-- {Target.Id}";
 
         public Machine Machine { get; }
 
         public Tuple<double, double> ProcessingTime { get; } = Tuple.Create(0.0, 0.0);
+
+        public Conjunction[] EquivalentConjunctions => [new(Source, Target, ProcessingTime.Item1), new(Target, Source, ProcessingTime.Item2)];
 
     }
 }
