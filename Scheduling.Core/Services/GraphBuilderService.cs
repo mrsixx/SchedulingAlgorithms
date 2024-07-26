@@ -34,21 +34,15 @@ namespace Scheduling.Core.Services
                     });
 
                 //last operation of each job linked with sink
-                if(previousOperation is not null)
+                if (previousOperation is not null)
                     previousOperation.EligibleMachines.ForEach(m => graph.AddEdge(new Conjunction(previousNode, graph.Sink, previousOperation.ProcessingTime(m))));
             });
 
             // create disjunctions between every operation running on same pool
-            jobs.SelectMany(j => j.Operations).GeneratePossibleDisjunctions()
+            jobs.SelectMany(j => j.Operations)
+                .GeneratePossibleDisjunctions(graph)
                 .ToList()
-                .ForEach(disjunction =>
-                {
-                    var (o1, o2, machine) = disjunction;
-                    // if some node not found
-                    if (graph.TryGetNode(o1.Id, out Node node1) && graph.TryGetNode(o2.Id, out Node node2))
-                        graph.AddEdge(new Disjunction(node1, node2, machine));
-
-                });
+                .ForEach(disjunction => graph.AddEdge(disjunction));
             return graph;
         }
 

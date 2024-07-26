@@ -5,10 +5,6 @@ namespace Scheduling.Core.Graph
     [Serializable]
     public class Node
     {
-
-        public const int SOURCE_ID = 0;
-        public const int SINK_ID = -1;
-
         public Node(int id)
         {
             Id = id;
@@ -24,11 +20,11 @@ namespace Scheduling.Core.Graph
 
         public Operation? Operation { get; set; }
 
-        public bool IsSourceNode => Id == SOURCE_ID;
+        public bool IsSourceNode => Id == Operation.SOURCE_ID;
 
-        public bool IsSinkNode => Id == SINK_ID;
+        public bool IsSinkNode => Id == Operation.SINK_ID;
 
-        public bool IsDummyOperation => Operation is null;
+        public bool IsDummyNode => IsSourceNode || IsSinkNode;
 
         public override string ToString() => Id.ToString();
     }

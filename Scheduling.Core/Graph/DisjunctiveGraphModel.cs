@@ -1,4 +1,5 @@
 ﻿using QuikGraph;
+using Scheduling.Core.FJSP;
 using Scheduling.Core.Interfaces;
 using System.Xml.Linq;
 
@@ -9,13 +10,19 @@ namespace Scheduling.Core.Graph
     {
         public DisjunctiveGraphModel() : base(allowParallelEdges: true)
         {
-            Source = new(Node.SOURCE_ID);
-            Sink = new(Node.SINK_ID);
+            Source = new(Operation.SOURCE_ID);
+            Sink = new(Operation.SINK_ID);
         }
 
         public Node Source { get; }
 
         public Node Sink { get; }
+
+
+        /// <summary>
+        /// All nodes except dummy ones
+        /// </summary>
+        public IEnumerable<Node> OperationVertices => Vertices.Where(v => !v.IsDummyNode);
 
         public int ConjuntionCount => Edges.Count(e => e is Conjunction);
 

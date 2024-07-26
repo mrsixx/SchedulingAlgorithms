@@ -46,17 +46,19 @@ namespace Scheduling.Core.Services
                         args.EdgeFormat.TailArrow = new GraphvizArrow(GraphvizArrowShape.None);
                         args.EdgeFormat.HeadArrow = new GraphvizArrow(GraphvizArrowShape.None);
                         args.EdgeFormat.Style = GraphvizEdgeStyle.Dashed;
-
-                        if (!colorDictionary.ContainsKey(edge.Machine.Id))
+                        if(edge.Machine is not null)
                         {
-                            var color = colors[Random.Shared.Next(0, colors.Count)];
-                            colors.Remove(color);
-                            var graphColor = new GraphvizColor(color.A, color.R, color.G, color.B);
-                            colorDictionary.Add(edge.Machine.Id, graphColor);
-                        }
+                            if (!colorDictionary.ContainsKey(edge.Machine.Id))
+                            {
+                                var color = colors[Random.Shared.Next(0, colors.Count)];
+                                colors.Remove(color);
+                                var graphColor = new GraphvizColor(color.A, color.R, color.G, color.B);
+                                colorDictionary.Add(edge.Machine.Id, graphColor);
+                            }
 
-                        args.EdgeFormat.StrokeColor  = colorDictionary[edge.Machine.Id];
-                        args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = $"({edge.ProcessingTime.Item1};{edge.ProcessingTime.Item2})", FontColor = colorDictionary[edge.Machine.Id] };
+                            args.EdgeFormat.StrokeColor  = colorDictionary[edge.Machine.Id];
+                            args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = $"({edge.ProcessingTime.Item1};{edge.ProcessingTime.Item2})", FontColor = colorDictionary[edge.Machine.Id] };
+                        }
                     }
                     else if (args.Edge is Conjunction arc)
                     {

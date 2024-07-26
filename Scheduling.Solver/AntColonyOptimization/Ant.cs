@@ -4,6 +4,7 @@ using Scheduling.Core.Graph;
 using Scheduling.Core.Interfaces;
 using Scheduling.Solver.Extensions;
 using Scheduling.Solver.Utils;
+using System.Linq;
 
 namespace Scheduling.Solver.AntColonyOptimization
 {
@@ -24,11 +25,11 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public List<Conjunction> Path { get; } = [];
 
-        public DisjunctiveGraphModel Graph => Context.Graph;
+        public ConjunctiveGraphModel ConjunctiveGraph { get; } = new ConjunctiveGraphModel();
 
-        public Node StartNode => Graph.Source;
+        public Node StartNode => Context.DisjunctiveGraph.Source;
 
-        public Node FinalNode => Graph.Sink;
+        public Node FinalNode => Context.DisjunctiveGraph.Sink;
 
         public double PathDistance => Path.CalculateDistance();
 
@@ -39,24 +40,31 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         private void WalkAround()
         {
-            var currentNode = StartNode;
-            while (currentNode != FinalNode)
-            {
-                if (!Graph.TryGetDisjunctiveGraphOutEdges(currentNode, out IEnumerable<BaseEdge> currentNodeEdges))
-                    break;
-
-                IEnumerable<Conjunction> possibleEdges = ExtractPossibleEdges(currentNode, currentNodeEdges);
-
-                if (possibleEdges.IsEmpty())
-                    break;
-
-                var selectedEdge = ChooseNextStep(possibleEdges);
-                Path.Add(selectedEdge);
-                currentNode = selectedEdge.Target;
+            // builds a conjunctive graph model (DAG which represents a feasible schedule) by the list scheduler algorithm
+            ConjunctiveGraph.AddVertex(StartNode);
+            foreach (var node in Context.DisjunctiveGraph.OperationVertices) {
+                var operation = node.Operation;
+                var allowedNodes = GetAllowedNodes();
             }
+            ConjunctiveGraph.AddVertex(FinalNode);
+            //var currentNode = StartNode;
+            //while (currentNode != FinalNode)
+            //{
+            //    if (!Context.DisjunctiveGraph.TryGetDisjunctiveGraphOutEdges(currentNode, out IEnumerable<BaseEdge> currentNodeEdges))
+            //        break;
 
-            if (currentNode == FinalNode)
-                UpdatePheromone();
+            //    IEnumerable<Conjunction> possibleEdges = ExtractPossibleEdges(currentNode, currentNodeEdges);
+
+            //    if (possibleEdges.IsEmpty())
+            //        break;
+
+            //    var selectedEdge = ChooseNextStep(possibleEdges);
+            //    Path.Add(selectedEdge);
+            //    currentNode = selectedEdge.Target;
+            //}
+
+            //if (currentNode == FinalNode)
+            //    UpdatePheromone();
         }
 
         private IEnumerable<Conjunction> ExtractPossibleEdges(Node currentNode, IEnumerable<BaseEdge> currentNodeEdges)
@@ -99,5 +107,8 @@ namespace Scheduling.Solver.AntColonyOptimization
                 step.DepositPheromone(amount: Context.Q.DividedBy(PathDistance));
             }
         }
+
+        private List<Node> GetAllowedNodes() => Context.DisjunctiveGraph.OperationVertices.Where(ConjunctiveGraph.Vertices.DoesNotContain)
+                                                                                          .ToList();
     }
 }

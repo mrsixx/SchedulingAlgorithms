@@ -6,13 +6,8 @@ using System.Threading.Tasks;
 
 namespace Scheduling.Core.FJSP
 {
-    public class Machine
+    public class Machine(int id)
     {
-        public Machine(int id)
-        {
-            Id = id;
-        }
-
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
     }
 }

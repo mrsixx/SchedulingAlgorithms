@@ -9,7 +9,7 @@ namespace Scheduling.Solver.Interfaces
         /// <summary>
         /// Disjunctive graph model representing problem instance
         /// </summary>
-        DisjunctiveGraphModel Graph { get; }
+        DisjunctiveGraphModel DisjunctiveGraph { get; }
 
         /// <summary>
         /// Solve a flexible job shop with sequence dependent setup times problem instance 

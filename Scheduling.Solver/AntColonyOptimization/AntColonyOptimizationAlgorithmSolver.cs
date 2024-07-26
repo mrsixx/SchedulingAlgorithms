@@ -19,7 +19,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                                               int ants = 300,
                                               int iterations = 100)
         {
-            Graph = graph;
+            DisjunctiveGraph = graph;
             Alpha = alpha;
             Beta = beta;
             Rho = rho;
@@ -64,7 +64,7 @@ namespace Scheduling.Solver.AntColonyOptimization
         /// </summary>
         public int Iterations { get; }
 
-        public DisjunctiveGraphModel Graph { get; }
+        public DisjunctiveGraphModel DisjunctiveGraph { get; }
 
         public AntColonyOptimizationAlgorithmSolver Verbose(ILogger logger)
         {
@@ -81,7 +81,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             Stopwatch iSw = new();
             Colony colony = new();
             sw.Start();
-            Graph.SetInitialPheromoneAmount(InitialPheromoneAmount);
+            DisjunctiveGraph.SetInitialPheromoneAmount(InitialPheromoneAmount);
             for (int i = 0; i < Iterations; i++)
             {
                 Log($"\nGenerating {AntCount} artificial ants from #{i + 1}th wave...");

@@ -6,7 +6,6 @@ namespace Scheduling.Core.Graph
     {
         private readonly object _lock = new();
         private double _pheromoneAmount = 0;
-        public BaseEdge() { }
 
         public double Pheromone
         {

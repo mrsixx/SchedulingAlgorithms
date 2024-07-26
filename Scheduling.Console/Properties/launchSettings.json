@@ -2,7 +2,7 @@
   "profiles": {
     "Scheduling.Console": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\mathe\\Downloads\\flexiblejobshop_setup\\flexiblejobshop_setup\\instances\\Fattahi_setup_12.fjs C:\\Users\\mathe\\Downloads\\flexiblejobshop_setup\\flexiblejobshop_setup\\instances\\Fattahi_setup_12.dot"
+      "commandLineArgs": "D:\\UFABC\\PGC\\trash\\benchmarks\\6_Fattahi\\Fattahi12.fjs\r\nD:\\UFABC\\PGC\\trash\\benchmarks\\6_Fattahi\\Fattahi12.fjs.dot"
     }
   }
 }

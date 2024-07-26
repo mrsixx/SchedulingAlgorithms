@@ -17,7 +17,7 @@ IGraphExporterService graphExporterService = new GraphExporterService();
 
 var graph = graphBuilderService.BuildDisjunctiveGraphByBenchmarkFile(instanceFile);
 //var graph = graphBuilderService.BuildDisjunctiveGraph(CustomInstances.SampleInstance());
-var solution = new AntColonyOptimizationAlgorithmSolver(graph, ants: 300, iterations: 10)
+var solution = new AntColonyOptimizationAlgorithmSolver(graph, ants: 1, iterations: 1)
                 .Verbose(new Logger())
                 .Solve();
 
