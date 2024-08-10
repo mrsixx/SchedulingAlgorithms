@@ -1,7 +1,10 @@
 ﻿using QuikGraph;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
+using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Core.Graph
 {
@@ -24,9 +27,14 @@ namespace Scheduling.Core.Graph
         /// </summary>
         public IEnumerable<Node> OperationVertices => Vertices.Where(v => !v.IsDummyNode);
 
-        public int ConjuntionCount => Edges.Count(e => e is Conjunction);
 
-        public int DisjuntionCount => Edges.Count(e => e is Disjunction);
+        public IEnumerable<Conjunction> Conjunctions => Edges.Where(e => e is Conjunction).Cast<Conjunction>();
+
+        public int ConjuntionCount => Conjunctions.Count();
+
+        public IEnumerable<Disjunction> Disjunctions => Edges.Where(e => e is Disjunction).Cast<Disjunction>();
+
+        public int DisjuntionCount => Disjunctions.Count();
 
         public bool HasNode(int id) => TryGetNode(id, out _);
 
@@ -63,6 +71,20 @@ namespace Scheduling.Core.Graph
             return false;
         }
 
+        public bool TryGetConjunctions(int nodeId, out IEnumerable<Conjunction> conjunctions)
+        {
+            bool hasNode = TryGetNode(nodeId, out Node node);
+
+            if (hasNode)
+            {
+                conjunctions = Edges.Where(e => e is Conjunction c && c.Source == node).Cast<Conjunction>();
+                return true;
+            }
+
+            conjunctions = default;
+            return false;
+        }
+
         public bool HasDisjunction(int sourceId, int targetId) => TryGetDisjunction(sourceId, targetId, out _);
         
         public bool TryGetDisjunction(int sourceId, int targetId, out Disjunction disjunction)
@@ -86,11 +108,18 @@ namespace Scheduling.Core.Graph
             disjunction = default;
             return false;
         }
-        
+
+        public IEnumerable<Conjunction> GetSuccessors(Node node) => Conjunctions.Where(c => c.Target == node);
+
+        public IEnumerable<Conjunction> GetPredecessors(Node node) => Conjunctions.Where(c => c.Source == node);
+
         public void SetInitialPheromoneAmount(double amount)
         {
-            foreach (var edge in Edges.Cast<BaseEdge>())
-                edge.DepositPheromone(amount);
+            foreach (var disjunction in Disjunctions)
+            {
+                disjunction.DepositPheromone(amount, Direction.SourceToTarget);
+                disjunction.DepositPheromone(amount, Direction.TargetToSource);
+            }
         }
     }
 }

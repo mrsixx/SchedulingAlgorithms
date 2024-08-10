@@ -4,7 +4,7 @@
     {
 
         public const int SOURCE_ID = 0;
-        public const int SINK_ID = -1;
+        public const int SINK_ID = Int32.MaxValue;
         public int Id { get; set; } = id;
 
         public Func<Machine, double> ProcessingTime { get; set; } = processingTime;
@@ -12,5 +12,18 @@
         public List<Machine> EligibleMachines { get; } = [];
 
         public bool Equals(Operation? other) => Id.Equals(other?.Id);
+
+        public double GetProcessingTime(Machine m)
+        {
+            try
+            {
+                if (m is null) return 0;
+                return ProcessingTime(m);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
     }
 }

@@ -17,10 +17,12 @@ IGraphExporterService graphExporterService = new GraphExporterService();
 
 var graph = graphBuilderService.BuildDisjunctiveGraphByBenchmarkFile(instanceFile);
 //var graph = graphBuilderService.BuildDisjunctiveGraph(CustomInstances.SampleInstance());
-var solution = new AntColonyOptimizationAlgorithmSolver(graph, ants: 1, iterations: 1)
+var solution = new AntColonyOptimizationAlgorithmSolver(graph, ants: 1, iterations: 100)
                 .Verbose(new Logger())
                 .Solve();
 
 graphExporterService.ExportDisjunctiveGraphToGraphviz(graph, outputFile);
+//if(solution.BestSolution != null)
+graphExporterService.ExportConjunctiveGraphToGraphviz(solution.Context.BestGraph, $"{outputFile}.sol");
 
 Console.ReadKey();

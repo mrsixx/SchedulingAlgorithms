@@ -37,17 +37,18 @@ namespace Scheduling.Core.Extensions
             }).ToList();
 
             // create disjunctions between every disjunctive operation and source and between every disjunctive operation and sink
-            nodeFromDisjunctions.ForEach(node =>
-            {
-                disjunctions.Add(new(graph.Source, node));
-                disjunctions.Add(new(node, graph.Sink));
-            });
+            //nodeFromDisjunctions.ForEach(node =>
+            //{
+            //    disjunctions.Add(new(graph.Source, node));
+            //    disjunctions.Add(new(node, graph.Sink));
+            //});
 
+            /*
             var disjunctionsSetSize = nodeFromDisjunctions.Count(); // or disjunctions.Count()?
             //create disjunctions between source and sink for each pair of disjunction between to operations
             for (int i = 0; i < disjunctionsSetSize; i++)
                 disjunctions.Add(new(graph.Source, graph.Sink));
-
+            */
             return disjunctions;
         }
 

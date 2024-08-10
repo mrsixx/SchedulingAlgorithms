@@ -4,20 +4,6 @@ namespace Scheduling.Core.Graph
 {
     public class BaseEdge : IEdge<Node>
     {
-        private readonly object _lock = new();
-        private double _pheromoneAmount = 0;
-
-        public double Pheromone
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _pheromoneAmount;
-                }
-            }
-        }
-
         public virtual Node Source { get; }
 
         public virtual Node Target { get; }
@@ -26,21 +12,5 @@ namespace Scheduling.Core.Graph
         
         public override string ToString() => Log;
 
-        public void EvaporatePheromone(double rate)
-        {
-            lock (_lock)
-            {
-                var old = _pheromoneAmount;
-                _pheromoneAmount = (1 - rate) * _pheromoneAmount;
-            }
-        }
-
-        public void DepositPheromone(double amount)
-        {
-            lock (_lock)
-            {
-                _pheromoneAmount += amount;
-            }
-        }
     }
 }

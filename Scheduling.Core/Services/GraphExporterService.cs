@@ -10,6 +10,51 @@ namespace Scheduling.Core.Services
 {
     public class GraphExporterService : IGraphExporterService
     {
+        public void ExportConjunctiveGraphToGraphviz(ConjunctiveGraphModel graph, string outputFile)
+        {
+            //var colors = Enum.GetValues(typeof(KnownColor))
+            //   .Cast<KnownColor>()
+            //   .Select(Color.FromKnownColor).ToList();
+            void exportAlgorithmConjunctive(GraphvizAlgorithm<Node, Conjunction> graphviz)
+            {
+                graphviz.GraphFormat.IsCompounded = true;
+                graphviz.CommonVertexFormat.Font = new GraphvizFont("Arial", 8);
+                graphviz.CommonVertexFormat.FixedSize = false;
+                graphviz.CommonVertexFormat.FillColor = GraphvizColor.White;
+                graphviz.CommonVertexFormat.FontColor = GraphvizColor.Black;
+                graphviz.CommonVertexFormat.Shape = GraphvizVertexShape.Circle;
+                graphviz.CommonEdgeFormat.Font = new GraphvizFont("Arial", 3);
+                graphviz.CommonEdgeFormat.Label.Angle = 0;
+
+                var colorDictionary = new Dictionary<int, GraphvizColor>();
+                graphviz.FormatVertex += (sender, args) =>
+                {
+                    if (args.Vertex.IsSourceNode)
+                        args.VertexFormat.Label = "⊗";
+                    else if (args.Vertex.IsSinkNode)
+                        args.VertexFormat.Label = "⊥";
+                    else
+                        args.VertexFormat.Label = args.Vertex.Id.ToString();
+
+                };
+
+                graphviz.FormatEdge += (sender, args) =>
+                {
+                    if (args.Edge is Conjunction arc)
+                    {
+                        args.EdgeFormat.TailArrow = new GraphvizArrow(GraphvizArrowShape.None);
+                        args.EdgeFormat.HeadArrow = new GraphvizArrow(GraphvizArrowShape.Normal);
+                        args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = arc.Weight.ToString() };
+
+                    }
+                };
+
+                //var location = Path.Combine(dir, $"{filename}.dot");
+                graphviz.Generate(new FileDotEngine(), outputFile);
+            }
+            graph.ToGraphviz(exportAlgorithmConjunctive);
+        }
+
         public void ExportDisjunctiveGraphToGraphviz(DisjunctiveGraphModel graph, string outputFile)
         {
             var colors = Enum.GetValues(typeof(KnownColor))
@@ -57,20 +102,20 @@ namespace Scheduling.Core.Services
                             }
 
                             args.EdgeFormat.StrokeColor  = colorDictionary[edge.Machine.Id];
-                            args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = $"({edge.ProcessingTime.Item1};{edge.ProcessingTime.Item2})", FontColor = colorDictionary[edge.Machine.Id] };
+                            //args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = $"({edge.ProcessingTime.Item1};{edge.ProcessingTime.Item2})", FontColor = colorDictionary[edge.Machine.Id] };
                         }
                     }
                     else if (args.Edge is Conjunction arc)
                     {
                         args.EdgeFormat.TailArrow = new GraphvizArrow(GraphvizArrowShape.None);
                         args.EdgeFormat.HeadArrow = new GraphvizArrow(GraphvizArrowShape.Normal);
-                        args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = arc.Weight.ToString() };
+                        //args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = arc.Weight.ToString() };
 
                     }
                 };
 
                 //var location = Path.Combine(dir, $"{filename}.dot");
-                graphviz.Generate(new FileDotEngine(), outputFile);
+                graphviz.Generate(new FileDotEngine(true), outputFile);
             }
             graph.ToGraphviz(exportAlgorithm);
         }
@@ -78,12 +123,24 @@ namespace Scheduling.Core.Services
 
     public class FileDotEngine : IDotEngine
     {
+        public FileDotEngine(bool forceDigraph = false)
+        {
+            ForceDigraph = forceDigraph;
+        }
+
+        public bool ForceDigraph { get; private set; }
+
         public string Run(GraphvizImageType imageType, string dot, string outputFileName)
         {
             using (StreamWriter writer = new(outputFileName))
             {
-                var content = dot.Replace("graph G", "digraph G");
-                content = Regex.Replace(content, "--", "->");
+                var content = dot;
+                if (ForceDigraph)
+                {
+                    content = content.Replace("graph G", "digraph G");
+                    content = Regex.Replace(content, "--", "->");
+                }
+
                 writer.Write(content);
             }
 

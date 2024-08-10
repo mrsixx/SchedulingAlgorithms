@@ -8,12 +8,6 @@ namespace Scheduling.Solver.Extensions
 {
     public static class AntColonyOptimizationExtensions
     {
-        public static double CalculateDistance(this IEnumerable<Conjunction> path)
-        {
-            if (path is null) throw new ArgumentNullException(nameof(path));
-            // sum of the weights of each edge of the path
-            return path.Aggregate(0.0, (acc, edge) => acc + edge.Weight);
-        }
 
         //public static double CalculateTotalPheromoneAmount(this DisjunctiveGraphModel graph) => graph.Edges.Sum(s => s.Pheromone);
         //public static double CalculateAvgPheromoneAmount(this DisjunctiveGraphModel graph) => graph.Edges.Aggregate(0.0, (acc, edge) => acc + (edge.Pheromone * edge.Weight.Inverse()))

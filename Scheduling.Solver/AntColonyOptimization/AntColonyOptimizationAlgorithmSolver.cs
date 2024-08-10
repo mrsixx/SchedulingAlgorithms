@@ -1,4 +1,5 @@
 ﻿using QuikGraph;
+using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using Scheduling.Solver.Extensions;
 using Scheduling.Solver.Interfaces;
@@ -93,7 +94,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                 iSw.Stop();
                 Log($"#{i + 1}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
-                Log($"Better makespan: {colony.BestPath.CalculateDistance()}");
+                Log($"Better makespan: {colony.BestGraph.Makespan}");
             }
             sw.Stop();
 
@@ -102,10 +103,9 @@ namespace Scheduling.Solver.AntColonyOptimization
 
             if (colony.EmployeeOfTheMonth is not null)
                 Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
-            
-            FjspSolution solution = new() { Makespan = colony.BestPath.CalculateDistance() };
-            solution.Path.AddRange(colony.BestPath);
-            _logger.LogPath(colony.BestPath);
+
+            FjspSolution solution = new(colony); // { Makespan = colony.BestPath.CalculateDistance() };
+            //_logger.LogPath(colony.BestPath);
             Log($"Makespan: {solution.Makespan}");
             return solution;
         }
