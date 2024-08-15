@@ -2,15 +2,17 @@
 
 namespace Scheduling.Core.Graph
 {
-    public class BaseEdge : IEdge<Node>
+    public abstract class BaseEdge : IEdge<Node>
     {
-        public virtual Node Source { get; }
+        public abstract Node Source { get; }
 
-        public virtual Node Target { get; }
+        public abstract Node Target { get; }
 
         public virtual string Log { get; } = string.Empty;
         
         public override string ToString() => Log;
+
+        public abstract void EvaporatePheromone(double rate);
 
     }
 }

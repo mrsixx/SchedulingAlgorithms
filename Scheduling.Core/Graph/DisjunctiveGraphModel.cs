@@ -1,4 +1,5 @@
 ﻿using QuikGraph;
+using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Interfaces;
 using System.Collections.Generic;
@@ -9,18 +10,19 @@ using static Scheduling.Core.Enums.DirectionEnum;
 namespace Scheduling.Core.Graph
 {
     [Serializable]
-    public class DisjunctiveGraphModel : UndirectedGraph<Node, IEdge<Node>>, IDisjunctiveGraph
+    public class DisjunctiveGraphModel : UndirectedGraph<Node, BaseEdge>, IDisjunctiveGraph
     {
         public DisjunctiveGraphModel() : base(allowParallelEdges: true)
         {
-            Source = new(Operation.SOURCE_ID);
-            Sink = new(Operation.SINK_ID);
+            Source = new(Operation.Source());
+            Sink = new(Operation.Sink());
         }
 
         public Node Source { get; }
 
         public Node Sink { get; }
 
+        public List<Machine> Machines { get; } = [];
 
         /// <summary>
         /// All nodes except dummy ones
@@ -60,7 +62,7 @@ namespace Scheduling.Core.Graph
             var hasNodes =  hasSrc && hasTarget;
 
             if (hasNodes
-                && TryGetEdge(sourceNode, targetNode, out IEdge<Node> link)
+                && TryGetEdge(sourceNode, targetNode, out BaseEdge link)
                 && link is Conjunction arc)
             {
                 conjunction = arc;
@@ -98,7 +100,7 @@ namespace Scheduling.Core.Graph
                 (sourceNode, targetNode) = (targetNode, sourceNode);
 
             if (hasNodes
-                && TryGetEdge(sourceNode, targetNode, out IEdge<Node> link)
+                && TryGetEdge(sourceNode, targetNode, out BaseEdge link)
                 && link is Disjunction edge)
             {
                 disjunction = edge;
@@ -109,16 +111,44 @@ namespace Scheduling.Core.Graph
             return false;
         }
 
-        public IEnumerable<Conjunction> GetSuccessors(Node node) => Conjunctions.Where(c => c.Target == node);
+        public IEnumerable<Conjunction> GetDirectSuccessors(Node node) => Conjunctions.Where(c => c.Source == node);
 
-        public IEnumerable<Conjunction> GetPredecessors(Node node) => Conjunctions.Where(c => c.Source == node);
 
+        public Node? GetPrecessor(Node node)
+        {
+            var conjunction = Conjunctions.First(c => c.Target == node);
+            return conjunction?.Source;
+        }
+
+        public IEnumerable<Node> GetPredecessors(Node node) => node.Predecessors;
+
+        public bool AddConjunction(Node source, Node target)
+        {
+            target.Predecessors.AddRange([..source.Predecessors, source]);
+            IEnumerable<Node> predecessors = [..target.Predecessors];
+            target.Predecessors.Clear();
+            target.Predecessors.AddRange(predecessors.DistinctBy(p => p.Id));
+            return AddEdge(new Conjunction(source, target));
+        }
+        public bool AddConjunction(Node source, Node target, Machine machine)
+        {
+            target.Predecessors.AddRange([.. source.Predecessors, source]);
+            IEnumerable<Node> predecessors = [.. target.Predecessors];
+            target.Predecessors.Clear();
+            target.Predecessors.AddRange(predecessors.DistinctBy(p => p.Id));
+            return AddEdge(new Conjunction(source, target, machine));
+        }
         public void SetInitialPheromoneAmount(double amount)
         {
             foreach (var disjunction in Disjunctions)
             {
                 disjunction.DepositPheromone(amount, Direction.SourceToTarget);
                 disjunction.DepositPheromone(amount, Direction.TargetToSource);
+            }
+
+            foreach (var conjunction in Conjunctions)
+            {
+                conjunction.DepositPheromone(amount);
             }
         }
     }

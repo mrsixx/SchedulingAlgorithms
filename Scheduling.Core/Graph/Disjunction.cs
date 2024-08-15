@@ -25,8 +25,8 @@ namespace Scheduling.Core.Graph
             
             Machine = machine;
             EquivalentConjunctions = [
-                new Conjunction(Source, Target, Source.Operation.GetProcessingTime(Machine)).SetOriginalDisjunction(this, Direction.SourceToTarget),
-                new Conjunction(Target, Source, Target.Operation.GetProcessingTime(Machine)).SetOriginalDisjunction(this, Direction.TargetToSource)
+                new Conjunction(Source, Target, Machine).SetOriginalDisjunction(this, Direction.SourceToTarget),
+                new Conjunction(Target, Source, Machine).SetOriginalDisjunction(this, Direction.TargetToSource)
             ];
         }
 
@@ -51,7 +51,7 @@ namespace Scheduling.Core.Graph
             }
         }
 
-        public void EvaporatePheromone(double rate)
+        public override void EvaporatePheromone(double rate)
         {
             lock (_lock)
             {

@@ -8,9 +8,8 @@ namespace Scheduling.Solver.Models
     {
         public Colony Context { get; } = colony;
 
-        public ConjunctiveGraphModel BestSolution { get; internal set; }
 
-        public double Makespan { get; internal set; }
+        public double Makespan => Context.BestGraph.Makespan;
 
         public Dictionary<Operation, Machine> MachineAssignment { get; } = [];
         

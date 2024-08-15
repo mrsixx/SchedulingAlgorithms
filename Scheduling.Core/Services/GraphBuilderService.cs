@@ -8,11 +8,12 @@ namespace Scheduling.Core.Services
 {
     public class GraphBuilderService : IGraphBuilderService
     {
-        public DisjunctiveGraphModel BuildDisjunctiveGraph(IEnumerable<Job> jobs)
+        public DisjunctiveGraphModel BuildDisjunctiveGraph(IEnumerable<Job> jobs, IEnumerable<Machine> machines)
         {
             var graph = new DisjunctiveGraphModel();
             graph.AddVertex(graph.Source);
             graph.AddVertex(graph.Sink);
+            graph.Machines.AddRange(machines);
             jobs.ToList()
                 .ForEach(job =>
             {
@@ -25,17 +26,17 @@ namespace Scheduling.Core.Services
                     {
                         var operationNode = new Node(operation);
                         graph.AddVertex(operationNode);
-                        if(previousOperation is null)
-                            graph.AddEdge(new Conjunction(previousNode, operationNode, weight: job.ReleaseDate.Ticks));
+                        if (previousOperation is null)
+                            graph.AddConjunction(previousNode, operationNode);
                         else
-                            operation.EligibleMachines.ForEach(m => graph.AddEdge(new Conjunction(previousNode, operationNode, operation.ProcessingTime(m))));
+                            previousOperation.EligibleMachines.ForEach(m => graph.AddConjunction(previousNode, operationNode, m));
                         previousNode = operationNode;
                         previousOperation = operation;
                     });
 
                 //last operation of each job linked with sink
                 if (previousOperation is not null)
-                    previousOperation.EligibleMachines.ForEach(m => graph.AddEdge(new Conjunction(previousNode, graph.Sink, previousOperation.ProcessingTime(m))));
+                    previousOperation.EligibleMachines.ForEach(m => graph.AddConjunction(previousNode, graph.Sink, m));
             });
 
             // create disjunctions between every operation running on same pool
@@ -81,7 +82,7 @@ namespace Scheduling.Core.Services
                     return job;
                 })
                 .ToList();
-            return BuildDisjunctiveGraph(jobs);
+            return BuildDisjunctiveGraph(jobs, machines);
         }
     }
 }

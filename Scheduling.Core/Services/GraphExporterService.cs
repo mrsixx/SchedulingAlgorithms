@@ -60,7 +60,7 @@ namespace Scheduling.Core.Services
             var colors = Enum.GetValues(typeof(KnownColor))
                .Cast<KnownColor>()
                .Select(Color.FromKnownColor).ToList();
-            void exportAlgorithm(GraphvizAlgorithm<Node, IEdge<Node>> graphviz)
+            void exportAlgorithm(GraphvizAlgorithm<Node, BaseEdge> graphviz)
             {
                 graphviz.GraphFormat.IsCompounded = true;
                 graphviz.CommonVertexFormat.Font = new GraphvizFont("Arial", 8);

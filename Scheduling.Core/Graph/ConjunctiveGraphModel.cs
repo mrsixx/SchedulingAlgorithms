@@ -1,13 +1,12 @@
 ﻿using QuikGraph;
+using QuikGraph.Algorithms;
 using Scheduling.Core.Extensions;
 
 namespace Scheduling.Core.Graph
 {
     public class ConjunctiveGraphModel : AdjacencyGraph<Node, Conjunction>
     {
-        public List<Conjunction> CriticalPath { get; } = [];
-
-        public double Makespan => CriticalPath.CalculateLength();
+        public double Makespan => this.Sinks().Max(n => n.Operation.CompletionTime);
 
         public void AddConjunctionAndVertices(Conjunction conjunction)
         {

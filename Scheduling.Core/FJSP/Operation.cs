@@ -5,11 +5,14 @@
 
         public const int SOURCE_ID = 0;
         public const int SINK_ID = Int32.MaxValue;
+        
         public int Id { get; set; } = id;
 
         public Func<Machine, double> ProcessingTime { get; set; } = processingTime;
 
         public List<Machine> EligibleMachines { get; } = [];
+
+        public double CompletionTime { get; set; } = 0;
 
         public bool Equals(Operation? other) => Id.Equals(other?.Id);
 
@@ -25,5 +28,9 @@
                 return 0;
             }
         }
+
+        public static Operation Source() => new(SOURCE_ID, (m) => 0);
+
+        public static Operation Sink() => new(SINK_ID, (m) => 0);
     }
 }
