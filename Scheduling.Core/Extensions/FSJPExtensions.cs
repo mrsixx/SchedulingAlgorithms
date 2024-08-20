@@ -39,8 +39,8 @@ namespace Scheduling.Core.Extensions
             // create disjunctions between every disjunctive operation and source and between every disjunctive operation and sink
             //nodeFromDisjunctions.ForEach(node =>
             //{
-            //    disjunctions.Add(new(graph.Source, node));
-            //    disjunctions.Add(new(node, graph.Sink));
+            //    disjunctions.Add(new(graph.Source, node, new Machine(Int32.MaxValue)));
+            //    disjunctions.Add(new(node, graph.Sink, new Machine(Int32.MaxValue)));
             //});
 
             /*

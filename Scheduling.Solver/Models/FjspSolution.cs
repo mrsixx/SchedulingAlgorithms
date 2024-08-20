@@ -9,7 +9,7 @@ namespace Scheduling.Solver.Models
         public Colony Context { get; } = colony;
 
 
-        public double Makespan => Context.BestGraph.Makespan;
+        public double Makespan => Context.EmployeeOfTheMonth.Makespan;
 
         public Dictionary<Operation, Machine> MachineAssignment { get; } = [];
         

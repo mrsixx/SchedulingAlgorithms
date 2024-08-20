@@ -18,7 +18,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             foreach (var ant in ants)
             {
                 var bestGraphIsNull = BestGraph is null;
-                var antFoundBetterPath = ant.ConjunctiveGraph.Makespan < BestGraph?.Makespan;
+                var antFoundBetterPath = ant.Makespan < EmployeeOfTheMonth?.Makespan;
                 if (bestGraphIsNull || antFoundBetterPath)
                 {
                     BestGraph = ant.ConjunctiveGraph;

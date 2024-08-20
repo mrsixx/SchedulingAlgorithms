@@ -94,7 +94,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                 iSw.Stop();
                 Log($"#{i + 1}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
-                Log($"Better makespan: {colony.BestGraph.Makespan}");
+                Log($"Better makespan: {colony.EmployeeOfTheMonth.Makespan}");
             }
             sw.Stop();
 

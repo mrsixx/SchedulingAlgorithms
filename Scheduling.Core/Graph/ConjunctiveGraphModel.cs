@@ -6,8 +6,6 @@ namespace Scheduling.Core.Graph
 {
     public class ConjunctiveGraphModel : AdjacencyGraph<Node, Conjunction>
     {
-        public double Makespan => this.Sinks().Max(n => n.Operation.CompletionTime);
-
         public void AddConjunctionAndVertices(Conjunction conjunction)
         {
             // add nodes if not contains

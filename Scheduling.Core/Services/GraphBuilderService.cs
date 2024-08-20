@@ -27,7 +27,7 @@ namespace Scheduling.Core.Services
                         var operationNode = new Node(operation);
                         graph.AddVertex(operationNode);
                         if (previousOperation is null)
-                            graph.AddConjunction(previousNode, operationNode);
+                            operation.EligibleMachines.ForEach(m => graph.AddConjunction(previousNode, operationNode, m));
                         else
                             previousOperation.EligibleMachines.ForEach(m => graph.AddConjunction(previousNode, operationNode, m));
                         previousNode = operationNode;

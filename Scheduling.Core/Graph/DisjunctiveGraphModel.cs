@@ -113,7 +113,6 @@ namespace Scheduling.Core.Graph
 
         public IEnumerable<Conjunction> GetDirectSuccessors(Node node) => Conjunctions.Where(c => c.Source == node);
 
-
         public Node? GetPrecessor(Node node)
         {
             var conjunction = Conjunctions.First(c => c.Target == node);
@@ -130,6 +129,7 @@ namespace Scheduling.Core.Graph
             target.Predecessors.AddRange(predecessors.DistinctBy(p => p.Id));
             return AddEdge(new Conjunction(source, target));
         }
+
         public bool AddConjunction(Node source, Node target, Machine machine)
         {
             target.Predecessors.AddRange([.. source.Predecessors, source]);
@@ -138,6 +138,7 @@ namespace Scheduling.Core.Graph
             target.Predecessors.AddRange(predecessors.DistinctBy(p => p.Id));
             return AddEdge(new Conjunction(source, target, machine));
         }
+
         public void SetInitialPheromoneAmount(double amount)
         {
             foreach (var disjunction in Disjunctions)

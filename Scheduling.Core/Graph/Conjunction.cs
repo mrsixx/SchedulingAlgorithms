@@ -1,4 +1,6 @@
 ﻿using Scheduling.Core.FJSP;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Remoting;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Core.Graph
@@ -25,7 +27,14 @@ namespace Scheduling.Core.Graph
 
         public override Node Target { get; } = target;
 
-        public double Weight => !Source.IsDummyNode && Source.Operation.EligibleMachines.Contains(Machine) ? Source.Operation.GetProcessingTime(Machine) : 0;
+        public double Weight {
+            get
+            {
+                if (Source.IsSourceNode)
+                    return Target.Operation.EligibleMachines.Contains(Machine) ? Target.Operation.GetProcessingTime(Machine) : 0;
+                return Source.Operation.EligibleMachines.Contains(Machine) ? Source.Operation.GetProcessingTime(Machine) : 0;
+            }
+        }
 
         public Machine Machine { get; set; }
 
@@ -50,6 +59,12 @@ namespace Scheduling.Core.Graph
 
         public override void EvaporatePheromone(double rate)
         {
+            if (HasAssociatedDisjunction)
+            {
+                AssociatedDisjunction.EvaporatePheromone(rate);
+                return;
+            }
+
             lock (_lock)
             {
                 _pheromoneAmount = (1 - rate) * _pheromoneAmount;
@@ -58,10 +73,30 @@ namespace Scheduling.Core.Graph
 
         public void DepositPheromone(double amount)
         {
+            if (HasAssociatedDisjunction)
+            {
+                AssociatedDisjunction.DepositPheromone(amount, ChoosenDirection.Value);
+                return;
+            }
+
             lock (_lock)
             {
                 _pheromoneAmount += amount;
             }
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(this, obj)) return true;
+
+            if (obj is not Conjunction conjunction) return false;
+
+            return Source.Id == conjunction.Source.Id && Target.Id == conjunction.Target.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return $"{Source.Id}-[${Machine?.Id}]->{Target.Id}".GetHashCode();
         }
     }
 }

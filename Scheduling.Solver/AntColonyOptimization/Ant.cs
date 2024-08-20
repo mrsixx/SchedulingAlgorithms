@@ -32,6 +32,10 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public Dictionary<Machine, Stack<Node>> LoadingSequence { get; } = [];
 
+        public Dictionary<Operation, double> CompletionTimes { get; } = [];
+
+        public double Makespan => CompletionTimes.MaxBy(o => o.Value).Value;
+
         public Node StartNode => Context.DisjunctiveGraph.Source;
 
         public Node FinalNode => Context.DisjunctiveGraph.Sink;
@@ -42,60 +46,60 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         private void WalkAround()
         {
-
-            var remainingNodes = Context.DisjunctiveGraph.Vertices.ToList();
-
-
-            //var remainingNodes = Context.DisjunctiveGraph.OperationVertices.ToList();
-            //foreach (var conjunction in Context.DisjunctiveGraph.GetSuccessors(Context.DisjunctiveGraph.Source))
-            //{
-            //    ConjunctiveGraph.AddConjunctionAndVertices(conjunction);
-            //    var selectedOperation = conjunction.Target.Operation;
-            //    var greedyMachine = conjunction.Target.Operation.EligibleMachines.MinBy(m => selectedOperation.ProcessingTime(m));
-            //    var selectedOperationMachinePredecessor = LoadingSequence[greedyMachine].Peek();
-            //    var machineCompletionTime = selectedOperationMachinePredecessor.Operation.CompletionTime + selectedOperation.ProcessingTime(greedyMachine);
-            //    LoadingSequence[greedyMachine].Push(conjunction.Target);
-            //    remainingNodes.Remove(conjunction.Source);
-            //    remainingNodes.Remove(conjunction.Target);
-            //}
+            var remainingNodes = Context.DisjunctiveGraph.OperationVertices.ToList();
+            Context.DisjunctiveGraph.Vertices.ToList().ForEach(n => CompletionTimes.Add(n.Operation, 0));
+            var remainingDisjunctions = Context.DisjunctiveGraph.Disjunctions.ToList();
+            var remainingConjunctions = Context.DisjunctiveGraph.Conjunctions.ToList();
 
 
             while (remainingNodes.Any())
             {
-                //todo: preciso fazer com que o source só seja removido do remainingNodes quando todos os primeiros 
+                //todo: o source está voltando para o allowed nodes pois ele não tem predecessores, logo nunca terá predecessores em remainingNodes
                 var allowedNodes = GetAllowedNodes(remainingNodes);
                 var feasibleMoves = GetFeasibleMoves(allowedNodes);
                 if (feasibleMoves.IsEmpty())
                     break;
+
                 var selectedMove = ChooseNextMove(feasibleMoves);
 
                 ConjunctiveGraph.AddConjunctionAndVertices(selectedMove);
 
-                var selectedNode = selectedMove.Target;
-                var selectedMachine = selectedMove.Machine;
-                var selectedOperation = selectedNode.Operation;
-                var selectedOperationJobPredecessor = Context.DisjunctiveGraph.GetPrecessor(selectedNode);
-                var jobCompletionTime = selectedOperationJobPredecessor != null ? selectedOperationJobPredecessor.Operation.CompletionTime : 0;
-                double machineCompletionTime = 0;
-                if (selectedMachine != null)
-                {
-                    var selectedOperationMachinePredecessor = LoadingSequence[selectedMachine].Peek();
-                    machineCompletionTime = selectedOperationMachinePredecessor.Operation.CompletionTime + selectedOperation.ProcessingTime(selectedMachine);
-                    LoadingSequence[selectedMachine].Push(selectedNode);
-                }
+                var node = selectedMove.Target;
+                var machine = selectedMove.Machine;
+                
+                LoadingSequence[machine].Push(node);
 
-                selectedOperation.CompletionTime = Math.Max(machineCompletionTime, jobCompletionTime);
-                remainingNodes.Remove(selectedMove.Source);
-                remainingNodes.Remove(selectedMove.Target);
+                var operationJobPredecessor = selectedMove.Source;
+                var operationMachinePredecessor = LoadingSequence[machine].Peek();
+
+                double jobCompletionTime = CompletionTimes[operationJobPredecessor.Operation];
+                double machineCompletionTime = CompletionTimes[operationMachinePredecessor.Operation];
+                
+                CompletionTimes[node.Operation] = Math.Max(machineCompletionTime, jobCompletionTime) + selectedMove.Weight;
+
+                RemoverArestas(remainingDisjunctions, remainingConjunctions, selectedMove);
+                remainingNodes.Remove(node);
 
             }
-            //foreach (var node in ConjunctiveGraph.Sinks().ToList())
-            //{
 
-            //    ConjunctiveGraph.AddConjunctionAndVertices(Context.DisjunctiveGraph.GetSuccessors(node).First());
-            //}
+            foreach(var machine in LoadingSequence.Keys)
+            {
+                Console.Write($"{machine.Id}: ");
+                foreach (var node in LoadingSequence[machine].Reverse())
+                    Console.Write($" {node}[{CompletionTimes[node.Operation]}] ");
 
-            //UpdatePheromone();
+                Console.WriteLine("");
+            }
+
+            UpdatePheromone();
+        }
+
+        private static void RemoverArestas(List<Disjunction> remainingDisjunctions, List<Conjunction> remainingConjunctions, Conjunction selectedMove)
+        {
+            if (selectedMove.HasAssociatedDisjunction)
+                remainingDisjunctions.RemoveAll(d => d.IsAdjacent(selectedMove.Source) && d.IsAdjacent(selectedMove.Target));
+            else
+                remainingConjunctions.RemoveAll(c => c.Source == selectedMove.Source && c.Target == selectedMove.Target);
         }
 
         private Conjunction ChooseNextMove(IEnumerable<IFeasibleMove> possibleMoves)
@@ -119,18 +123,13 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         private void UpdatePheromone()
         {
-            foreach (var disjunction in Context.DisjunctiveGraph.Edges)
-                disjunction.EvaporatePheromone(rate: Context.Rho);
-
-            foreach (var conjunction in ConjunctiveGraph.Edges)
+            foreach (var edge in ConjunctiveGraph.Edges)
             {
-                var amount = Context.Q.DividedBy(ConjunctiveGraph.Makespan);
-                if (conjunction.HasAssociatedDisjunction)
-                    conjunction.AssociatedDisjunction.DepositPheromone(amount, conjunction.ChoosenDirection.Value);
-                else
-                    conjunction.DepositPheromone(amount);
-            }
+                edge.EvaporatePheromone(rate: Context.Rho);
+                var amount = Context.Q.DividedBy(Makespan);
+                edge.DepositPheromone(amount);
 
+            }
         }
 
         private Func<Node, bool> DoesNotContainPredecessorsIn(List<Node> remainingNodes)
@@ -147,7 +146,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                 return remainingNodes;
 
             //return Context.DisjunctiveGraph.OperationVertices
-            return Context.DisjunctiveGraph.Vertices
+            return remainingNodes
                     .Where(DoesNotContainPredecessorsIn(remainingNodes))
                     .ToList();
         }
@@ -183,13 +182,13 @@ namespace Scheduling.Solver.AntColonyOptimization
         {
 
             // only disjunctions adjascents to last operations on loading sequence and a candidate node
-            var moves = candidateNodes.SelectMany(candidateNode =>
+            var disjunctiveMoves = candidateNodes.SelectMany(candidateNode =>
             {
                 return LoadingSequence.Values.SelectMany(sequence =>
                     Context.DisjunctiveGraph.Disjunctions
                         .Where(disjunction => disjunction.IsAdjacent(sequence.Peek()) && disjunction.IsAdjacent(candidateNode))//disjunctions adjascents to last operations
-                        .Where(disjunction => !ConjunctiveGraph.ContainsEdge(disjunction.Source, disjunction.Target) 
-                                                && !ConjunctiveGraph.ContainsEdge(disjunction.Target, disjunction.Source))// not directed yet
+                        //.Where(disjunction => !ConjunctiveGraph.ContainsEdge(disjunction.Source, disjunction.Target) 
+                        //                        && !ConjunctiveGraph.ContainsEdge(disjunction.Target, disjunction.Source))// not directed yet
                         .Select(disjunction => {
                             var direction = disjunction.Target == candidateNode ? Direction.SourceToTarget : Direction.TargetToSource;
                             return new DisjunctiveFeasibleMove(disjunction, direction);
@@ -197,15 +196,16 @@ namespace Scheduling.Solver.AntColonyOptimization
                 );
             });
 
-            //if (moves.Any())
-            //    return moves;
 
+            //TODO: Olhar para as conjunções que saiam de alguem no topo da pilha para alguem no candidateNodes
 
-            return [..moves, ..candidateNodes.SelectMany(candidateNode =>
-                Context.DisjunctiveGraph.GetDirectSuccessors(candidateNode)
-                    .Where(conjunction => LoadingSequence.DoesNotContainNode(conjunction.Target)) //excluo conjunções cujo o alvo 
-                    .Select(conjunction => new ConjunctiveFeasibleMove(conjunction))
-            )];
+            var conjunctiveMoves = LoadingSequence.Values.SelectMany(machine =>
+                Context.DisjunctiveGraph.GetDirectSuccessors(machine.Peek())
+                .Where(c => candidateNodes.Contains(c.Target))
+                .Select(conjunction => new ConjunctiveFeasibleMove(conjunction))
+            );
+
+            return [..disjunctiveMoves, ..conjunctiveMoves];
         }
 
     }

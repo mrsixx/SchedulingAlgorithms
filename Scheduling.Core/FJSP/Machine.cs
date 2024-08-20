@@ -9,5 +9,7 @@ namespace Scheduling.Core.FJSP
     public class Machine(int id)
     {
         public int Id { get; set; } = id;
+
+        public override int GetHashCode() => Id;
     }
 }

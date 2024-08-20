@@ -70,6 +70,21 @@ namespace Scheduling.Core.Graph
                     _pheromoneAmount.TargetToSource += amount;
             }
         }
-        
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(this, obj)) return true;
+
+            if (obj is not Disjunction disjunction) return false;
+
+            return (Source.Id == disjunction.Source.Id && Target.Id == disjunction.Target.Id && Machine == disjunction.Machine) ||
+                   (Target.Id == disjunction.Source.Id && Source.Id == disjunction.Target.Id && Machine == disjunction.Machine);
+
+        }
+
+        public override int GetHashCode()
+        {
+            return $"{Source.Id}-[{Machine?.Id}]-{Target.Id}".GetHashCode();
+        }
     }
 }

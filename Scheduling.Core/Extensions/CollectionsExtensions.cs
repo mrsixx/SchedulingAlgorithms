@@ -12,11 +12,16 @@ namespace Scheduling.Core.Extensions
         public static bool DoesNotContain<T>(this IEnumerable<T> @list, Func<T, bool> predicate) => !list.Any(predicate);
 
 
+        public static IEnumerable<Node> GetLastScheduledNodes(this Dictionary<Machine, Stack<Node>> loadingSequence)
+        {
+            return loadingSequence.Values.Select(m => m.Peek())
+                                            .Where(n => !n.IsDummyNode);
+        }
 
         public static bool DoesNotContainNode(this Dictionary<Machine, Stack<Node>> loadingSequence, Node node)
         {
+            //TODO: melhorar performance
             return loadingSequence.Values.All(s => s.DoesNotContain(node));
-
         }
 
         public static void AddIfDoesNotContain<T>(this IList<T> @list, T item)

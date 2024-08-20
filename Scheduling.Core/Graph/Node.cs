@@ -1,19 +1,14 @@
 ﻿using Scheduling.Core.FJSP;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Scheduling.Core.Graph
 {
     [Serializable]
-    public class Node
+    public class Node(Operation operation)
     {
-        public Node(Operation operation)
-        {
-            Id = operation.Id;
-            Operation = operation;
-        }
+        public int Id { get; set; } = operation.Id;
 
-        public int Id { get; set; }
-
-        public Operation Operation { get; set; }
+        public Operation Operation { get; set; } = operation;
 
         public bool IsSourceNode => Id == Operation.SOURCE_ID;
 
@@ -23,6 +18,21 @@ namespace Scheduling.Core.Graph
 
         public List<Node> Predecessors { get; } = [];
 
-        public override string ToString() => Id.ToString();
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(this, obj)) return true;
+
+            if (obj is not Node node) return false;
+
+            return Id == node.Id;
+        }
+        public override int GetHashCode() => Id;
+
+        public override string ToString()
+        {
+            if (IsSourceNode) return "S";
+            if (IsSinkNode) return "F";
+            return Id.ToString();
+        }
     }
 }
