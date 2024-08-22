@@ -19,11 +19,12 @@ var graph = graphBuilderService.BuildDisjunctiveGraphByBenchmarkFile(instanceFil
 graphExporterService.ExportDisjunctiveGraphToGraphviz(graph, outputFile);
 
 //var graph = graphBuilderService.BuildDisjunctiveGraph(CustomInstances.SampleInstance());
-var solution = new AntColonyOptimizationAlgorithmSolver(graph, ants: 1, iterations: 1)
+var solution = new AntColonyOptimizationAlgorithmSolver(graph, ants: 100, iterations: 100)
                 .Verbose(new Logger())
                 .Solve();
 
 //if(solution.BestSolution != null)
+solution.Context.EmployeeOfTheMonth.Log();
 graphExporterService.ExportConjunctiveGraphToGraphviz(solution.Context.BestGraph, $"{outputFile}.sol");
 
 Console.ReadKey();

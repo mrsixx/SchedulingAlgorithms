@@ -6,6 +6,12 @@ namespace Scheduling.Core.Graph
 {
     public class ConjunctiveGraphModel : AdjacencyGraph<Node, Conjunction>
     {
+
+        public void AddConjunctionAndVertices(Orientation orientation)
+        {
+            AddConjunctionAndVertices(new Conjunction(orientation));
+        }
+
         public void AddConjunctionAndVertices(Conjunction conjunction)
         {
             // add nodes if not contains
