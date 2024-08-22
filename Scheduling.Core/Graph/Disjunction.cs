@@ -6,7 +6,7 @@ using static Scheduling.Core.Enums.DirectionEnum;
 namespace Scheduling.Core.Graph
 {
     [Serializable]
-    public class Disjunction : BaseEdge, IUndirectedEdge<Node>
+    public class Disjunction : AntEdge, IUndirectedEdge<Node>
     {
         private readonly object _lock = new();
         private Pheromone _pheromoneAmount = new(0.0, 0.0);
@@ -25,8 +25,8 @@ namespace Scheduling.Core.Graph
             
             Machine = machine;
             EquivalentConjunctions = [
-                new Conjunction(Source, Target, Machine).SetOriginalDisjunction(this, Direction.SourceToTarget),
-                new Conjunction(Target, Source, Machine).SetOriginalDisjunction(this, Direction.TargetToSource)
+                new Orientation(this, Direction.SourceToTarget),
+                new Orientation(this, Direction.TargetToSource)
             ];
         }
 
@@ -36,9 +36,9 @@ namespace Scheduling.Core.Graph
 
         public override string Log => Machine != null ? $"{Source.Id} --[{Machine.Id}]-- {Target.Id}" : $"{Source.Id} --- {Target.Id}";
 
-        public Machine? Machine { get; }
+        public Machine Machine { get; }
 
-        public Conjunction[] EquivalentConjunctions { get; }
+        public Orientation[] EquivalentConjunctions { get; }
 
         public Pheromone Pheromone
         {

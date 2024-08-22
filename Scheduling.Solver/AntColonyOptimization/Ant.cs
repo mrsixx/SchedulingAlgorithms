@@ -3,9 +3,7 @@ using QuikGraph.Algorithms;
 using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
-using Scheduling.Solver.Algorithms;
 using Scheduling.Solver.Utils;
-using System.Xml.Linq;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization
@@ -17,7 +15,8 @@ namespace Scheduling.Solver.AntColonyOptimization
             Id = id;
             Context = context;
             Generation = generation;
-            Context.DisjunctiveGraph.Vertices.ToList().ForEach(n => {
+            Context.DisjunctiveGraph.Vertices.ToList().ForEach(n =>
+            {
                 CompletionTimes.Add(n.Operation, 0);
                 StartTimes.Add(n.Operation, 0);
             });
@@ -40,7 +39,7 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public Dictionary<Operation, double> StartTimes { get; } = [];
 
-        public double Makespan => StartTimes.MaxBy(o => o.Value).Value;
+        public double Makespan => CompletionTimes[FinalNode.Operation];
 
         public Node StartNode => Context.DisjunctiveGraph.Source;
 
@@ -56,32 +55,31 @@ namespace Scheduling.Solver.AntColonyOptimization
             var remainingDisjunctions = Context.DisjunctiveGraph.Disjunctions.ToList();
             var remainingConjunctions = Context.DisjunctiveGraph.Conjunctions.ToList();
 
+            LoadFirstOperations(remainingNodes);
 
             while (remainingNodes.Any())
             {
                 var allowedNodes = GetAllowedNodes(remainingNodes);
                 var feasibleMoves = GetFeasibleMoves(allowedNodes);
-                if (feasibleMoves.IsEmpty())
-                    break;
-
-                //quem sabe selecionar tanto um move conjuntivo quando um disjuntivo
-                var selectedMove = ChooseNextMove(feasibleMoves);
-                
-                EvaluateCompletionTime(selectedMove);
-
-                RemoverArestas(remainingDisjunctions, remainingConjunctions, selectedMove);
-                var node = selectedMove.Target;
-                remainingNodes.Remove(node);
-
+                if (feasibleMoves.Any())
+                {
+                    //quem sabe selecionar tanto um move conjuntivo quando um disjuntivo
+                    var selectedMove = ChooseNextMove(feasibleMoves);
+                    EvaluateCompletionTime(selectedMove);
+                    remainingNodes.Remove(selectedMove.Target);
+                    RemoverArestas(remainingDisjunctions, remainingConjunctions, selectedMove);
+                }
             }
 
+            LinkinToSink();
+            //Log();
 
-            //foreach (var node in ConjunctiveGraph.Sinks().ToList())
-            //{
-            //    ConjunctiveGraph.AddConjunctionAndVertices(new(node, FinalNode));
+            UpdatePheromone();
+        }
 
-            //}
-
+        public void Log()
+        {
+            // print loading sequence
             foreach (var machine in LoadingSequence.Keys)
             {
                 Console.Write($"{machine.Id}: ");
@@ -91,41 +89,70 @@ namespace Scheduling.Solver.AntColonyOptimization
                 Console.WriteLine("");
             }
 
-            UpdatePheromone();
+            // printing topological sort (acyclic evidence)
+            Console.WriteLine("Topological sort: ");
+            foreach (var node in ConjunctiveGraph.TopologicalSort())
+                Console.Write($" {node} ");
+            Console.WriteLine("");
         }
 
-        private void EvaluateCompletionTime(Conjunction selectedMove)
+        private void LinkinToSink()
+        {
+            foreach (var machine in LoadingSequence.Values)
+            {
+                var lastNode = machine.Peek();
+                ConjunctiveGraph.AddConjunctionAndVertices(new Conjunction(lastNode, FinalNode));
+                CompletionTimes[FinalNode.Operation] = Math.Max(CompletionTimes[FinalNode.Operation], CompletionTimes[lastNode.Operation]);
+            }
+        }
+
+        private void LoadFirstOperations(List<Node> remainingNodes)
+        {
+            foreach (var conjunction in Context.DisjunctiveGraph.GetDirectSuccessors(StartNode))
+            {
+                var node = conjunction.Target;
+                //todo: considerar feromonio nesta escolha (disjunções adjascentes as primeiras operações)
+                var greedyMachine = node.Operation.EligibleMachines.MinBy(m => node.Operation.ProcessingTime(m));
+                EvaluateCompletionTime(node, greedyMachine);
+                remainingNodes.Remove(node);
+            }
+        }
+
+        private void EvaluateCompletionTime(Orientation selectedMove)
         {
             var node = selectedMove.Target;
             var machine = selectedMove.Machine;
-            //TODO: tentar alocar nas maquinas de forma mais eficiente (quem sabe considerar a taxa de ocupação das maquinas na heuristica)
+            EvaluateCompletionTime(node, machine);
+            ConjunctiveGraph.AddConjunctionAndVertices(selectedMove);
+        }
+
+        //TODO: tentar alocar nas maquinas de forma mais eficiente (quem sabe considerar a taxa de ocupação das maquinas na heuristica)
+        private void EvaluateCompletionTime(Node node, Machine machine)
+        {
 
             var jobPredecessorNode = node.DirectPredecessor;
             var machinePredecessorNode = LoadingSequence[machine].Peek();
-            
+            ConjunctiveGraph.AddConjunctionAndVertices(new Conjunction(jobPredecessorNode, node));
             double jobCompletionTime = CompletionTimes[jobPredecessorNode.Operation];
             double machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation];
 
             var processingTime = node.Operation.ProcessingTime(machine);
             CompletionTimes[node.Operation] = Math.Max(machineCompletionTime, jobCompletionTime) + processingTime;
             StartTimes[node.Operation] = CompletionTimes[node.Operation] - processingTime;
-            
+
             LoadingSequence[machine].Push(node);
             MachineAssignment.Add(node.Operation, machine);
-            ConjunctiveGraph.AddConjunctionAndVertices(selectedMove);
         }
 
-        private static void RemoverArestas(List<Disjunction> remainingDisjunctions, List<Conjunction> remainingConjunctions, Conjunction selectedMove)
+        private void RemoverArestas(List<Disjunction> remainingDisjunctions, List<Conjunction> remainingConjunctions, Orientation selectedMove)
         {
-            if (selectedMove.HasAssociatedDisjunction)
-                remainingDisjunctions.RemoveAll(d => d.IsAdjacent(selectedMove.Source) && d.IsAdjacent(selectedMove.Target));
-            else
-                remainingConjunctions.RemoveAll(c => c.Source == selectedMove.Source && c.Target == selectedMove.Target);
+            remainingDisjunctions.RemoveAll(d => d.IsAdjacent(selectedMove.Source) && d.IsAdjacent(selectedMove.Target));
+            remainingConjunctions.RemoveAll(c => ConjunctiveGraph.ContainsEdge(c));
         }
 
-        private Conjunction ChooseNextMove(IEnumerable<IFeasibleMove> possibleMoves)
+        private Orientation ChooseNextMove(IEnumerable<IFeasibleMove> possibleMoves)
         {
-            var roulette = new RouletteWheelSelection<Conjunction>();
+            var roulette = new RouletteWheelSelection<Orientation>();
             // calculate the product tauK^ALPHA * etaK ^ BETA of the ant k for each edge
             possibleMoves.ToList().ForEach(move =>
             {
@@ -146,27 +173,31 @@ namespace Scheduling.Solver.AntColonyOptimization
         {
             foreach (var edge in ConjunctiveGraph.Edges)
             {
-                edge.EvaporatePheromone(rate: Context.Rho);
-                var amount = Context.Q.DividedBy(Makespan);
-                edge.DepositPheromone(amount);
+                if (edge.HasAssociatedOrientation)
+                {
+                    edge.AssociatedOrientation.EvaporatePheromone(rate: Context.Rho);
+                    var amount = Context.Q.DividedBy(Makespan);
+                    edge.AssociatedOrientation.DepositPheromone(amount);
+                }
 
             }
         }
 
         private Func<Node, bool> DoesNotContainPredecessorsIn(List<Node> remainingNodes)
         {
-            return v => {
+            return v =>
+            {
                 var predecessors = Context.DisjunctiveGraph.GetPredecessors(v);
                 return predecessors.Intersect(remainingNodes).IsEmpty();
             };
         }
 
 
-        private List<Node> GetAllowedNodes(List<Node> remainingNodes) {
+        private List<Node> GetAllowedNodes(List<Node> remainingNodes)
+        {
             if (remainingNodes.Count == 1 && remainingNodes.First().IsSinkNode)
                 return remainingNodes;
 
-            //return Context.DisjunctiveGraph.OperationVertices
             return remainingNodes
                     .Where(DoesNotContainPredecessorsIn(remainingNodes))
                     .ToList();
@@ -208,25 +239,26 @@ namespace Scheduling.Solver.AntColonyOptimization
                 return LoadingSequence.Values.SelectMany(sequence =>
                     Context.DisjunctiveGraph.Disjunctions
                         .Where(disjunction => disjunction.IsAdjacent(sequence.Peek()) && disjunction.IsAdjacent(candidateNode))//disjunctions adjascents to last operations
-                        //.Where(disjunction => !ConjunctiveGraph.ContainsEdge(disjunction.Source, disjunction.Target) 
-                        //                        && !ConjunctiveGraph.ContainsEdge(disjunction.Target, disjunction.Source))// not directed yet
-                        .Select(disjunction => {
+                                                                                                                               //.Where(disjunction => !ConjunctiveGraph.ContainsEdge(disjunction.Source, disjunction.Target) 
+                                                                                                                               //                        && !ConjunctiveGraph.ContainsEdge(disjunction.Target, disjunction.Source))// not directed yet
+                        .Select(disjunction =>
+                        {
                             var direction = disjunction.Target == candidateNode ? Direction.SourceToTarget : Direction.TargetToSource;
-                            return new DisjunctiveFeasibleMove(disjunction, direction);
+                            return new FeasibleMove(disjunction, direction);
                         })
                 );
             });
 
 
+            return disjunctiveMoves;
             //TODO: Olhar para as conjunções que saiam de alguem no topo da pilha para alguem no candidateNodes
+            //var conjunctiveMoves = LoadingSequence.SelectMany(machine =>
+            //    Context.DisjunctiveGraph.GetDirectSuccessors(machine.Value.Peek())
+            //    .Where(c => candidateNodes.Contains(c.Target))
+            //    .Select(conjunction => new ConjunctiveFeasibleMove(new()))
+            //);
 
-            var conjunctiveMoves = LoadingSequence.Values.SelectMany(machine =>
-                Context.DisjunctiveGraph.GetDirectSuccessors(machine.Peek())
-                .Where(c => candidateNodes.Contains(c.Target))
-                .Select(conjunction => new ConjunctiveFeasibleMove(conjunction))
-            );
-
-            return [..disjunctiveMoves, ..conjunctiveMoves];
+            //return [..disjunctiveMoves, ..conjunctiveMoves];
         }
 
     }

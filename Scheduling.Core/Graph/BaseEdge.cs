@@ -12,7 +12,5 @@ namespace Scheduling.Core.Graph
         
         public override string ToString() => Log;
 
-        public abstract void EvaporatePheromone(double rate);
-
     }
 }

@@ -12,8 +12,6 @@
 
         public List<Machine> EligibleMachines { get; } = [];
 
-        //public double CompletionTime { get; set; } = 0;
-
         public bool Equals(Operation? other) => Id.Equals(other?.Id);
 
         public double GetProcessingTime(Machine m)

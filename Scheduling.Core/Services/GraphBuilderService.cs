@@ -27,17 +27,14 @@ namespace Scheduling.Core.Services
                     {
                         var operationNode = new Node(operation);
                         graph.AddVertex(operationNode);
-                        if (previousOperation is null)
-                            operation.EligibleMachines.ForEach(m => graph.AddConjunction(previousNode, operationNode, m));
-                        else
-                            previousOperation.EligibleMachines.ForEach(m => graph.AddConjunction(previousNode, operationNode, m));
+                        graph.AddConjunction(previousNode, operationNode);
                         previousNode = operationNode;
                         previousOperation = operation;
                     });
 
                 //last operation of each job linked with sink
                 if (previousOperation is not null)
-                    previousOperation.EligibleMachines.ForEach(m => graph.AddConjunction(previousNode, graph.Sink, m));
+                    graph.AddConjunction(previousNode, graph.Sink);
             });
 
             // create disjunctions between every operation running on same pool

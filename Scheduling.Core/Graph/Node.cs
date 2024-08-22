@@ -10,13 +10,6 @@ namespace Scheduling.Core.Graph
 
         public Operation Operation { get; set; } = operation;
 
-        public bool IsSourceNode => Id == Operation.SOURCE_ID;
-
-        public bool IsSinkNode => Id == Operation.SINK_ID;
-
-        public bool IsDummyNode => IsSourceNode || IsSinkNode;
-
-
         public Node DirectPredecessor { get; set; }
 
         public List<Node> Predecessors { get; } = [];
@@ -25,6 +18,13 @@ namespace Scheduling.Core.Graph
 
         public List<Node> Successors { get; } = [];
 
+        public bool IsSourceNode => Id == Operation.SOURCE_ID;
+
+        public bool IsSinkNode => Id == Operation.SINK_ID;
+
+        public bool IsDummyNode => IsSourceNode || IsSinkNode;
+        
+        public override int GetHashCode() => Id;
 
         public override bool Equals(object? obj)
         {
@@ -34,7 +34,6 @@ namespace Scheduling.Core.Graph
 
             return Id == node.Id;
         }
-        public override int GetHashCode() => Id;
 
         public override string ToString()
         {

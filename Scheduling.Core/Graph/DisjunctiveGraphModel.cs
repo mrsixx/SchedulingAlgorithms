@@ -119,15 +119,6 @@ namespace Scheduling.Core.Graph
 
         public bool AddConjunction(Node source, Node target)
         {
-            target.Predecessors.AddRange([..source.Predecessors, source]);
-            IEnumerable<Node> predecessors = [..target.Predecessors];
-            target.Predecessors.Clear();
-            target.Predecessors.AddRange(predecessors.DistinctBy(p => p.Id));
-            return AddEdge(new Conjunction(source, target));
-        }
-
-        public bool AddConjunction(Node source, Node target, Machine machine)
-        {
             target.Predecessors.AddRange([.. source.Predecessors, source]);
             IEnumerable<Node> predecessors = [.. target.Predecessors];
             target.Predecessors.Clear();
@@ -137,7 +128,7 @@ namespace Scheduling.Core.Graph
             source.DirectSuccessor = target;
 
 
-            return AddEdge(new Conjunction(source, target, machine));
+            return AddEdge(new Conjunction(source, target));
         }
 
         public void SetInitialPheromoneAmount(double amount)
@@ -146,11 +137,6 @@ namespace Scheduling.Core.Graph
             {
                 disjunction.DepositPheromone(amount, Direction.SourceToTarget);
                 disjunction.DepositPheromone(amount, Direction.TargetToSource);
-            }
-
-            foreach (var conjunction in Conjunctions)
-            {
-                conjunction.DepositPheromone(amount);
             }
         }
     }
