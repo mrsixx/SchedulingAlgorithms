@@ -13,6 +13,8 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public ConjunctiveGraphModel BestGraph { get; private set; }
 
+        public int LastProductiveGeneration { get; private set; } = 0;
+
         public void UpdateBestPath(Ant[] ants)
         {
             foreach (var ant in ants)
@@ -23,6 +25,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                 {
                     BestGraph = ant.ConjunctiveGraph;
                     EmployeeOfTheMonth = ant;
+                    LastProductiveGeneration = ant.Generation;
                 }
             }
         }

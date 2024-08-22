@@ -8,64 +8,59 @@ using System.Diagnostics;
 
 namespace Scheduling.Solver.AntColonyOptimization
 {
-    public class AntColonyOptimizationAlgorithmSolver : IFlexibleJobShopSchedulingSolver
+    public class AntColonyOptimizationAlgorithmSolver(DisjunctiveGraphModel graph,
+                                          double alpha = 0.9,
+                                          double beta = 1.2,
+                                          double rho = 0.01,
+                                          double q = 5000,
+                                          double initialPheromoneAmount = 0.001,
+                                          int ants = 300,
+                                          int iterations = 100,
+                                          int stagnantGenerationsAllowed = 20) : IFlexibleJobShopSchedulingSolver
     {
         private ILogger? _logger;
-        public AntColonyOptimizationAlgorithmSolver(DisjunctiveGraphModel graph,
-                                              double alpha = 0.9,
-                                              double beta = 1.2,
-                                              double rho = 0.01,
-                                              double q = 5000,
-                                              double initialPheromoneAmount = 0.001,
-                                              int ants = 300,
-                                              int iterations = 100)
-        {
-            DisjunctiveGraph = graph;
-            Alpha = alpha;
-            Beta = beta;
-            Rho = rho;
-            Q = q;
-            InitialPheromoneAmount = initialPheromoneAmount;
-            AntCount = ants;
-            Iterations = iterations;
-        }
 
         /// <summary>
         /// Weight of distance factor constant
         /// </summary>
-        public double Alpha { get; }
+        public double Alpha { get; } = alpha;
 
         /// <summary>
         /// Weight of pheromone factor constant
         /// </summary>
-        public double Beta { get; }
+        public double Beta { get; } = beta;
 
         /// <summary>
         /// Pheromone evaporation rate constant
         /// </summary>
-        public double Rho { get; }
+        public double Rho { get; } = rho;
 
         /// <summary>
         /// Pheromone Update constant
         /// </summary>
-        public double Q { get; }
+        public double Q { get; } = q;
 
         /// <summary>
         /// Initial pheromone amount over graph edges
         /// </summary>
-        public double InitialPheromoneAmount { get; }
+        public double InitialPheromoneAmount { get; } = initialPheromoneAmount;
 
         /// <summary>
         /// Amount of ants
         /// </summary>
-        public int AntCount { get; }
+        public int AntCount { get; } = ants;
 
         /// <summary>
         /// Number of iterations
         /// </summary>
-        public int Iterations { get; }
+        public int Iterations { get; } = iterations;
 
-        public DisjunctiveGraphModel DisjunctiveGraph { get; }
+        /// <summary>
+        /// How long should ants continue without improving the solution
+        /// </summary>
+        public int StagnantGenerationsAllowed { get; } = stagnantGenerationsAllowed;
+
+        public DisjunctiveGraphModel DisjunctiveGraph { get; } = graph;
 
         public AntColonyOptimizationAlgorithmSolver Verbose(ILogger logger)
         {
@@ -95,6 +90,13 @@ namespace Scheduling.Solver.AntColonyOptimization
                 Log($"#{i + 1}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
                 Log($"Better makespan: {colony.EmployeeOfTheMonth.Makespan}");
+
+                var generationsSinceLastImprovement = i - colony.LastProductiveGeneration;
+                if (generationsSinceLastImprovement > StagnantGenerationsAllowed)
+                {
+                    Log($"\n\nDeath from stagnation...");
+                    break;
+                }
             }
             sw.Stop();
 
