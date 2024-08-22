@@ -5,6 +5,7 @@ using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using Scheduling.Solver.Algorithms;
 using Scheduling.Solver.Utils;
+using System.Xml.Linq;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization
@@ -16,10 +17,11 @@ namespace Scheduling.Solver.AntColonyOptimization
             Id = id;
             Context = context;
             Generation = generation;
-            Context.DisjunctiveGraph.Machines.ForEach(m => {
-                if (!LoadingSequence.ContainsKey(m))
-                    LoadingSequence.Add(m, new Stack<Node>([Context.DisjunctiveGraph.Source]));
+            Context.DisjunctiveGraph.Vertices.ToList().ForEach(n => {
+                CompletionTimes.Add(n.Operation, 0);
+                StartTimes.Add(n.Operation, 0);
             });
+            Context.DisjunctiveGraph.Machines.ForEach(m => LoadingSequence.Add(m, new([Context.DisjunctiveGraph.Source])));
             Task = new Task(() => WalkAround());
             Task.Start();
         }
@@ -32,9 +34,13 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public Dictionary<Machine, Stack<Node>> LoadingSequence { get; } = [];
 
+        public Dictionary<Operation, Machine> MachineAssignment { get; } = [];
+
         public Dictionary<Operation, double> CompletionTimes { get; } = [];
 
-        public double Makespan => CompletionTimes.MaxBy(o => o.Value).Value;
+        public Dictionary<Operation, double> StartTimes { get; } = [];
+
+        public double Makespan => StartTimes.MaxBy(o => o.Value).Value;
 
         public Node StartNode => Context.DisjunctiveGraph.Source;
 
@@ -47,51 +53,66 @@ namespace Scheduling.Solver.AntColonyOptimization
         private void WalkAround()
         {
             var remainingNodes = Context.DisjunctiveGraph.OperationVertices.ToList();
-            Context.DisjunctiveGraph.Vertices.ToList().ForEach(n => CompletionTimes.Add(n.Operation, 0));
             var remainingDisjunctions = Context.DisjunctiveGraph.Disjunctions.ToList();
             var remainingConjunctions = Context.DisjunctiveGraph.Conjunctions.ToList();
 
 
             while (remainingNodes.Any())
             {
-                //todo: o source está voltando para o allowed nodes pois ele não tem predecessores, logo nunca terá predecessores em remainingNodes
                 var allowedNodes = GetAllowedNodes(remainingNodes);
                 var feasibleMoves = GetFeasibleMoves(allowedNodes);
                 if (feasibleMoves.IsEmpty())
                     break;
 
+                //quem sabe selecionar tanto um move conjuntivo quando um disjuntivo
                 var selectedMove = ChooseNextMove(feasibleMoves);
-
-                ConjunctiveGraph.AddConjunctionAndVertices(selectedMove);
-
-                var node = selectedMove.Target;
-                var machine = selectedMove.Machine;
                 
-                LoadingSequence[machine].Push(node);
-
-                var operationJobPredecessor = selectedMove.Source;
-                var operationMachinePredecessor = LoadingSequence[machine].Peek();
-
-                double jobCompletionTime = CompletionTimes[operationJobPredecessor.Operation];
-                double machineCompletionTime = CompletionTimes[operationMachinePredecessor.Operation];
-                
-                CompletionTimes[node.Operation] = Math.Max(machineCompletionTime, jobCompletionTime) + selectedMove.Weight;
+                EvaluateCompletionTime(selectedMove);
 
                 RemoverArestas(remainingDisjunctions, remainingConjunctions, selectedMove);
+                var node = selectedMove.Target;
                 remainingNodes.Remove(node);
 
             }
 
-            foreach(var machine in LoadingSequence.Keys)
+
+            //foreach (var node in ConjunctiveGraph.Sinks().ToList())
+            //{
+            //    ConjunctiveGraph.AddConjunctionAndVertices(new(node, FinalNode));
+
+            //}
+
+            foreach (var machine in LoadingSequence.Keys)
             {
                 Console.Write($"{machine.Id}: ");
                 foreach (var node in LoadingSequence[machine].Reverse())
-                    Console.Write($" {node}[{CompletionTimes[node.Operation]}] ");
+                    Console.Write($" {node}[{StartTimes[node.Operation]}-{CompletionTimes[node.Operation]}] ");
 
                 Console.WriteLine("");
             }
 
             UpdatePheromone();
+        }
+
+        private void EvaluateCompletionTime(Conjunction selectedMove)
+        {
+            var node = selectedMove.Target;
+            var machine = selectedMove.Machine;
+            //TODO: tentar alocar nas maquinas de forma mais eficiente (quem sabe considerar a taxa de ocupação das maquinas na heuristica)
+
+            var jobPredecessorNode = node.DirectPredecessor;
+            var machinePredecessorNode = LoadingSequence[machine].Peek();
+            
+            double jobCompletionTime = CompletionTimes[jobPredecessorNode.Operation];
+            double machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation];
+
+            var processingTime = node.Operation.ProcessingTime(machine);
+            CompletionTimes[node.Operation] = Math.Max(machineCompletionTime, jobCompletionTime) + processingTime;
+            StartTimes[node.Operation] = CompletionTimes[node.Operation] - processingTime;
+            
+            LoadingSequence[machine].Push(node);
+            MachineAssignment.Add(node.Operation, machine);
+            ConjunctiveGraph.AddConjunctionAndVertices(selectedMove);
         }
 
         private static void RemoverArestas(List<Disjunction> remainingDisjunctions, List<Conjunction> remainingConjunctions, Conjunction selectedMove)

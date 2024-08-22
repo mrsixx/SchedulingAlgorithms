@@ -16,7 +16,15 @@ namespace Scheduling.Core.Graph
 
         public bool IsDummyNode => IsSourceNode || IsSinkNode;
 
+
+        public Node DirectPredecessor { get; set; }
+
         public List<Node> Predecessors { get; } = [];
+
+        public Node DirectSuccessor { get; set; }
+
+        public List<Node> Successors { get; } = [];
+
 
         public override bool Equals(object? obj)
         {

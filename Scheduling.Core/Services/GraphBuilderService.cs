@@ -13,6 +13,7 @@ namespace Scheduling.Core.Services
             var graph = new DisjunctiveGraphModel();
             graph.AddVertex(graph.Source);
             graph.AddVertex(graph.Sink);
+            graph.Source.Operation.EligibleMachines.AddRange(machines);
             graph.Machines.AddRange(machines);
             jobs.ToList()
                 .ForEach(job =>

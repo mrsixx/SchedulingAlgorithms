@@ -111,13 +111,9 @@ namespace Scheduling.Core.Graph
             return false;
         }
 
+        [Obsolete("Improve performance")]
         public IEnumerable<Conjunction> GetDirectSuccessors(Node node) => Conjunctions.Where(c => c.Source == node);
 
-        public Node? GetPrecessor(Node node)
-        {
-            var conjunction = Conjunctions.First(c => c.Target == node);
-            return conjunction?.Source;
-        }
 
         public IEnumerable<Node> GetPredecessors(Node node) => node.Predecessors;
 
@@ -136,6 +132,11 @@ namespace Scheduling.Core.Graph
             IEnumerable<Node> predecessors = [.. target.Predecessors];
             target.Predecessors.Clear();
             target.Predecessors.AddRange(predecessors.DistinctBy(p => p.Id));
+
+            target.DirectPredecessor = source;
+            source.DirectSuccessor = target;
+
+
             return AddEdge(new Conjunction(source, target, machine));
         }
 
