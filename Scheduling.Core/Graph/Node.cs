@@ -41,5 +41,14 @@ namespace Scheduling.Core.Graph
             if (IsSinkNode) return "F";
             return Id.ToString();
         }
+
+
+        public static bool operator <(Node a, Node b) => a.Id < b.Id;
+
+        public static bool operator >(Node a, Node b) => a.Id > b.Id;
+
+        public static bool operator <=(Node a, Node b) => a.Id <= b.Id;
+
+        public static bool operator >=(Node a, Node b) => a.Id >= b.Id;
     }
 }

@@ -1,4 +1,4 @@
-﻿using Scheduling.Solver.Interfaces;
+﻿using Scheduling.Core.Interfaces;
 
 namespace Scheduling.Console
 {

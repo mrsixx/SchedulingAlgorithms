@@ -8,6 +8,15 @@ namespace Scheduling.Core.Services
 {
     public class GraphBuilderService : IGraphBuilderService
     {
+        public GraphBuilderService() { }
+
+        public GraphBuilderService(ILogger logger)
+        {
+            Logger = logger;
+        }
+
+        public ILogger? Logger { get; }
+
         public DisjunctiveGraphModel BuildDisjunctiveGraph(IEnumerable<Job> jobs, IEnumerable<Machine> machines)
         {
             var graph = new DisjunctiveGraphModel();
@@ -38,9 +47,7 @@ namespace Scheduling.Core.Services
             });
 
             // create disjunctions between every operation running on same pool
-            jobs.SelectMany(j => j.Operations)
-                .GeneratePossibleDisjunctions(graph)
-                .ToList()
+            graph.GeneratePossibleDisjunctions().ToList()
                 .ForEach(disjunction => graph.AddEdge(disjunction));
             return graph;
         }
@@ -49,6 +56,10 @@ namespace Scheduling.Core.Services
         {
             BenchmarkReader reader = new();
             reader.ReadInstance(benchmarkFile);
+
+            Log($"Benchmark: {benchmarkFile}");
+            Log($"Jobs: {reader.JobCount}; Operations: {reader.OperationCount}; Machines: {reader.MachineCount}");
+            Log($"Trivial Upper bound: {reader.TrivialUpperBound}");
 
             var machines = Enumerable
                 .Range(1, reader.MachineCount)
@@ -82,5 +93,7 @@ namespace Scheduling.Core.Services
                 .ToList();
             return BuildDisjunctiveGraph(jobs, machines);
         }
+
+        private void Log(string message) => Logger?.Log(message);
     }
 }

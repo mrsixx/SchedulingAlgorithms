@@ -1,4 +1,5 @@
-﻿using Scheduling.Core.FJSP;
+﻿using Scheduling.Core.Extensions;
+using Scheduling.Core.FJSP;
 
 namespace Scheduling.Core.Benchmark
 {

@@ -12,6 +12,12 @@ namespace Scheduling.Core.Extensions
         public static bool DoesNotContain<T>(this IEnumerable<T> @list, Func<T, bool> predicate) => !list.Any(predicate);
 
 
+        public static void AddRange(this HashSet<Machine> set, IEnumerable<Machine> machines)
+        {
+            foreach (var machine in machines)
+                set.Add(machine);
+        }
+
         public static IEnumerable<Node> GetLastScheduledNodes(this Dictionary<Machine, Stack<Node>> loadingSequence)
         {
             return loadingSequence.Values.Select(m => m.Peek())

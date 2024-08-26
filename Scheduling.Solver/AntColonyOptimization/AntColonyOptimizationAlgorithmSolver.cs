@@ -1,7 +1,5 @@
-﻿using QuikGraph;
-using Scheduling.Core.FJSP;
-using Scheduling.Core.Graph;
-using Scheduling.Solver.Extensions;
+﻿using Scheduling.Core.Graph;
+using Scheduling.Core.Interfaces;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 using System.Diagnostics;

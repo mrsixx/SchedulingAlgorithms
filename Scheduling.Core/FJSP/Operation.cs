@@ -10,7 +10,7 @@
 
         public Func<Machine, double> ProcessingTime { get; set; } = processingTime;
 
-        public List<Machine> EligibleMachines { get; } = [];
+        public HashSet<Machine> EligibleMachines { get; } = [];
 
         public bool Equals(Operation? other) => Id.Equals(other?.Id);
 

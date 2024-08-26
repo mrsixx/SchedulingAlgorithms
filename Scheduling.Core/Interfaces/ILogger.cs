@@ -1,4 +1,4 @@
-﻿namespace Scheduling.Solver.Interfaces
+﻿namespace Scheduling.Core.Interfaces
 {
     public interface ILogger
     {
