@@ -131,6 +131,19 @@ namespace Scheduling.Core.Graph
             return AddEdge(new Conjunction(source, target));
         }
 
+        public bool AddDisjunction(Node node1, Node node2, Machine associatedMachine)
+        {
+            Disjunction disjunction = new(node1, node2, associatedMachine);
+            return AddDisjunction(disjunction);
+        }
+
+        public bool AddDisjunction(Disjunction disjunction)
+        {
+            disjunction.Source.IncidentDisjunctions.Add(disjunction);
+            disjunction.Target.IncidentDisjunctions.Add(disjunction);
+            return AddEdge(disjunction);
+        }
+
         public void SetInitialPheromoneAmount(double amount)
         {
             foreach (var disjunction in Disjunctions)

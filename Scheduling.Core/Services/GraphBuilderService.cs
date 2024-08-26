@@ -48,7 +48,7 @@ namespace Scheduling.Core.Services
 
             // create disjunctions between every operation running on same pool
             graph.GeneratePossibleDisjunctions().ToList()
-                .ForEach(disjunction => graph.AddEdge(disjunction));
+                .ForEach(disjunction => graph.AddDisjunction(disjunction));
             return graph;
         }
 

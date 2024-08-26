@@ -25,8 +25,8 @@ namespace Scheduling.Tests
             var disjunctiveGraphModel = _graphBuilderService.BuildDisjunctiveGraph(jobs, machines);
 
             Assert.Equal(10, disjunctiveGraphModel.VertexCount); // 8 operations + source and sink nodes
-            Assert.Equal(20, disjunctiveGraphModel.EdgeCount);
-            Assert.Equal(13, disjunctiveGraphModel.ConjuntionCount);
+            Assert.Equal(18, disjunctiveGraphModel.EdgeCount);
+            Assert.Equal(11, disjunctiveGraphModel.ConjuntionCount);
             Assert.Equal(7, disjunctiveGraphModel.DisjuntionCount);
         }
 

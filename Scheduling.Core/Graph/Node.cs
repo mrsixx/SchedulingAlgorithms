@@ -18,6 +18,8 @@ namespace Scheduling.Core.Graph
 
         public List<Node> Successors { get; } = [];
 
+        public List<Disjunction> IncidentDisjunctions { get; } = [];
+
         public bool IsSourceNode => Id == Operation.SOURCE_ID;
 
         public bool IsSinkNode => Id == Operation.SINK_ID;
