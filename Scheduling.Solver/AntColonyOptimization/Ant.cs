@@ -52,10 +52,6 @@ namespace Scheduling.Solver.AntColonyOptimization
         private void WalkAround()
         {
             var remainingNodes = Context.DisjunctiveGraph.OperationVertices.ToList();
-            var remainingDisjunctions = Context.DisjunctiveGraph.Disjunctions.ToList();
-            var remainingConjunctions = Context.DisjunctiveGraph.Conjunctions.ToList();
-
-            LoadFirstOperations(remainingNodes);
 
             while (remainingNodes.Count > 0)
             {
@@ -63,17 +59,13 @@ namespace Scheduling.Solver.AntColonyOptimization
                 var feasibleMoves = GetFeasibleMoves(allowedNodes);
                 if (feasibleMoves.Any())
                 {
-                    //quem sabe selecionar tanto um move conjuntivo quando um disjuntivo
                     var selectedMove = ChooseNextMove(feasibleMoves);
                     EvaluateCompletionTime(selectedMove);
                     remainingNodes.Remove(selectedMove.Target);
-                    RemoverArestas(remainingDisjunctions, remainingConjunctions, selectedMove);
                 }
             }
 
             LinkinToSink();
-            //Log();
-
             UpdatePheromone();
         }
 
@@ -98,12 +90,24 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         private void LinkinToSink()
         {
-            foreach (var machine in LoadingSequence.Values)
+            var sinkDisjunctions = FinalNode.IncidentDisjunctions;
+            var sinks = ConjunctiveGraph.Sinks().ToList();
+            foreach (var sink in sinks)
             {
-                var lastNode = machine.Peek();
-                ConjunctiveGraph.AddConjunctionAndVertices(new Conjunction(lastNode, FinalNode));
-                CompletionTimes[FinalNode.Operation] = Math.Max(CompletionTimes[FinalNode.Operation], CompletionTimes[lastNode.Operation]);
+                var machine = MachineAssignment[sink.Operation];
+                var disjunction = sink.IncidentDisjunctions.Intersect(sinkDisjunctions).First(d => d.Machine == machine);
+                if (disjunction is null) continue;
+                var orientation = disjunction.EquivalentConjunctions.First(c => c.Target == FinalNode);
+                ConjunctiveGraph.AddConjunctionAndVertices(orientation);
+                CompletionTimes[FinalNode.Operation] = Math.Max(CompletionTimes[FinalNode.Operation], CompletionTimes[sink.Operation]);
             }
+            //foreach (var machine in LoadingSequence.Values)
+            //{
+            //    var lastNode = machine.Peek();
+            //    var lastSteps = lastNode.IncidentDisjunctions.Intersect(disjunctions);
+            //    ConjunctiveGraph.AddConjunctionAndVertices(new Conjunction(lastNode, FinalNode));
+            //    CompletionTimes[FinalNode.Operation] = Math.Max(CompletionTimes[FinalNode.Operation], CompletionTimes[lastNode.Operation]);
+            //}
         }
 
         private void LoadFirstOperations(List<Node> remainingNodes)

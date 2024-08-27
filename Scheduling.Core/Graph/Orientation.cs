@@ -27,6 +27,8 @@ namespace Scheduling.Core.Graph
         {
             get
             {
+                if (Source.IsSourceNode) return 1;
+
                 return Source.Operation.GetProcessingTime(Machine);
             }
         }

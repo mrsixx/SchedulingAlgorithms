@@ -76,6 +76,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             Colony colony = new();
             sw.Start();
             DisjunctiveGraph.SetInitialPheromoneAmount(InitialPheromoneAmount);
+            Log($"Depositing {InitialPheromoneAmount} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
             for (int i = 0; i < Iterations; i++)
             {
                 Log($"\nGenerating {AntCount} artificial ants from #{i + 1}th wave...");

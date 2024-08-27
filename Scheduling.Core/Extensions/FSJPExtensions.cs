@@ -14,7 +14,17 @@ namespace Scheduling.Core.Extensions
                 {
                     var (o1, o2) = pair;
                     var intersection = o1.Operation.EligibleMachines.Intersect(o2.Operation.EligibleMachines);
-                    return intersection.Select(machine => new Disjunction(o1, o2, machine));
+                    return intersection.Aggregate(new List<Disjunction>(), (acc, machine) =>
+                    {
+                        acc.AddRange([
+                            new(graph.Source, o1, machine),
+                            new(o1, graph.Sink, machine),
+                            new(graph.Source, o2, machine),
+                            new(o2, graph.Sink, machine),
+                            new(o1, o2, machine)
+                        ]);
+                        return acc;
+                    });
                 });
         }
 
