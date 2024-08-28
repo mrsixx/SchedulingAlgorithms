@@ -4,6 +4,8 @@ using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using Scheduling.Solver.Utils;
+using System.Diagnostics;
+using System.Linq;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization
@@ -51,15 +53,18 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         private void WalkAround()
         {
-            var remainingNodes = Context.DisjunctiveGraph.OperationVertices.ToList();
+            var remainingNodes = Context.DisjunctiveGraph.OperationVertices.ToHashSet();
 
+            Stopwatch timer = new();
             while (remainingNodes.Count > 0)
             {
-                var allowedNodes = GetAllowedNodes(remainingNodes);
+                List<Node> allowedNodes = GetAllowedNodes(remainingNodes);
+               
                 var feasibleMoves = GetFeasibleMoves(allowedNodes);
                 if (feasibleMoves.Any())
                 {
-                    var selectedMove = ChooseNextMove(feasibleMoves);
+                    Orientation selectedMove = ChooseNextMove(feasibleMoves);
+                    
                     EvaluateCompletionTime(selectedMove);
                     remainingNodes.Remove(selectedMove.Target);
                 }
@@ -110,18 +115,6 @@ namespace Scheduling.Solver.AntColonyOptimization
             //}
         }
 
-        private void LoadFirstOperations(List<Node> remainingNodes)
-        {
-            var firstNodes = GetAllowedNodes(remainingNodes);
-            foreach (var node in firstNodes)
-            {
-                //todo: considerar feromonio nesta escolha (disjunções adjascentes as primeiras operações)
-                var greedyMachine = node.Operation.EligibleMachines.MinBy(m => node.Operation.ProcessingTime(m));
-                EvaluateCompletionTime(node, greedyMachine);
-                remainingNodes.Remove(node);
-            }
-        }
-
         private void EvaluateCompletionTime(Orientation selectedMove)
         {
             var node = selectedMove.Target;
@@ -154,18 +147,19 @@ namespace Scheduling.Solver.AntColonyOptimization
             remainingConjunctions.RemoveAll(ConjunctiveGraph.ContainsEdge);
         }
 
-        private Orientation ChooseNextMove(IEnumerable<IFeasibleMove> possibleMoves)
+        private Orientation ChooseNextMove(IEnumerable<IFeasibleMove> feasibleMoves)
         {
-            var roulette = new RouletteWheelSelection<Orientation>();
             // calculate the product tauK^ALPHA * etaK ^ BETA of the ant k for each edge
-            possibleMoves.ToList().ForEach(move =>
+            var roulette = feasibleMoves.Aggregate(new RouletteWheelSelection<Orientation>(), (roulette, move) =>
             {
                 var pheromoneAmount = move.PheromoneAmount;
                 // assume that x = edge.Start and y = edge.Target
                 var tauK_xy = move.Weight.Inverse(); // inverso da distancia entre edge.Start e edge.Target
                 var etaK_xy = pheromoneAmount.DividedBy(move.Weight);// concentração de feromonio entre edge.Start e edge.Target
                 var factor = Math.Pow(tauK_xy, Context.Alpha) * Math.Pow(etaK_xy, Context.Beta);
+
                 roulette.AddItem(move.DirectedEdge, factor);
+                return roulette;
             });
 
             // calculate the probability pK of the ant k choosing each edge
@@ -187,22 +181,18 @@ namespace Scheduling.Solver.AntColonyOptimization
             }
         }
 
-        private static Func<Node, bool> DoesNotContainPredecessorsIn(List<Node> remainingNodes)
+        private static Func<Node, bool> DoesNotContainPredecessorsIn(HashSet<Node> remainingNodes)
         {
             return v => v.Predecessors.Intersect(remainingNodes).IsEmpty();
         }
 
 
-        private static List<Node> GetAllowedNodes(List<Node> remainingNodes)
+        private static List<Node> GetAllowedNodes(HashSet<Node> remainingNodes)
         {
-            if (remainingNodes.Count == 1 && remainingNodes.First().IsSinkNode)
-                return remainingNodes;
-
             return remainingNodes
-                    .Where(DoesNotContainPredecessorsIn(remainingNodes))
-                    .ToList();
+                    .Where(DoesNotContainPredecessorsIn(remainingNodes)).ToList();
         }
-
+        
         /// <summary>
         /// mark as feasible move 
         /// each disjunctive arc which connects a candidate operation to the last operation of the loading sequence 
@@ -230,6 +220,14 @@ namespace Scheduling.Solver.AntColonyOptimization
 
             });
             return disjunctiveMoves;
+        }
+
+        private void Measure(Stopwatch timer, string msg, Action action)
+        {
+            timer.Restart();
+            action.Invoke();
+            timer.Stop();
+            Console.WriteLine($"{msg}: {timer.Elapsed}");
         }
 
     }

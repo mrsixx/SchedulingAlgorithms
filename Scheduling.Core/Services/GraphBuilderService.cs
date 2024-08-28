@@ -76,9 +76,8 @@ namespace Scheduling.Core.Services
                     {
                         var oId = reader.OperationId[jobIdx][opIdx] + 1;
                         long[] processingTimes = reader.ProcessingTime[oId - 1];
-
                         var eligibleMachines = processingTimes
-                                .Select((processingTime, machineIdx) => (processingTime, machines.Find(m => machineIdx == m.Id - 1)))
+                                .Select((processingTime, machineIdx) => (processingTime, machines.First(m => machineIdx == m.Id - 1)))
                                 .Where(pair => pair.processingTime < BenchmarkReader.INFINITY)
                                 .Select(pair => pair.Item2)
                                 .ToList();

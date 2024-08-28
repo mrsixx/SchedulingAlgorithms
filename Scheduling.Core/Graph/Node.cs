@@ -12,13 +12,13 @@ namespace Scheduling.Core.Graph
 
         public Node DirectPredecessor { get; set; }
 
-        public List<Node> Predecessors { get; } = [];
+        public HashSet<Node> Predecessors { get; } = [];
 
         public Node DirectSuccessor { get; set; }
 
         public List<Node> Successors { get; } = [];
 
-        public List<Disjunction> IncidentDisjunctions { get; } = [];
+        public HashSet<Disjunction> IncidentDisjunctions { get; } = [];
 
         public bool IsSourceNode => Id == Operation.SOURCE_ID;
 
