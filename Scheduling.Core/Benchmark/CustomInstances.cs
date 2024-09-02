@@ -12,11 +12,21 @@ namespace Scheduling.Core.Benchmark
             var pool2 = new List<Machine> { new(3) };
             var pool3 = new List<Machine> { new(4), new(5) };
             var pool4 = new List<Machine> { new(6) };
+            var weights = new Dictionary<Machine, double>();
+
+            Dictionary<Machine, long> ToDict(List<Machine> pool)
+            {
+                return pool.Aggregate(new Dictionary<Machine, long>(), (dict, m) =>
+                {
+                    dict.Add(m, 1);
+                    return dict;
+                });
+            }
 
             Job job1 = new(1), job2 = new(2), job3 = new(3);
-            Operation o1 = new(1, weight), o2 = new(2, weight), o3 = new(3, weight);
-            Operation o4 = new(4, weight), o5 = new(5, weight);
-            Operation o6 = new(6, weight), o7 = new(7, weight), o8 = new(8, weight);
+            Operation o1 = new(1, ToDict(pool1)), o2 = new(2, ToDict(pool2)), o3 = new(3, ToDict(pool4));
+            Operation o4 = new(4, ToDict(pool2)), o5 = new(5, ToDict(pool3));
+            Operation o6 = new(6, ToDict(pool1)), o7 = new(7, ToDict(pool2)), o8 = new(8, ToDict(pool3));
 
             o1.EligibleMachines.AddRange(pool1);
             o6.EligibleMachines.AddRange(pool1);

@@ -30,7 +30,13 @@
 
         public override int GetHashCode()
         {
-            return $"{Source.Id}-->{Target.Id}".GetHashCode();
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + Source.Id.GetHashCode();
+                hash = hash * 23 + Target.Id.GetHashCode();
+                return hash;
+            }
         }
     }
 }

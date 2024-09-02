@@ -17,7 +17,7 @@ var graph = graphBuilderService.BuildDisjunctiveGraphByBenchmarkFile(instanceFil
 graphExporterService.ExportDisjunctiveGraphToGraphviz(graph, outputFile);
 
 //var graph = graphBuilderService.BuildDisjunctiveGraph(CustomInstances.SampleInstance());
-var solution = new AntColonyOptimizationAlgorithmSolver(graph, ants: 1, iterations: 1)
+var solution = new AntColonyOptimizationAlgorithmSolver(graph, ants: 10, iterations: 1)
                 .Verbose(logger)
                 .Solve();
 

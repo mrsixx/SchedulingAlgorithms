@@ -40,16 +40,7 @@ namespace Scheduling.Core.Graph
 
         public Orientation[] EquivalentConjunctions { get; }
 
-        public Pheromone Pheromone
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _pheromoneAmount;
-                }
-            }
-        }
+        public Pheromone Pheromone => _pheromoneAmount;
 
         public override void EvaporatePheromone(double rate)
         {
@@ -84,7 +75,13 @@ namespace Scheduling.Core.Graph
 
         public override int GetHashCode()
         {
-            return $"{Source.Id}-[{Machine?.Id}]-{Target.Id}".GetHashCode();
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + (Machine?.Id.GetHashCode() ?? 0);
+                hash = hash * 23 + (Source.Id.GetHashCode() + Target.Id.GetHashCode());
+                return hash;
+            }
         }
     }
 }

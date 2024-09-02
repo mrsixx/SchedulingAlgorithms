@@ -27,9 +27,9 @@ namespace Scheduling.Solver.AntColonyOptimization
             Task.Start();
         }
 
-        public int Id { get; }
+        public int Id { get; init; }
 
-        public int Generation { get; }
+        public int Generation { get; init; }
 
         public ConjunctiveGraphModel ConjunctiveGraph { get; } = new ConjunctiveGraphModel();
 
@@ -63,8 +63,8 @@ namespace Scheduling.Solver.AntColonyOptimization
                 var feasibleMoves = GetFeasibleMoves(allowedNodes);
                 if (feasibleMoves.Any())
                 {
-                    Orientation selectedMove = ChooseNextMove(feasibleMoves);
-                    
+                    //todo: descobrir como baixar o tempo do ChooseNextMove (atualmente está levando na ordem dos décimos de segundo)
+                    Orientation selectedMove = ChooseNextMove(feasibleMoves);                    
                     EvaluateCompletionTime(selectedMove);
                     remainingNodes.Remove(selectedMove.Target);
                 }
@@ -123,7 +123,6 @@ namespace Scheduling.Solver.AntColonyOptimization
             ConjunctiveGraph.AddConjunctionAndVertices(selectedMove);
         }
 
-        //TODO: tentar alocar nas maquinas de forma mais eficiente (quem sabe considerar a taxa de ocupação das maquinas na heuristica)
         private void EvaluateCompletionTime(Node node, Machine machine)
         {
 
@@ -133,7 +132,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             double jobCompletionTime = CompletionTimes[jobPredecessorNode.Operation];
             double machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation];
 
-            var processingTime = node.Operation.ProcessingTime(machine);
+            var processingTime = node.Operation.GetProcessingTime(machine);
             CompletionTimes[node.Operation] = Math.Max(machineCompletionTime, jobCompletionTime) + processingTime;
             StartTimes[node.Operation] = CompletionTimes[node.Operation] - processingTime;
 
@@ -141,27 +140,29 @@ namespace Scheduling.Solver.AntColonyOptimization
             MachineAssignment.Add(node.Operation, machine);
         }
 
-        private void RemoverArestas(List<Disjunction> remainingDisjunctions, List<Conjunction> remainingConjunctions, Orientation selectedMove)
-        {
-            remainingDisjunctions.RemoveAll(d => d.IsAdjacent(selectedMove.Source) && d.IsAdjacent(selectedMove.Target));
-            remainingConjunctions.RemoveAll(ConjunctiveGraph.ContainsEdge);
-        }
-
+        //TODO: Maybe theres a better way of choose a random Orientation (too slow)
         private Orientation ChooseNextMove(IEnumerable<IFeasibleMove> feasibleMoves)
         {
+            var sum = 0.0;
             // calculate the product tauK^ALPHA * etaK ^ BETA of the ant k for each edge
-            var roulette = feasibleMoves.Aggregate(new RouletteWheelSelection<Orientation>(), (roulette, move) =>
+            var factors = feasibleMoves.Select(move =>
             {
-                var pheromoneAmount = move.PheromoneAmount;
                 // assume that x = edge.Start and y = edge.Target
-                var tauK_xy = move.Weight.Inverse(); // inverso da distancia entre edge.Start e edge.Target
-                var etaK_xy = pheromoneAmount.DividedBy(move.Weight);// concentração de feromonio entre edge.Start e edge.Target
-                var factor = Math.Pow(tauK_xy, Context.Alpha) * Math.Pow(etaK_xy, Context.Beta);
+                var tauK_xy = move.PheromoneAmount; //pheromone amount over x -> y path
+                var etaK_xy = move.Weight.Inverse(); // heuristic information (processing time) of including x -> y
 
-                roulette.AddItem(move.DirectedEdge, factor);
+                var factor = Math.Pow(tauK_xy, Context.Alpha) * Math.Pow(etaK_xy, Context.Beta);
+                sum += factor;
+                return new Tuple<IFeasibleMove, double>(move, factor);
+            }).ToList();
+
+            var roulette = factors.Aggregate(new RouletteWheelSelection<Orientation>(), (roulette, pair) =>
+            {
+                var (move, factor) = pair;
+
+                roulette.AddItem(move.DirectedEdge, factor/sum);
                 return roulette;
             });
-
             // calculate the probability pK of the ant k choosing each edge
             // then we draw one based on probability
             return roulette.SelectItem();
@@ -173,6 +174,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             {
                 if (edge.HasAssociatedOrientation)
                 {
+                    //evaporation running for each ant?
                     edge.AssociatedOrientation.EvaporatePheromone(rate: Context.Rho);
                     var amount = Context.Q.DividedBy(Makespan);
                     edge.AssociatedOrientation.DepositPheromone(amount);
@@ -186,9 +188,9 @@ namespace Scheduling.Solver.AntColonyOptimization
             return v => v.Predecessors.Intersect(remainingNodes).IsEmpty();
         }
 
-
         private static List<Node> GetAllowedNodes(HashSet<Node> remainingNodes)
         {
+            //TODO: em vez de gerar a lista a cada iteração, remover os nós da lista já existente
             return remainingNodes
                     .Where(DoesNotContainPredecessorsIn(remainingNodes)).ToList();
         }

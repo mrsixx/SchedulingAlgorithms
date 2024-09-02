@@ -19,46 +19,46 @@ namespace Scheduling.Solver.AntColonyOptimization
         private ILogger? _logger;
 
         /// <summary>
-        /// Weight of distance factor constant
-        /// </summary>
-        public double Alpha { get; } = alpha;
-
-        /// <summary>
         /// Weight of pheromone factor constant
         /// </summary>
-        public double Beta { get; } = beta;
+        public double Alpha { get; init; } = alpha;
+
+        /// <summary>
+        /// Weight of distance factor constant
+        /// </summary>
+        public double Beta { get; init; } = beta;
 
         /// <summary>
         /// Pheromone evaporation rate constant
         /// </summary>
-        public double Rho { get; } = rho;
+        public double Rho { get; init; } = rho;
 
         /// <summary>
         /// Pheromone Update constant
         /// </summary>
-        public double Q { get; } = q;
+        public double Q { get; init; } = q;
 
         /// <summary>
         /// Initial pheromone amount over graph edges
         /// </summary>
-        public double InitialPheromoneAmount { get; } = initialPheromoneAmount;
+        public double InitialPheromoneAmount { get; init; } = initialPheromoneAmount;
 
         /// <summary>
         /// Amount of ants
         /// </summary>
-        public int AntCount { get; } = ants;
+        public int AntCount { get; init; } = ants;
 
         /// <summary>
         /// Number of iterations
         /// </summary>
-        public int Iterations { get; } = iterations;
+        public int Iterations { get; init; } = iterations;
 
         /// <summary>
         /// How long should ants continue without improving the solution
         /// </summary>
-        public int StagnantGenerationsAllowed { get; } = stagnantGenerationsAllowed;
+        public int StagnantGenerationsAllowed { get; init; } = stagnantGenerationsAllowed;
 
-        public DisjunctiveGraphModel DisjunctiveGraph { get; } = graph;
+        public DisjunctiveGraphModel DisjunctiveGraph { get; init; } = graph;
 
         public AntColonyOptimizationAlgorithmSolver Verbose(ILogger logger)
         {

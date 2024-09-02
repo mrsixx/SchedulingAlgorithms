@@ -1,4 +1,5 @@
 ﻿using Scheduling.Core.FJSP;
+using System.Diagnostics;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Core.Graph
@@ -27,7 +28,11 @@ namespace Scheduling.Core.Graph
         {
             get
             {
-                if (Source.IsSourceNode) return 1;
+                if (Source.IsSourceNode)
+                {
+                    //Debug.WriteLine("Hit 1");
+                    return 1;
+                }
 
                 return Source.Operation.GetProcessingTime(Machine);
             }
@@ -63,7 +68,14 @@ namespace Scheduling.Core.Graph
 
         public override int GetHashCode()
         {
-            return $"{Source.Id}-[${Machine?.Id}]->{Target.Id}".GetHashCode();
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + Source.Id.GetHashCode();
+                hash = hash * 23 + (Machine?.Id.GetHashCode() ?? 0);
+                hash = hash * 23 + Target.Id.GetHashCode();
+                return hash;
+            }
         }
     }
 }
