@@ -59,11 +59,15 @@ namespace Scheduling.Core.Graph
 
         public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(this, obj)) return true;
+            if (ReferenceEquals(this, obj))
+                return true;
 
-            if (obj is not Orientation orientation) return false;
+            if (obj is not Orientation orientation)
+                return false;
 
-            return Source.Id == orientation.Source.Id && Target.Id == orientation.Target.Id;
+            return Machine.Id == orientation.Machine.Id
+                   && Source.Id == orientation.Source.Id
+                   && Target.Id == orientation.Target.Id;
         }
 
         public override int GetHashCode()

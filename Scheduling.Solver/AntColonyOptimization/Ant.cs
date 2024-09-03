@@ -1,11 +1,9 @@
-﻿using QuikGraph;
-using QuikGraph.Algorithms;
+﻿using QuikGraph.Algorithms;
 using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using Scheduling.Solver.Utils;
 using System.Diagnostics;
-using System.Linq;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization
@@ -59,12 +57,12 @@ namespace Scheduling.Solver.AntColonyOptimization
             while (remainingNodes.Count > 0)
             {
                 List<Node> allowedNodes = GetAllowedNodes(remainingNodes);
-               
+
                 var feasibleMoves = GetFeasibleMoves(allowedNodes);
                 if (feasibleMoves.Any())
                 {
                     //todo: descobrir como baixar o tempo do ChooseNextMove (atualmente está levando na ordem dos décimos de segundo)
-                    Orientation selectedMove = ChooseNextMove(feasibleMoves);                    
+                    Orientation selectedMove = ChooseNextMove(feasibleMoves);
                     EvaluateCompletionTime(selectedMove);
                     remainingNodes.Remove(selectedMove.Target);
                 }
@@ -106,13 +104,6 @@ namespace Scheduling.Solver.AntColonyOptimization
                 ConjunctiveGraph.AddConjunctionAndVertices(orientation);
                 CompletionTimes[FinalNode.Operation] = Math.Max(CompletionTimes[FinalNode.Operation], CompletionTimes[sink.Operation]);
             }
-            //foreach (var machine in LoadingSequence.Values)
-            //{
-            //    var lastNode = machine.Peek();
-            //    var lastSteps = lastNode.IncidentDisjunctions.Intersect(disjunctions);
-            //    ConjunctiveGraph.AddConjunctionAndVertices(new Conjunction(lastNode, FinalNode));
-            //    CompletionTimes[FinalNode.Operation] = Math.Max(CompletionTimes[FinalNode.Operation], CompletionTimes[lastNode.Operation]);
-            //}
         }
 
         private void EvaluateCompletionTime(Orientation selectedMove)
@@ -160,7 +151,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             {
                 var (move, factor) = pair;
 
-                roulette.AddItem(move.DirectedEdge, factor/sum);
+                roulette.AddItem(move.DirectedEdge, factor / sum);
                 return roulette;
             });
             // calculate the probability pK of the ant k choosing each edge
@@ -194,7 +185,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             return remainingNodes
                     .Where(DoesNotContainPredecessorsIn(remainingNodes)).ToList();
         }
-        
+
         /// <summary>
         /// mark as feasible move 
         /// each disjunctive arc which connects a candidate operation to the last operation of the loading sequence 
