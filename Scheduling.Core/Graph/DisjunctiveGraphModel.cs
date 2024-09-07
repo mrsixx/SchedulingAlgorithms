@@ -144,13 +144,6 @@ namespace Scheduling.Core.Graph
             return AddEdge(disjunction);
         }
 
-        public void SetInitialPheromoneAmount(double amount)
-        {
-            foreach (var disjunction in Disjunctions)
-            {
-                disjunction.DepositPheromone(amount, Direction.SourceToTarget);
-                disjunction.DepositPheromone(amount, Direction.TargetToSource);
-            }
-        }
+        
     }
 }

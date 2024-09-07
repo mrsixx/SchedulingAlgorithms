@@ -63,13 +63,24 @@ namespace Scheduling.Solver.AntColonyOptimization
                 {
                     //todo: descobrir como baixar o tempo do ChooseNextMove (atualmente está levando na ordem dos décimos de segundo)
                     Orientation selectedMove = ChooseNextMove(feasibleMoves);
+                    if (selectedMove is null)
+                    {
+                        Console.WriteLine("FATAL ERROR: Set of feasible moves is empty :/");
+                        return;
+                    }
                     EvaluateCompletionTime(selectedMove);
+                    LocalPheromoneUpdate(selectedMove);
+
                     remainingNodes.Remove(selectedMove.Target);
                 }
             }
-
             LinkinToSink();
-            UpdatePheromone();
+        }
+
+        private void LocalPheromoneUpdate(Orientation selectedMove)
+        {
+            if (!Context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) || !Context.PheromoneTrail.TryUpdate(selectedMove, (1 - Context.Phi) * currentPheromoneValue + Context.Phi * Context.Tau0, currentPheromoneValue))
+                Console.WriteLine("Unable to decay pheromone after construction step...");
         }
 
         public void Log()
@@ -139,7 +150,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             var factors = feasibleMoves.Select(move =>
             {
                 // assume that x = edge.Start and y = edge.Target
-                var tauK_xy = move.PheromoneAmount; //pheromone amount over x -> y path
+                var tauK_xy = move.GetPheromoneAmount(Context); //pheromone amount over x -> y path
                 var etaK_xy = move.Weight.Inverse(); // heuristic information (processing time) of including x -> y
 
                 var factor = Math.Pow(tauK_xy, Context.Alpha) * Math.Pow(etaK_xy, Context.Beta);
@@ -161,16 +172,16 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         private void UpdatePheromone()
         {
-            foreach (var edge in ConjunctiveGraph.Edges)
+            var orientations = ConjunctiveGraph.Edges
+                                .Where(e => e.HasAssociatedOrientation)
+                                .Select(e => e.AssociatedOrientation)
+                                .ToHashSet();
+            
+            foreach (var trail in Context.PheromoneTrail)
             {
-                if (edge.HasAssociatedOrientation)
-                {
-                    //evaporation running for each ant?
-                    edge.AssociatedOrientation.EvaporatePheromone(rate: Context.Rho);
-                    var amount = Context.Q.DividedBy(Makespan);
-                    edge.AssociatedOrientation.DepositPheromone(amount);
-                }
-
+                var increase = orientations.Contains(trail.Key) ? Context.Q.DividedBy(Makespan) : 0;
+                if(!Context.PheromoneTrail.TryUpdate(trail.Key, (1 - Context.Rho) * trail.Value + increase, trail.Value))
+                    Console.WriteLine($"Update pheromone failed on {trail.Key}");
             }
         }
 

@@ -28,6 +28,7 @@ namespace Scheduling.Core.Graph
         {
             get
             {
+                //TODO: change to release date
                 if (Source.IsSourceNode)
                 {
                     //Debug.WriteLine("Hit 1");
@@ -45,17 +46,6 @@ namespace Scheduling.Core.Graph
         public Disjunction AssociatedDisjunction { get; private set; }
 
         public Direction FixedDirection { get; private set; }
-
-
-        public override void EvaporatePheromone(double rate)
-        {
-            AssociatedDisjunction.EvaporatePheromone(rate);
-        }
-
-        public void DepositPheromone(double amount)
-        {
-            AssociatedDisjunction.DepositPheromone(amount, FixedDirection);
-        }
 
         public override bool Equals(object? obj)
         {
@@ -75,8 +65,9 @@ namespace Scheduling.Core.Graph
             unchecked
             {
                 int hash = 17;
+                hash = hash * 23 + FixedDirection.GetHashCode();
                 hash = hash * 23 + Source.Id.GetHashCode();
-                hash = hash * 23 + (Machine?.Id.GetHashCode() ?? 0);
+                hash = hash * 23 + Machine.Id.GetHashCode();
                 hash = hash * 23 + Target.Id.GetHashCode();
                 return hash;
             }

@@ -1,6 +1,5 @@
 ﻿using QuikGraph;
 using Scheduling.Core.FJSP;
-using Scheduling.Core.Interfaces;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Core.Graph
@@ -8,9 +7,6 @@ namespace Scheduling.Core.Graph
     [Serializable]
     public class Disjunction : AntEdge, IUndirectedEdge<Node>
     {
-        private readonly object _lock = new();
-        private Pheromone _pheromoneAmount = new(0.0, 0.0);
-
         private Disjunction(Node u, Node v)
         {
             Node node1 = u, node2 = v;
@@ -40,28 +36,6 @@ namespace Scheduling.Core.Graph
 
         public Orientation[] EquivalentConjunctions { get; }
 
-        public Pheromone Pheromone => _pheromoneAmount;
-
-        public override void EvaporatePheromone(double rate)
-        {
-            lock (_lock)
-            {
-                _pheromoneAmount.SourceToTarget = (1 - rate) * _pheromoneAmount.SourceToTarget;
-                _pheromoneAmount.TargetToSource = (1 - rate) * _pheromoneAmount.TargetToSource;
-            }
-        }
-
-        public void DepositPheromone(double amount, Direction direction)
-        {
-            lock (_lock)
-            {
-                if (direction == Direction.SourceToTarget)
-                    _pheromoneAmount.SourceToTarget += amount;
-                else if (direction == Direction.TargetToSource)
-                    _pheromoneAmount.TargetToSource += amount;
-            }
-        }
-
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj)) return true;
@@ -78,7 +52,7 @@ namespace Scheduling.Core.Graph
             unchecked
             {
                 int hash = 17;
-                hash = hash * 23 + (Machine?.Id.GetHashCode() ?? 0);
+                hash = hash * 23 + Machine.Id.GetHashCode();
                 hash = hash * 23 + (Source.Id.GetHashCode() + Target.Id.GetHashCode());
                 return hash;
             }

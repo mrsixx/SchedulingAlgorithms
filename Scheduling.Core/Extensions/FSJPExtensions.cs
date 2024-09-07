@@ -1,6 +1,7 @@
 ﻿using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Xml.Linq;
 
 namespace Scheduling.Core.Extensions
@@ -14,18 +15,18 @@ namespace Scheduling.Core.Extensions
                 {
                     var (o1, o2) = pair;
                     var intersection = o1.Operation.EligibleMachines.Intersect(o2.Operation.EligibleMachines);
-                    return intersection.Aggregate(new List<Disjunction>(), (acc, machine) =>
-                    {
-                        acc.AddRange([
-                            new(graph.Source, o1, machine),
-                            new(o1, graph.Sink, machine),
-                            new(graph.Source, o2, machine),
-                            new(o2, graph.Sink, machine),
-                            new(o1, o2, machine)
-                        ]);
-                        return acc;
-                    });
-                });
+                    return intersection.Select(machine => new Disjunction(o1, o2, machine));
+                })
+                .Concat(
+                    graph.OperationVertices.SelectMany(
+                        o => o.Operation.EligibleMachines.SelectMany(
+                            m => new List<Disjunction> { 
+                                new(graph.Source, o, m),
+                                new(o, graph.Sink, m) 
+                            }
+                        )
+                    )
+                );
         }
 
         /// <summary>

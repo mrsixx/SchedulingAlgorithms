@@ -7,9 +7,9 @@ namespace Scheduling.Solver.AntColonyOptimization
     {
         public double Weight { get; }
 
-        public double PheromoneAmount { get; }
-
         public Orientation DirectedEdge { get; }
+
+        public double GetPheromoneAmount(AntColonyOptimizationAlgorithmSolver context);
     }
 
     public class FeasibleMove(Disjunction disjunction, Direction direction) : IFeasibleMove
@@ -18,15 +18,19 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public Direction Direction { get; set; } = direction;
 
-
         public double Weight => DirectedEdge.Weight;
-
-        public double PheromoneAmount => Direction == Direction.SourceToTarget
-                                        ? Disjunction.Pheromone.SourceToTarget
-                                        : Disjunction.Pheromone.TargetToSource;
 
         public Orientation DirectedEdge => Direction == Direction.SourceToTarget
                                             ? Disjunction.EquivalentConjunctions[0]
                                             : Disjunction.EquivalentConjunctions[1];
+
+        public double GetPheromoneAmount(AntColonyOptimizationAlgorithmSolver context)
+        {
+            if (context.PheromoneTrail.TryGetValue(DirectedEdge, out double pheromone))
+                return pheromone;
+            
+            Console.WriteLine($"Disjuntion {Disjunction} out of trail");
+            return 0.0;
+        }
     }
 }

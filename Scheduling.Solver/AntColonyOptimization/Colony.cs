@@ -15,10 +15,20 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public int LastProductiveGeneration { get; private set; } = 0;
 
+        public Dictionary<int, Ant> IterationBests { get; private set; } = [];
+
+        public Ant BestSoFar => IterationBests.MinBy(a => a.Value.Makespan).Value;
+
         public void UpdateBestPath(Ant[] ants)
         {
             foreach (var ant in ants)
             {
+                if(!IterationBests.ContainsKey(ant.Generation))
+                    IterationBests[ant.Generation] = ant;
+
+                if (ant.Makespan < IterationBests[ant.Generation].Makespan)
+                    IterationBests[ant.Generation] = ant;
+
                 var bestGraphIsNull = BestGraph is null;
                 var antFoundBetterPath = ant.Makespan < EmployeeOfTheMonth?.Makespan;
                 if (bestGraphIsNull || antFoundBetterPath)
