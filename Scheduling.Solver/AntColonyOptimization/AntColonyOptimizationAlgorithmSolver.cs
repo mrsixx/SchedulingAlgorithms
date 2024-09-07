@@ -14,7 +14,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                                           double alpha = 0.9,
                                           double beta = 1.2,
                                           double rho = 0.01,
-                                          double q = 5000,
+                                          double q0 = 0.5,
                                           double phi = 0.04,
                                           double tau0 = 0.001,
                                           int ants = 300,
@@ -45,9 +45,9 @@ namespace Scheduling.Solver.AntColonyOptimization
         public double Phi { get; init; } = phi;
 
         /// <summary>
-        /// Pheromone Update constant
+        /// Pseudorandom proportional rule parameter (<= 1
         /// </summary>
-        public double Q { get; init; } = q;
+        public double Q0 { get; init; } = q0;
 
         /// <summary>
         /// Initial pheromone amount over graph edges
@@ -83,7 +83,7 @@ namespace Scheduling.Solver.AntColonyOptimization
         public FjspSolution Solve()
         {
             Log($"Starting ACO algorithm with following parameters:");
-            Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Q = {Q}; Initial pheromone = {Tau0}.");
+            Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Q0 = {Q0}; Initial pheromone = {Tau0}.");
 
             Stopwatch sw = new();
             Stopwatch iSw = new();
@@ -93,17 +93,20 @@ namespace Scheduling.Solver.AntColonyOptimization
             Log($"Depositing {Tau0} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
             for (int i = 0; i < Iterations; i++)
             {
-                Log($"\nGenerating {AntCount} artificial ants from #{i + 1}th wave...");
+                var currentIteration = i + 1;
+                Log($"\nGenerating {AntCount} artificial ants from #{currentIteration}th wave...");
                 //Log($"Graph pheromone on #{i + 1}th wave: total = {Graph.CalculateTotalPheromoneAmount()}; average = {Graph.CalculateAvgPheromoneAmount()}");
                 iSw.Restart();
-                Ant[] ants = GenerateAntsWave(generation: i + 1);
-                Log($"#{i + 1}th wave ants start to walk...");
+                Ant[] ants = GenerateAntsWave(generation: currentIteration);
+                Log($"#{currentIteration}th wave ants start to walk...");
                 WaitForAntsToStop(ants);
                 iSw.Stop();
-                Log($"#{i + 1}th wave ants has stopped after {iSw.Elapsed}!");
+                Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
-                PheromoneOfflineUpdate(i + 1, colony);
-                Log($"Better makespan: {colony.EmployeeOfTheMonth.Makespan}");
+                Log($"Running offline pheromone update...");
+                PheromoneOfflineUpdate(currentIteration, colony);
+                Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
+                Log($"Best so far makespan: {colony.EmployeeOfTheMonth.Makespan}");
                 
                 var generationsSinceLastImprovement = i - colony.LastProductiveGeneration;
                 if (generationsSinceLastImprovement > StagnantGenerationsAllowed)

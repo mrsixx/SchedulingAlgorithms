@@ -153,14 +153,23 @@ namespace Scheduling.Solver.AntColonyOptimization
                 var tauK_xy = move.GetPheromoneAmount(Context); //pheromone amount over x -> y path
                 var etaK_xy = move.Weight.Inverse(); // heuristic information (processing time) of including x -> y
 
-                var factor = Math.Pow(tauK_xy, Context.Alpha) * Math.Pow(etaK_xy, Context.Beta);
-                sum += factor;
-                return new Tuple<IFeasibleMove, double>(move, factor);
+                var factorAlphaBeta = Math.Pow(tauK_xy, Context.Alpha) * Math.Pow(etaK_xy, Context.Beta);
+                var factorBeta = tauK_xy * Math.Pow(etaK_xy, Context.Beta);
+                sum += factorAlphaBeta;
+                return new Tuple<IFeasibleMove, double, double>(move, factorAlphaBeta, factorBeta);
             }).ToList();
+
+            //pseudorandom proportional rule
+            if (Random.Shared.NextDouble() <= Context.Q0)
+            {
+                var max = factors.MaxBy(triple => triple.Item3);
+                return max.Item1.DirectedEdge;
+            }
+
 
             var roulette = factors.Aggregate(new RouletteWheelSelection<Orientation>(), (roulette, pair) =>
             {
-                var (move, factor) = pair;
+                var (move, factor, _) = pair;
 
                 roulette.AddItem(move.DirectedEdge, factor / sum);
                 return roulette;
@@ -168,21 +177,6 @@ namespace Scheduling.Solver.AntColonyOptimization
             // calculate the probability pK of the ant k choosing each edge
             // then we draw one based on probability
             return roulette.SelectItem();
-        }
-
-        private void UpdatePheromone()
-        {
-            var orientations = ConjunctiveGraph.Edges
-                                .Where(e => e.HasAssociatedOrientation)
-                                .Select(e => e.AssociatedOrientation)
-                                .ToHashSet();
-            
-            foreach (var trail in Context.PheromoneTrail)
-            {
-                var increase = orientations.Contains(trail.Key) ? Context.Q.DividedBy(Makespan) : 0;
-                if(!Context.PheromoneTrail.TryUpdate(trail.Key, (1 - Context.Rho) * trail.Value + increase, trail.Value))
-                    Console.WriteLine($"Update pheromone failed on {trail.Key}");
-            }
         }
 
         private static Func<Node, bool> DoesNotContainPredecessorsIn(HashSet<Node> remainingNodes)
