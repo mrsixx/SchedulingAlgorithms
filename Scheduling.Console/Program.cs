@@ -17,12 +17,17 @@ var graph = graphBuilderService.BuildDisjunctiveGraphByBenchmarkFile(instanceFil
 graphExporterService.ExportDisjunctiveGraphToGraphviz(graph, outputFile);
 
 //var graph = graphBuilderService.BuildDisjunctiveGraph(CustomInstances.SampleInstance());
-var solution = new AntColonyOptimizationAlgorithmSolver(graph, ants: 10, iterations: 10, q0: 0.09)
+var solution = new AntColonyOptimizationAlgorithmSolver(graph, ants: 10, iterations: 10, alpha: 1)
                 .Verbose(logger)
                 .Solve();
 
 //if(solution.BestSolution != null)
 solution.Context.EmployeeOfTheMonth.Log();
-graphExporterService.ExportConjunctiveGraphToGraphviz(solution.Context.BestGraph, $"{outputFile}.sol");
+graphExporterService.ExportConjunctiveGraphToGraphviz(
+    solution.Context.BestGraph, 
+    solution.Context.BestSoFar.MachineAssignment, 
+    solution.Context.BestSoFar.StartTimes,
+    solution.Context.BestSoFar.CompletionTimes,
+    $"{outputFile}.sol");
 
 Console.ReadKey();

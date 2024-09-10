@@ -14,7 +14,6 @@ namespace Scheduling.Solver.AntColonyOptimization
                                           double alpha = 0.9,
                                           double beta = 1.2,
                                           double rho = 0.01,
-                                          double q0 = 0.5,
                                           double phi = 0.04,
                                           double tau0 = 0.001,
                                           int ants = 300,
@@ -47,7 +46,7 @@ namespace Scheduling.Solver.AntColonyOptimization
         /// <summary>
         /// Pseudorandom proportional rule parameter (<= 1
         /// </summary>
-        public double Q0 { get; init; } = q0;
+        public double Q0 { get; internal set; }
 
         /// <summary>
         /// Initial pheromone amount over graph edges
@@ -83,7 +82,7 @@ namespace Scheduling.Solver.AntColonyOptimization
         public FjspSolution Solve()
         {
             Log($"Starting ACO algorithm with following parameters:");
-            Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Q0 = {Q0}; Initial pheromone = {Tau0}.");
+            Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Initial pheromone = {Tau0}.");
 
             Stopwatch sw = new();
             Stopwatch iSw = new();
@@ -94,7 +93,9 @@ namespace Scheduling.Solver.AntColonyOptimization
             for (int i = 0; i < Iterations; i++)
             {
                 var currentIteration = i + 1;
-                Log($"\nGenerating {AntCount} artificial ants from #{currentIteration}th wave...");
+                Q0 = 1 - Math.Log(currentIteration) / Math.Log(Iterations);
+                Log($"\nQ0 becomes {Q0}");
+                Log($"Generating {AntCount} artificial ants from #{currentIteration}th wave...");
                 //Log($"Graph pheromone on #{i + 1}th wave: total = {Graph.CalculateTotalPheromoneAmount()}; average = {Graph.CalculateAvgPheromoneAmount()}");
                 iSw.Restart();
                 Ant[] ants = GenerateAntsWave(generation: currentIteration);

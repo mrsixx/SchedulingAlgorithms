@@ -1,6 +1,7 @@
 ﻿using QuikGraph;
 using QuikGraph.Graphviz;
 using QuikGraph.Graphviz.Dot;
+using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using Scheduling.Core.Interfaces;
 using System.Drawing;
@@ -10,11 +11,16 @@ namespace Scheduling.Core.Services
 {
     public class GraphExporterService : IGraphExporterService
     {
-        public void ExportConjunctiveGraphToGraphviz(ConjunctiveGraphModel graph, string outputFile)
+        public void ExportConjunctiveGraphToGraphviz(ConjunctiveGraphModel graph,
+            Dictionary<Operation, Machine> mu,
+            Dictionary<Operation, double> startTimes,
+            Dictionary<Operation, double> completionTimes,
+            string outputFile)
         {
-            //var colors = Enum.GetValues(typeof(KnownColor))
-            //   .Cast<KnownColor>()
-            //   .Select(Color.FromKnownColor).ToList();
+            var colors = Enum.GetValues(typeof(KnownColor))
+               .Cast<KnownColor>()
+               .Select(Color.FromKnownColor).ToList();
+            var orientationColor = Color.FromKnownColor(KnownColor.DarkOrange);
             void exportAlgorithmConjunctive(GraphvizAlgorithm<Node, Conjunction> graphviz)
             {
                 graphviz.GraphFormat.IsCompounded = true;
@@ -29,27 +35,43 @@ namespace Scheduling.Core.Services
                 var colorDictionary = new Dictionary<int, GraphvizColor>();
                 graphviz.FormatVertex += (sender, args) =>
                 {
+                    var operation = args.Vertex.Operation;
                     if (args.Vertex.IsSourceNode)
-                        args.VertexFormat.Label = "⊗";
-                    else if (args.Vertex.IsSinkNode)
                         args.VertexFormat.Label = "⊥";
+                    else if (args.Vertex.IsSinkNode)
+                    {
+                        args.VertexFormat.Label = $"T  [{completionTimes[operation]}]";
+                    }
                     else
+                    {
                         args.VertexFormat.Label = args.Vertex.Id.ToString();
+                        var machine = mu[args.Vertex.Operation];
+                        if (!colorDictionary.ContainsKey(machine.Id))
+                        {
+                            var color = colors[Random.Shared.Next(0, colors.Count)];
+                            colors.Remove(color);
+                            var graphColor = new GraphvizColor(color.A, color.R, color.G, color.B);
+                            colorDictionary.Add(machine.Id, graphColor);
+                        }
+                        args.VertexFormat.Style = GraphvizVertexStyle.Filled;
+                        args.VertexFormat.FillColor = colorDictionary[machine.Id];
+                        args.VertexFormat.FontColor = GraphvizColor.White;
+                        args.VertexFormat.Label = $"{args.Vertex.Id} [{startTimes[operation]}]";
+                    }
 
                 };
 
                 graphviz.FormatEdge += (sender, args) =>
                 {
-                    if (args.Edge is Conjunction arc)
+                    args.EdgeFormat.TailArrow = new GraphvizArrow(GraphvizArrowShape.None);
+                    args.EdgeFormat.HeadArrow = new GraphvizArrow(GraphvizArrowShape.Normal);
+                    if (args.Edge is Conjunction arc && arc.HasAssociatedOrientation)
                     {
-                        args.EdgeFormat.TailArrow = new GraphvizArrow(GraphvizArrowShape.None);
-                        args.EdgeFormat.HeadArrow = new GraphvizArrow(GraphvizArrowShape.Normal);
-                        args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = arc.Weight.ToString() };
-
+                        args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = arc.AssociatedOrientation.Weight.ToString() };
+                        args.EdgeFormat.StrokeColor = new GraphvizColor(orientationColor.A, orientationColor.R, orientationColor.G, orientationColor.B);
                     }
                 };
 
-                //var location = Path.Combine(dir, $"{filename}.dot");
                 graphviz.Generate(new FileDotEngine(), outputFile);
             }
             graph.ToGraphviz(exportAlgorithmConjunctive);

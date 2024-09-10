@@ -202,6 +202,7 @@ namespace Scheduling.Solver.AntColonyOptimization
         /// <returns></returns>
         private IEnumerable<IFeasibleMove> GetFeasibleMoves(List<Node> candidateNodes)
         {
+            //pegar apenas o topo da pilha está restringindo alguma opção?
             var lastScheduledNodes = LoadingSequence.Values.Select(sequence => sequence.Peek());
 
             var disjunctiveMoves = candidateNodes.SelectMany(candidateNode =>
@@ -211,7 +212,9 @@ namespace Scheduling.Solver.AntColonyOptimization
                     var intersection = lastScheduledNode.IncidentDisjunctions.Intersect(candidateNode.IncidentDisjunctions);
                     return intersection.Select(disjunction =>
                     {
-                        var direction = disjunction.Target == candidateNode ? Direction.SourceToTarget : Direction.TargetToSource;
+                        var direction = disjunction.Target == candidateNode 
+                                        ? Direction.SourceToTarget 
+                                        : Direction.TargetToSource;
                         return new FeasibleMove(disjunction, direction);
                     });
                 });
