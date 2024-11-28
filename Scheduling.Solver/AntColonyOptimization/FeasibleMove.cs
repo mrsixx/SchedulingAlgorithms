@@ -21,8 +21,8 @@ namespace Scheduling.Solver.AntColonyOptimization
         public double Weight => DirectedEdge.Weight;
 
         public Orientation DirectedEdge => Direction == Direction.SourceToTarget
-                                            ? Disjunction.EquivalentConjunctions[0]
-                                            : Disjunction.EquivalentConjunctions[1];
+                                            ? Disjunction.Orientations[0]
+                                            : Disjunction.Orientations[1];
 
         public double GetPheromoneAmount(AntColonyOptimizationAlgorithmSolver context)
         {

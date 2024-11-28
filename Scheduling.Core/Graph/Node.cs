@@ -1,5 +1,4 @@
 ﻿using Scheduling.Core.FJSP;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Scheduling.Core.Graph
 {
@@ -25,7 +24,7 @@ namespace Scheduling.Core.Graph
         public bool IsSinkNode => Id == Operation.SINK_ID;
 
         public bool IsDummyNode => IsSourceNode || IsSinkNode;
-        
+
         public override int GetHashCode() => Id;
 
         public override bool Equals(object? obj)

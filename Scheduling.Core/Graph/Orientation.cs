@@ -4,7 +4,7 @@ using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Core.Graph
 {
-    public class Orientation : AntEdge
+    public class Orientation : BaseEdge
     {
         public Orientation(Disjunction disjunction, Direction fixedDirection) 
         {

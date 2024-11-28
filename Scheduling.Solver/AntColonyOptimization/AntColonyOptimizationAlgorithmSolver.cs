@@ -154,7 +154,7 @@ namespace Scheduling.Solver.AntColonyOptimization
         private void SetInitialPheromoneAmount(double amount)
         {
             foreach (var disjunction in DisjunctiveGraph.Disjunctions)
-                foreach (var orientation in disjunction.EquivalentConjunctions)
+                foreach (var orientation in disjunction.Orientations)
                     if (!PheromoneTrail.TryAdd(orientation, amount))
                             Console.WriteLine($"Error on adding pheromone over {orientation}");
         }

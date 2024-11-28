@@ -5,7 +5,7 @@ using static Scheduling.Core.Enums.DirectionEnum;
 namespace Scheduling.Core.Graph
 {
     [Serializable]
-    public class Disjunction : AntEdge, IUndirectedEdge<Node>
+    public class Disjunction : BaseEdge, IUndirectedEdge<Node>
     {
         private Disjunction(Node u, Node v)
         {
@@ -20,7 +20,7 @@ namespace Scheduling.Core.Graph
         {
             
             Machine = machine;
-            EquivalentConjunctions = [
+            Orientations = [
                 new Orientation(this, Direction.SourceToTarget),
                 new Orientation(this, Direction.TargetToSource)
             ];
@@ -34,7 +34,7 @@ namespace Scheduling.Core.Graph
 
         public Machine Machine { get; }
 
-        public Orientation[] EquivalentConjunctions { get; }
+        public Orientation[] Orientations { get; }
 
         public override bool Equals(object? obj)
         {

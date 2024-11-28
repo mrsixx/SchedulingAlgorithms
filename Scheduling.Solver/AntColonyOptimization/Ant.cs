@@ -111,7 +111,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                 var machine = MachineAssignment[sink.Operation];
                 var disjunction = sink.IncidentDisjunctions.Intersect(sinkDisjunctions).First(d => d.Machine == machine);
                 if (disjunction is null) continue;
-                var orientation = disjunction.EquivalentConjunctions.First(c => c.Target == FinalNode);
+                var orientation = disjunction.Orientations.First(c => c.Target == FinalNode);
                 ConjunctiveGraph.AddConjunctionAndVertices(orientation);
                 CompletionTimes[FinalNode.Operation] = Math.Max(CompletionTimes[FinalNode.Operation], CompletionTimes[sink.Operation]);
             }
@@ -222,14 +222,5 @@ namespace Scheduling.Solver.AntColonyOptimization
             });
             return disjunctiveMoves;
         }
-
-        private void Measure(Stopwatch timer, string msg, Action action)
-        {
-            timer.Restart();
-            action.Invoke();
-            timer.Stop();
-            Console.WriteLine($"{msg}: {timer.Elapsed}");
-        }
-
     }
 }

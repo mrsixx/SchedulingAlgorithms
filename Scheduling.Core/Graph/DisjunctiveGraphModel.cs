@@ -29,7 +29,6 @@ namespace Scheduling.Core.Graph
         /// </summary>
         public IEnumerable<Node> OperationVertices => Vertices.Where(v => !v.IsDummyNode);
 
-
         public IEnumerable<Conjunction> Conjunctions => Edges.Where(e => e is Conjunction).Cast<Conjunction>();
 
         public int ConjuntionCount => Conjunctions.Count();
@@ -73,20 +72,6 @@ namespace Scheduling.Core.Graph
             return false;
         }
 
-        public bool TryGetConjunctions(int nodeId, out IEnumerable<Conjunction> conjunctions)
-        {
-            bool hasNode = TryGetNode(nodeId, out Node node);
-
-            if (hasNode)
-            {
-                conjunctions = Edges.Where(e => e is Conjunction c && c.Source == node).Cast<Conjunction>();
-                return true;
-            }
-
-            conjunctions = default;
-            return false;
-        }
-
         public bool HasDisjunction(int sourceId, int targetId) => TryGetDisjunction(sourceId, targetId, out _);
         
         public bool TryGetDisjunction(int sourceId, int targetId, out Disjunction disjunction)
@@ -111,12 +96,6 @@ namespace Scheduling.Core.Graph
             return false;
         }
 
-        [Obsolete("Improve performance")]
-        public IEnumerable<Conjunction> GetDirectSuccessors(Node node) => Conjunctions.Where(c => c.Source == node);
-
-
-        public IEnumerable<Node> GetPredecessors(Node node) => node.Predecessors;
-
         public bool AddConjunction(Node source, Node target)
         {
             target.Predecessors.AddRange([.. source.Predecessors, source]);
@@ -131,12 +110,6 @@ namespace Scheduling.Core.Graph
             return AddEdge(new Conjunction(source, target));
         }
 
-        public bool AddDisjunction(Node node1, Node node2, Machine associatedMachine)
-        {
-            Disjunction disjunction = new(node1, node2, associatedMachine);
-            return AddDisjunction(disjunction);
-        }
-
         public bool AddDisjunction(Disjunction disjunction)
         {
             disjunction.Source.IncidentDisjunctions.Add(disjunction);
@@ -144,6 +117,5 @@ namespace Scheduling.Core.Graph
             return AddEdge(disjunction);
         }
 
-        
     }
 }
