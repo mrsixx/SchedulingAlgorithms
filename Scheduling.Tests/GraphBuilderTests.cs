@@ -2,6 +2,8 @@ using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Interfaces;
 using Scheduling.Core.Services;
+using System.ComponentModel;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace Scheduling.Tests
 {
@@ -25,9 +27,9 @@ namespace Scheduling.Tests
             var disjunctiveGraphModel = _graphBuilderService.BuildDisjunctiveGraph(jobs, machines);
 
             Assert.Equal(10, disjunctiveGraphModel.VertexCount); // 8 operations + source and sink nodes
-            Assert.Equal(18, disjunctiveGraphModel.EdgeCount);
+            Assert.Equal(42, disjunctiveGraphModel.EdgeCount);
             Assert.Equal(11, disjunctiveGraphModel.ConjuntionCount);
-            Assert.Equal(7, disjunctiveGraphModel.DisjuntionCount);
+            Assert.Equal(31, disjunctiveGraphModel.DisjuntionCount);
         }
 
         [Fact]
@@ -63,12 +65,16 @@ namespace Scheduling.Tests
 
         private static (List<Job>, List<Machine>) BuildInstance()
         {
-            Func<Machine, double> weight = machine => 1.0;
+            Dictionary<Machine, long> weight = [];
+            Action<Machine> setWeight = m => weight.Add(m, 1);
+
             var pool1 = new List<Machine> { new(1), new(2) };
             var pool2 = new List<Machine> { new(3) };
             var pool3 = new List<Machine> { new(4), new(5) };
             var pool4 = new List<Machine> { new(6) };
-
+            List<Machine> machines = [.. pool1, .. pool2, .. pool3, .. pool4];
+            machines.ForEach(setWeight);
+            
             Job job1 = new(1), job2 = new(2), job3 = new(3);
             Operation o1 = new(1, weight), o2 = new(2, weight), o3 = new(3, weight);
             Operation o4 = new(4, weight), o5 = new(5, weight);
@@ -91,7 +97,7 @@ namespace Scheduling.Tests
             job3.Operations.AddRange([o6, o7, o8]);
             
             var jobs = new List<Job> { job1, job2, job3 };
-            List<Machine> machines = [.. pool1, .. pool2, ..pool3, ..pool4];
+
             return (jobs, machines);
         }
     }

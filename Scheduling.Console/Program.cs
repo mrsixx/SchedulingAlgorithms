@@ -1,8 +1,10 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Newtonsoft.Json;
 using Scheduling.Console;
 using Scheduling.Core.Interfaces;
 using Scheduling.Core.Services;
 using Scheduling.Solver.AntColonyOptimization;
+using Scheduling.Solver.Models;
 
 if (args.Length < 2)
     Console.WriteLine("scheduling.exe instanceFile outputFile");
@@ -17,7 +19,7 @@ var graph = graphBuilderService.BuildDisjunctiveGraphByBenchmarkFile(instanceFil
 graphExporterService.ExportDisjunctiveGraphToGraphviz(graph, outputFile);
 
 //var graph = graphBuilderService.BuildDisjunctiveGraph(CustomInstances.SampleInstance());
-var solution = new AntColonyOptimizationAlgorithmSolver(graph, ants: 10, iterations: 10, alpha: 1)
+var solution = new AntColonyOptimizationAlgorithmSolver(graph, ants: 100, iterations: 100, alpha: 1)
                 .Verbose(logger)
                 .Solve();
 
@@ -30,4 +32,5 @@ graphExporterService.ExportConjunctiveGraphToGraphviz(
     solution.Context.BestSoFar.CompletionTimes,
     $"{outputFile}.sol");
 
+var json = JsonConvert.SerializeObject(solution.GetOutput());
 Console.ReadKey();

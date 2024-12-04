@@ -4,9 +4,7 @@ using Scheduling.Core.Interfaces;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 using System.Collections.Concurrent;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization
 {
@@ -108,7 +106,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                 PheromoneOfflineUpdate(currentIteration, colony);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth.Makespan}");
-                
+
                 var generationsSinceLastImprovement = i - colony.LastProductiveGeneration;
                 if (generationsSinceLastImprovement > StagnantGenerationsAllowed)
                 {
@@ -124,11 +122,13 @@ namespace Scheduling.Solver.AntColonyOptimization
             if (colony.EmployeeOfTheMonth is not null)
                 Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
 
-            FjspSolution solution = new(colony); // { Makespan = colony.BestPath.CalculateDistance() };
-            //_logger.LogPath(colony.BestPath);
+            FjspSolution solution = new(colony);
             Log($"Makespan: {solution.Makespan}");
+
             return solution;
         }
+
+
 
         private void PheromoneOfflineUpdate(int currentIteration, Colony colony)
         {
@@ -145,7 +145,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                 var updatedAmount = orientationBelongsToBestGraph
                     ? (1 - Rho) * currentPheromoneAmount + Rho * delta
                     : currentPheromoneAmount;
-                
+
                 if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                     Console.WriteLine($"Offline Update pheromone failed on {orientation}");
             }
@@ -156,7 +156,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             foreach (var disjunction in DisjunctiveGraph.Disjunctions)
                 foreach (var orientation in disjunction.Orientations)
                     if (!PheromoneTrail.TryAdd(orientation, amount))
-                            Console.WriteLine($"Error on adding pheromone over {orientation}");
+                        Console.WriteLine($"Error on adding pheromone over {orientation}");
         }
 
         private void Log(string message) => _logger?.Log(message);

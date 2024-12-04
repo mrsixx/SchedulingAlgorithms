@@ -8,6 +8,8 @@
         
         public int Id { get; set; } = id;
 
+        public int JobId { get; set; }
+
         private Dictionary<Machine, long> ProcessingTimes { get; } = processingTimes;
 
         public HashSet<Machine> EligibleMachines { get; } = [];
