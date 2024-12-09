@@ -21,8 +21,6 @@ namespace Scheduling.Solver.AntColonyOptimization
                 StartTimes.Add(n.Operation, 0);
             });
             Context.DisjunctiveGraph.Machines.ForEach(m => LoadingSequence.Add(m, new([Context.DisjunctiveGraph.Source])));
-            Task = new Task(() => WalkAround());
-            Task.Start();
         }
 
         public int Id { get; init; }
@@ -47,9 +45,8 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public AntColonyOptimizationAlgorithmSolver Context { get; }
 
-        public Task Task { get; }
 
-        private void WalkAround()
+        public void WalkAround()
         {
             var remainingNodes = Context.DisjunctiveGraph.OperationVertices.ToHashSet();
 
@@ -131,14 +128,17 @@ namespace Scheduling.Solver.AntColonyOptimization
             var jobPredecessorNode = node.DirectPredecessor;
             var machinePredecessorNode = LoadingSequence[machine].Peek();
             ConjunctiveGraph.AddConjunctionAndVertices(new Conjunction(jobPredecessorNode, node));
-            double jobCompletionTime = CompletionTimes[jobPredecessorNode.Operation];
-            double machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation];
+            double jobCompletionTime = jobPredecessorNode != null ? CompletionTimes[jobPredecessorNode.Operation] : 0;
+            double machineCompletionTime = machinePredecessorNode != null ? CompletionTimes[machinePredecessorNode.Operation] : 0;
 
             var processingTime = node.Operation.GetProcessingTime(machine);
             CompletionTimes[node.Operation] = Math.Max(machineCompletionTime, jobCompletionTime) + processingTime;
             StartTimes[node.Operation] = CompletionTimes[node.Operation] - processingTime;
 
+
             LoadingSequence[machine].Push(node);
+            if (MachineAssignment.ContainsKey(node.Operation))
+                throw new Exception($"Machine already assigned to this operation");
             MachineAssignment.Add(node.Operation, machine);
         }
 
@@ -209,6 +209,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             {
                 return lastScheduledNodes.SelectMany(lastScheduledNode =>
                 {
+                    if (lastScheduledNode is null) return [];
                     var intersection = lastScheduledNode.IncidentDisjunctions.Intersect(candidateNode.IncidentDisjunctions);
                     return intersection.Select(disjunction =>
                     {

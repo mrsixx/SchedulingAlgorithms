@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace Scheduling.Solver.AntColonyOptimization
 {
-    public class AntColonyOptimizationAlgorithmSolver(DisjunctiveGraphModel graph,
+    public abstract class AntColonyOptimizationAlgorithmSolver(DisjunctiveGraphModel graph,
                                           double alpha = 0.9,
                                           double beta = 1.2,
                                           double rho = 0.01,
@@ -91,14 +91,11 @@ namespace Scheduling.Solver.AntColonyOptimization
             for (int i = 0; i < Iterations; i++)
             {
                 var currentIteration = i + 1;
-                Q0 = 1 - Math.Log(currentIteration) / Math.Log(Iterations);
+                Q0 = Math.Log(currentIteration) / Math.Log(Iterations);
                 Log($"\nQ0 becomes {Q0}");
                 Log($"Generating {AntCount} artificial ants from #{currentIteration}th wave...");
-                //Log($"Graph pheromone on #{i + 1}th wave: total = {Graph.CalculateTotalPheromoneAmount()}; average = {Graph.CalculateAvgPheromoneAmount()}");
                 iSw.Restart();
-                Ant[] ants = GenerateAntsWave(generation: currentIteration);
-                Log($"#{currentIteration}th wave ants start to walk...");
-                WaitForAntsToStop(ants);
+                Ant[] ants = BugsLife(currentIteration);
                 iSw.Stop();
                 Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
@@ -128,7 +125,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             return solution;
         }
 
-
+        public abstract Ant[] BugsLife(int currentIteration);
 
         private void PheromoneOfflineUpdate(int currentIteration, Colony colony)
         {
@@ -159,17 +156,6 @@ namespace Scheduling.Solver.AntColonyOptimization
                         Console.WriteLine($"Error on adding pheromone over {orientation}");
         }
 
-        private void Log(string message) => _logger?.Log(message);
-
-        private static void WaitForAntsToStop(Ant[] ants) => Task.WaitAll(ants.Select(a => a.Task).ToArray());
-
-        private Ant[] GenerateAntsWave(int generation)
-        {
-            Ant[] ants = new Ant[AntCount];
-            for (int i = 0; i < AntCount; i++)
-                ants[i] = new Ant(id: i + 1, generation, context: this);
-            return ants;
-        }
-
+        protected void Log(string message) => _logger?.Log(message);
     }
 }

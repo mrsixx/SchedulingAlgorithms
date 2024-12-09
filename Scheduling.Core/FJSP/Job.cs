@@ -9,11 +9,7 @@
 
         public int Id { get; set; } = id;
 
-        public decimal Weight { get; set; }
-
         public DateTime ReleaseDate { get; set; } = DateTime.Now;
-
-        public DateTime DueDate { get; set; }
 
         public List<Operation> Operations { get; } = [];
     }
