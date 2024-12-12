@@ -3,7 +3,6 @@ using Scheduling.Core.Graph;
 using Scheduling.Core.Interfaces;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace Scheduling.Solver.AntColonyOptimization
@@ -69,7 +68,8 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public DisjunctiveGraphModel DisjunctiveGraph { get; init; } = graph;
 
-        public ConcurrentDictionary<Orientation, double> PheromoneTrail { get; } = [];
+        public abstract IPheromoneTrail<Orientation, double> PheromoneTrail { get; }
+
 
         public AntColonyOptimizationAlgorithmSolver Verbose(ILogger logger)
         {
