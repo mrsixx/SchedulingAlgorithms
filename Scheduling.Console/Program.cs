@@ -1,36 +1,37 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using CommandLine;
 using Newtonsoft.Json;
 using Scheduling.Console;
 using Scheduling.Core.Interfaces;
 using Scheduling.Core.Services;
 using Scheduling.Solver.AntColonyOptimization;
-using Scheduling.Solver.Models;
 
-if (args.Length < 2)
-    Console.WriteLine("scheduling.exe instanceFile outputFile");
+Parser.Default.ParseArguments<Arguments>(args)
+    .WithParsed(opt =>
+    {
+        var logger = opt.Verbose ? new Logger() : null;
+        IGraphBuilderService graphBuilderService = new GraphBuilderService(logger);
+        IGraphExporterService graphExporterService = new GraphExporterService();
 
-var instanceFile = args[0];
-var outputFile = args[1];
-var logger = new Logger();
-IGraphBuilderService graphBuilderService = new GraphBuilderService(logger);
-IGraphExporterService graphExporterService = new GraphExporterService();
+        var graph = graphBuilderService.BuildDisjunctiveGraphByBenchmarkFile(opt.InstanceFile);
+        graphExporterService.ExportDisjunctiveGraphToGraphviz(graph, opt.OutputFile);
 
-var graph = graphBuilderService.BuildDisjunctiveGraphByBenchmarkFile(instanceFile);
-graphExporterService.ExportDisjunctiveGraphToGraphviz(graph, outputFile);
+        //var graph = graphBuilderService.BuildDisjunctiveGraph(CustomInstances.SampleInstance());
+        var solution = new IterativeAntColonyOptimizatonSolver(graph, opt.Alpha, opt.Beta,
+                opt.Rho, opt.Phi, opt.Tau0, opt.Ants, opt.Iterations)
+            .Verbose(logger)
+            .Solve();
+        
+        solution.Context.EmployeeOfTheMonth.Log();
+        graphExporterService.ExportConjunctiveGraphToGraphviz(
+            solution.Context.BestGraph,
+            solution.Context.BestSoFar.MachineAssignment,
+            solution.Context.BestSoFar.StartTimes,
+            solution.Context.BestSoFar.CompletionTimes,
+            $"{opt.OutputFile}.sol");
 
-//var graph = graphBuilderService.BuildDisjunctiveGraph(CustomInstances.SampleInstance());
-var solution = new IterativeAntColonyOptimizatonSolver(graph, ants: 100, iterations: 100, alpha: 1)
-                .Verbose(logger)
-                .Solve();
+        var json = JsonConvert.SerializeObject(solution.GetOutput());
 
-//if(solution.BestSolution != null)
-solution.Context.EmployeeOfTheMonth.Log();
-graphExporterService.ExportConjunctiveGraphToGraphviz(
-    solution.Context.BestGraph, 
-    solution.Context.BestSoFar.MachineAssignment, 
-    solution.Context.BestSoFar.StartTimes,
-    solution.Context.BestSoFar.CompletionTimes,
-    $"{outputFile}.sol");
+    });
 
-var json = JsonConvert.SerializeObject(solution.GetOutput());
 Console.ReadKey();

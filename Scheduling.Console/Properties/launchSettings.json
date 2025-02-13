@@ -2,7 +2,7 @@
   "profiles": {
     "Scheduling.Console": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\UFABC\\PGC\\trash\\benchmarks\\1_Brandimarte\\BrandimarteMk10.fjs\r\nD:\\UFABC\\PGC\\trash\\benchmarks\\1_Brandimarte\\BrandimarteMk10.fjs.dot"
+      "commandLineArgs": "-i D:\\UFABC\\PGC\\trash\\benchmarks\\1_Brandimarte\\BrandimarteMk10.fjs -o D:\\UFABC\\PGC\\trash\\benchmarks\\1_Brandimarte\\BrandimarteMk10.fjs.dot -v --ants 50 --iterations 50 --alpha 1 --tau0 100"
     }
   }
 }

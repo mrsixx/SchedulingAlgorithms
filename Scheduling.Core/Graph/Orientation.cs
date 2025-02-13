@@ -30,10 +30,8 @@ namespace Scheduling.Core.Graph
             {
                 //TODO: change to release date
                 if (Source.IsSourceNode)
-                {
-                    //Debug.WriteLine("Hit 1");
-                    return 1;
-                }
+                    return 0;
+                    //return Convert.ToDouble(Target.Operation.Job.ReleaseDate.Ticks);
 
                 return Source.Operation.GetProcessingTime(Machine);
             }

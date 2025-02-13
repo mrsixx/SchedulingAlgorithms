@@ -19,6 +19,8 @@ namespace Scheduling.Core.Graph
 
         public HashSet<Disjunction> IncidentDisjunctions { get; } = [];
 
+        public HashSet<Conjunction> IncidentConjunctions { get; } = [];
+
         public bool IsSourceNode => Id == Operation.SOURCE_ID;
 
         public bool IsSinkNode => Id == Operation.SINK_ID;

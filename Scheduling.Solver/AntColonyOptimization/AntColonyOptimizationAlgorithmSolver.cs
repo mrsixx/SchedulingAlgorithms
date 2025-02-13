@@ -41,7 +41,7 @@ namespace Scheduling.Solver.AntColonyOptimization
         public double Phi { get; init; } = phi;
 
         /// <summary>
-        /// Pseudorandom proportional rule parameter (<= 1
+        /// Pseudorandom proportional rule parameter (between 0 and 1)
         /// </summary>
         public double Q0 { get; internal set; }
 
@@ -114,7 +114,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             sw.Stop();
 
             Log($"Every ant has stopped after {sw.Elapsed}.");
-            Log($"\nFinishing execution...");
+            Log("\nFinishing execution...");
 
             if (colony.EmployeeOfTheMonth is not null)
                 Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
@@ -144,7 +144,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                     : currentPheromoneAmount;
 
                 if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
-                    Console.WriteLine($"Offline Update pheromone failed on {orientation}");
+                    Log($"Offline Update pheromone failed on {orientation}");
             }
         }
 
@@ -153,7 +153,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             foreach (var disjunction in DisjunctiveGraph.Disjunctions)
                 foreach (var orientation in disjunction.Orientations)
                     if (!PheromoneTrail.TryAdd(orientation, amount))
-                        Console.WriteLine($"Error on adding pheromone over {orientation}");
+                        Log($"Error on adding pheromone over {orientation}");
         }
 
         protected void Log(string message) => _logger?.Log(message);

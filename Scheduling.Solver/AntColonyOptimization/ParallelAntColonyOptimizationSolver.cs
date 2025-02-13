@@ -3,14 +3,19 @@ using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.AntColonyOptimization
 {
-    public class ParallelAntColonyOptimizatonSolver : AntColonyOptimizationAlgorithmSolver
+    public class ParallelAntColonyOptimizationSolver(
+        DisjunctiveGraphModel graph,
+        double alpha = 0.9,
+        double beta = 1.2,
+        double rho = 0.01,
+        double phi = 0.04,
+        double tau0 = 0.001,
+        int ants = 300,
+        int iterations = 100,
+        int stagnantGenerationsAllowed = 20)
+        : AntColonyOptimizationAlgorithmSolver(graph, alpha, beta, rho, phi, tau0, ants, iterations, stagnantGenerationsAllowed)
     {
-        public ParallelAntColonyOptimizatonSolver(DisjunctiveGraphModel graph, double alpha = 0.9, double beta = 1.2, double rho = 0.01, double phi = 0.04, double tau0 = 0.001, int ants = 300, int iterations = 100, int stagnantGenerationsAllowed = 20) : base(graph, alpha, beta, rho, phi, tau0, ants, iterations, stagnantGenerationsAllowed)
-        {
-            PheromoneTrail = new ThreadSafePheromoneTrail();
-        }
-
-        public override IPheromoneTrail<Orientation, double> PheromoneTrail { get; }
+        public override IPheromoneTrail<Orientation, double> PheromoneTrail { get; } = new ThreadSafePheromoneTrail();
 
 
         public override Ant[] BugsLife(int currentIteration)

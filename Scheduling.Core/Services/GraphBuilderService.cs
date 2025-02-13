@@ -83,8 +83,11 @@ namespace Scheduling.Core.Services
                                 .ToList();
 
                         Dictionary<Machine, long> dict = machines.Select(m => (m, processingTimes[m.Id - 1])).ToDictionary();
-                        Operation operation = new(oId, dict);
-                        operation.JobId = jobId;
+                        Operation operation = new(oId, dict)
+                        {
+                            JobId = jobId,
+                            Job = job
+                        };
                         operation.EligibleMachines.AddRange(eligibleMachines);
                         return operation;
                     });

@@ -10,6 +10,8 @@
 
         public int JobId { get; set; }
 
+        public Job Job { get; init; }
+
         private Dictionary<Machine, long> ProcessingTimes { get; } = processingTimes;
 
         public HashSet<Machine> EligibleMachines { get; } = [];
@@ -21,7 +23,7 @@
             try
             {
                 if (m is null) return 0;
-                if(Id == SINK_ID || Id == SOURCE_ID) return 0;
+                if (Id is SINK_ID or SOURCE_ID) return 0;
 
                 return ProcessingTimes[m];
             }

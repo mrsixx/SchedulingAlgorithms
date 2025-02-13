@@ -4,14 +4,13 @@ using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using Scheduling.Solver.Utils;
 using System.Diagnostics;
-using QuikGraph;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization
 {
-    public class Ant
+    public class AntV1
     {
-        public Ant(int id, int generation, AntColonyOptimizationAlgorithmSolver context)
+        public AntV1(int id, int generation, AntColonyOptimizationAlgorithmSolver context)
         {
             Id = id;
             Context = context;
@@ -48,66 +47,8 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public HashSet<Node> RemainingNodes { get; } = [];
 
+
         public void WalkAround()
-        {
-            var grauDeEntradaConjuntivo = new Dictionary<Node, int>();
-            
-            Context.DisjunctiveGraph.Vertices.ToList().ForEach(
-                node => grauDeEntradaConjuntivo.Add(node, node.IncidentConjunctions.Count)
-            );
-
-            //lista de escalaveis
-            HashSet<Node> PendingNodes = [..Context.DisjunctiveGraph.Source.Successors];
-            HashSet<Node> ScheduluedNodes = [Context.DisjunctiveGraph.Source];
-            while (PendingNodes.Any())
-            {
-                
-                var proximoMovimento = SelecionaProximoMovimento(PendingNodes, ScheduluedNodes);
-                if (proximoMovimento is null)
-                    break;
-                //calcular starting time
-                EvaluateCompletionTime(proximoMovimento.DirectedEdge);
-                //atualizar trilha de feromonio
-                LocalPheromoneUpdate(proximoMovimento.DirectedEdge);
-
-                //tira o target dos escalaveis
-                PendingNodes.Remove(proximoMovimento.DirectedEdge.Target);
-                ScheduluedNodes.Add(proximoMovimento.DirectedEdge.Target);
-                //olhar para os sucessores do target e decrementar o contador deles em uma unidade
-                //para cada um deles que foi pra 0,  adiciona na lista de escalaveis
-                proximoMovimento.DirectedEdge.Target.Successors.ForEach(node =>
-                {
-                    if (grauDeEntradaConjuntivo[node] <= 0) return;
-                    grauDeEntradaConjuntivo[node] -= 1;
-                    if (grauDeEntradaConjuntivo[node] == 0)
-                        PendingNodes.Add(node);
-                });
-            }
-        }
-
-        private IFeasibleMove SelecionaProximoMovimento(HashSet<Node> escalaveis, HashSet<Node> escalados)
-        {
-            //olhar apenas para os arcos disjuntivos que tem uma ponta nos escalaveis e outra nos escalados
-            //regra de pseudoprob
-
-            var feasibleMoves = escalaveis.SelectMany(candidateNode =>
-            {
-                return escalados.SelectMany(lastScheduledNode =>
-                {
-                    var intersection = lastScheduledNode.IncidentDisjunctions.Intersect(candidateNode.IncidentDisjunctions);
-                    return intersection.Select(disjunction =>
-                    {
-                        var direction = disjunction.Target == candidateNode
-                            ? Direction.SourceToTarget
-                            : Direction.TargetToSource;
-                        return new FeasibleMove(disjunction, direction);
-                    });
-                });
-            });
-            return ChooseNextMove(feasibleMoves);
-        }
-
-        public void WalkAround2()
         {
 
             Console.WriteLine($"#{Id}th ant is cooking...");
@@ -124,10 +65,10 @@ namespace Scheduling.Solver.AntColonyOptimization
                 //TODO: descobrir como baixar o tempo do ChooseNextMove (atualmente está levando na ordem dos décimos de segundo)
                 var selectedMove = ChooseNextMove(feasibleMoves);
                 
-                EvaluateCompletionTime(selectedMove.DirectedEdge);
-                LocalPheromoneUpdate(selectedMove.DirectedEdge);
+                EvaluateCompletionTime(selectedMove);
+                LocalPheromoneUpdate(selectedMove);
 
-                RemainingNodes.Remove(selectedMove.DirectedEdge.Target);
+                RemainingNodes.Remove(selectedMove.Target);
             }
             LinkinToSink();
         }
@@ -190,8 +131,8 @@ namespace Scheduling.Solver.AntColonyOptimization
             var machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation];
 
             var processingTime = node.Operation.GetProcessingTime(machine);
-            StartTimes[node.Operation] = Math.Max(machineCompletionTime, jobCompletionTime);
-            CompletionTimes[node.Operation] = StartTimes[node.Operation] + processingTime;
+            CompletionTimes[node.Operation] = Math.Max(machineCompletionTime, jobCompletionTime) + processingTime;
+            StartTimes[node.Operation] = CompletionTimes[node.Operation] - processingTime;
 
 
             LoadingSequence[machine].Push(node);
@@ -199,7 +140,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                 throw new Exception($"Machine already assigned to this operation");
         }
 
-        private IFeasibleMove ChooseNextMove(IEnumerable<IFeasibleMove> feasibleMoves)
+        private Orientation ChooseNextMove(IEnumerable<IFeasibleMove> feasibleMoves)
         {
             var sum = 0.0;
             var rouletteWheel = new List<(IFeasibleMove Move, double Probability)>();
@@ -224,7 +165,7 @@ namespace Scheduling.Solver.AntColonyOptimization
 
             // pseudo random proportional rule
             if (Random.Shared.NextDouble() <= Context.Q0)
-                return greedyMove;
+                return greedyMove?.DirectedEdge;
 
             // roulette wheel
             var cumulative = 0.0;
@@ -234,7 +175,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             {
                 cumulative += probability;
                 if (randomValue <= cumulative)
-                    return move;
+                    return move.DirectedEdge;
             }
 
             throw new InvalidOperationException("FATAL ERROR: No move was selected.");

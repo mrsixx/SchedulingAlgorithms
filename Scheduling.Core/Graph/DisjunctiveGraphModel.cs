@@ -105,9 +105,11 @@ namespace Scheduling.Core.Graph
 
             target.DirectPredecessor = source;
             source.DirectSuccessor = target;
+            source.Successors.Add(target);
 
-
-            return AddEdge(new Conjunction(source, target));
+            var conjunction = new Conjunction(source, target);
+            target.IncidentConjunctions.Add(conjunction);
+            return AddEdge(conjunction);
         }
 
         public bool AddDisjunction(Disjunction disjunction)

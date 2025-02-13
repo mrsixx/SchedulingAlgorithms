@@ -1,8 +1,5 @@
 ﻿using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Xml.Linq;
 
 namespace Scheduling.Core.Extensions
 {
@@ -20,9 +17,9 @@ namespace Scheduling.Core.Extensions
                 .Concat(
                     graph.OperationVertices.SelectMany(
                         o => o.Operation.EligibleMachines.SelectMany(
-                            m => new List<Disjunction> { 
+                            m => new List<Disjunction> {
                                 new(graph.Source, o, m),
-                                new(o, graph.Sink, m) 
+                                new(o, graph.Sink, m)
                             }
                         )
                     )

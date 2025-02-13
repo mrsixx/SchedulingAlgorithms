@@ -26,10 +26,10 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public double GetPheromoneAmount(AntColonyOptimizationAlgorithmSolver context)
         {
-            if (context.PheromoneTrail.TryGetValue(DirectedEdge, out double pheromone))
+            if (context.PheromoneTrail.TryGetValue(DirectedEdge, out var pheromone))
                 return pheromone;
             
-            Console.WriteLine($"Disjuntion {Disjunction} out of trail");
+            Console.WriteLine($"Disjunction {Disjunction} out of trail");
             return 0.0;
         }
     }
