@@ -55,6 +55,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             Context.DisjunctiveGraph.Vertices.ToList().ForEach(
                 node => grauDeEntradaConjuntivo.Add(node, node.IncidentConjunctions.Count)
             );
+            //TODO: os sucessores da fonte deveriam começar com node.IncidentConjunctions.Count - 1;
 
             //lista de escalaveis
             HashSet<Node> PendingNodes = [..Context.DisjunctiveGraph.Source.Successors];
@@ -65,7 +66,8 @@ namespace Scheduling.Solver.AntColonyOptimization
                 var proximoMovimento = SelecionaProximoMovimento(PendingNodes, ScheduluedNodes);
                 if (proximoMovimento is null)
                     break;
-                //calcular starting time
+                //calcular starting time e preencher grafo conjuntivo
+                //TODO: talvez devessemos incluir todas as conjunções incidentes sobre um vértice (pra jogar o sink na ultima posição da ordenação topológica)
                 EvaluateCompletionTime(proximoMovimento.DirectedEdge);
                 //atualizar trilha de feromonio
                 LocalPheromoneUpdate(proximoMovimento.DirectedEdge);
@@ -89,7 +91,7 @@ namespace Scheduling.Solver.AntColonyOptimization
         {
             //olhar apenas para os arcos disjuntivos que tem uma ponta nos escalaveis e outra nos escalados
             //regra de pseudoprob
-
+            
             var feasibleMoves = escalaveis.SelectMany(candidateNode =>
             {
                 return escalados.SelectMany(lastScheduledNode =>
@@ -104,7 +106,8 @@ namespace Scheduling.Solver.AntColonyOptimization
                     });
                 });
             });
-            return ChooseNextMove(feasibleMoves);
+            
+            return ChooseNextMove(feasibleMoves); // <---- GARGALO
         }
 
         public void WalkAround2()
@@ -200,6 +203,47 @@ namespace Scheduling.Solver.AntColonyOptimization
         }
 
         private IFeasibleMove ChooseNextMove(IEnumerable<IFeasibleMove> feasibleMoves)
+        {
+            var sum = 0.0;
+            var rouletteWheel = new List<(IFeasibleMove Move, double Probability)>();
+            IFeasibleMove? greedyMove = null;
+            var greedyFactor = double.MinValue;
+            // create roulette wheel and evaluate greedy move for pseudorandom proportional rule at same time (in O(n))
+            foreach (var move in feasibleMoves)
+            {
+                var tauXy = move.GetPheromoneAmount(Context); // pheromone amount
+                var etaXy = move.Weight.Inverse(); // heuristic information
+                var tauXyAlpha = Math.Pow(tauXy, Context.Alpha); // pheromone amount raised to power alpha
+                var etaXyBeta = Math.Pow(etaXy, Context.Beta); // heuristic information raised to power beta
+
+                double probFactor = tauXyAlpha * etaXyBeta, pseudoProbFactor = tauXy * etaXyBeta;
+                rouletteWheel.Add((move, probFactor));
+                sum += probFactor;
+
+                if (greedyFactor >= pseudoProbFactor) continue;
+                greedyFactor = pseudoProbFactor;
+                greedyMove = move;
+            }
+
+            // pseudo random proportional rule
+            if (Random.Shared.NextDouble() <= Context.Q0)
+                return greedyMove;
+
+            // roulette wheel
+            var cumulative = 0.0;
+            var randomValue = Random.Shared.NextDouble() * sum;
+
+            foreach (var (move, probability) in rouletteWheel)
+            {
+                cumulative += probability;
+                if (randomValue <= cumulative)
+                    return move;
+            }
+
+            throw new InvalidOperationException("FATAL ERROR: No move was selected.");
+        }
+
+        private IFeasibleMove ChooseNextMoveOld(IEnumerable<IFeasibleMove> feasibleMoves)
         {
             var sum = 0.0;
             var rouletteWheel = new List<(IFeasibleMove Move, double Probability)>();
