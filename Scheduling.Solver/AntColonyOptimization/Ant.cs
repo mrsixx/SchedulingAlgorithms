@@ -59,11 +59,11 @@ namespace Scheduling.Solver.AntColonyOptimization
 
             //lista de escalaveis
             HashSet<Node> PendingNodes = [..Context.DisjunctiveGraph.Source.Successors];
-            HashSet<Node> ScheduluedNodes = [Context.DisjunctiveGraph.Source];
+            HashSet<Node> ScheduledNodes = [Context.DisjunctiveGraph.Source];
             while (PendingNodes.Any())
             {
                 
-                var proximoMovimento = SelecionaProximoMovimento(PendingNodes, ScheduluedNodes);
+                var proximoMovimento = SelecionaProximoMovimento(PendingNodes, ScheduledNodes);
                 if (proximoMovimento is null)
                     break;
                 //calcular starting time e preencher grafo conjuntivo
@@ -74,7 +74,7 @@ namespace Scheduling.Solver.AntColonyOptimization
 
                 //tira o target dos escalaveis
                 PendingNodes.Remove(proximoMovimento.DirectedEdge.Target);
-                ScheduluedNodes.Add(proximoMovimento.DirectedEdge.Target);
+                ScheduledNodes.Add(proximoMovimento.DirectedEdge.Target);
                 //olhar para os sucessores do target e decrementar o contador deles em uma unidade
                 //para cada um deles que foi pra 0,  adiciona na lista de escalaveis
                 proximoMovimento.DirectedEdge.Target.Successors.ForEach(node =>
@@ -94,19 +94,22 @@ namespace Scheduling.Solver.AntColonyOptimization
             
             var feasibleMoves = escalaveis.SelectMany(candidateNode =>
             {
-                return escalados.SelectMany(lastScheduledNode =>
+                List<IFeasibleMove> moves = [];
+                foreach (var disj in candidateNode.IncidentDisjunctions)
                 {
-                    var intersection = lastScheduledNode.IncidentDisjunctions.Intersect(candidateNode.IncidentDisjunctions);
-                    return intersection.Select(disjunction =>
+                    if (escalados.Contains(disj.Other(candidateNode)))
                     {
-                        var direction = disjunction.Target == candidateNode
+                        var direction = disj.Target == candidateNode
                             ? Direction.SourceToTarget
                             : Direction.TargetToSource;
-                        return new FeasibleMove(disjunction, direction);
-                    });
-                });
+                        var move = new FeasibleMove(disj, direction);
+                        moves.Add(move);
+                    }
+                }
+
+                return moves;
             });
-            
+            //return feasibleMoves.First();
             return ChooseNextMove(feasibleMoves); // <---- GARGALO
         }
 

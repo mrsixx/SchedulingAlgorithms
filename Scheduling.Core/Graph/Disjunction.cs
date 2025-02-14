@@ -36,6 +36,12 @@ namespace Scheduling.Core.Graph
 
         public Orientation[] Orientations { get; }
 
+        public Node Other(Node u)
+        {
+            if (u.Equals(Source)) return Target;
+            return Source;
+        }
+
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj)) return true;

@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 Scheduling.Console/Properties/launchSettings.json
+/Scheduling.Console/Properties/launchSettings.json

@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Scheduling.Console": {
-      "commandName": "Project",
-      "commandLineArgs": "-i //workspaces//SchedulingAlgorithms//Scheduling.Benchmarks//6_Fattahi//Fattahi12.fjs -o //workspaces//SchedulingAlgorithms//Scheduling.Benchmarks//6_Fattahi//Fattahi12.fjs.dot -v --ants 10 --iterations 10 --alpha 1 --tau0 100"
-    }
-  }
-}
