@@ -2,55 +2,27 @@
 using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
-using Scheduling.Solver.Utils;
+using Scheduling.Solver.AntColonyOptimization.Solvers;
 using System.Diagnostics;
 using static Scheduling.Core.Enums.DirectionEnum;
 
-namespace Scheduling.Solver.AntColonyOptimization
+namespace Scheduling.Solver.AntColonyOptimization.Ants
 {
-    public class AntV1
+    /// <summary>
+    /// ACS List scheduling iterative ant V1
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="generation"></param>
+    /// <param name="context"></param>
+    public class ListSchedulingAcsAntV1(int id, int generation, AntColonySystemAlgorithmSolver context)
+        : BaseAnt(id, generation, context)
     {
-        public AntV1(int id, int generation, AntColonyOptimizationAlgorithmSolver context)
-        {
-            Id = id;
-            Context = context;
-            Generation = generation;
-            Context.DisjunctiveGraph.Vertices.ToList().ForEach(n =>
-            {
-                CompletionTimes.Add(n.Operation, 0);
-                StartTimes.Add(n.Operation, 0);
-            });
-            Context.DisjunctiveGraph.Machines.ForEach(m => LoadingSequence.Add(m, new([Context.DisjunctiveGraph.Source])));
-        }
-
-        public int Id { get; init; }
-
-        public int Generation { get; init; }
-
-        public ConjunctiveGraphModel ConjunctiveGraph { get; } = new ConjunctiveGraphModel();
-
-        public Dictionary<Machine, Stack<Node>> LoadingSequence { get; } = [];
-
-        public Dictionary<Operation, Machine> MachineAssignment { get; } = [];
-
-        public Dictionary<Operation, double> CompletionTimes { get; } = [];
-
-        public Dictionary<Operation, double> StartTimes { get; } = [];
-
-        public double Makespan => CompletionTimes[FinalNode.Operation];
-
-        public Node StartNode => Context.DisjunctiveGraph.Source;
-
-        public Node FinalNode => Context.DisjunctiveGraph.Sink;
-
-        public AntColonyOptimizationAlgorithmSolver Context { get; }
-
         public HashSet<Node> RemainingNodes { get; } = [];
 
 
-        public void WalkAround()
+        public override void WalkAround()
         {
-
+            InitializeDataStructures();
             Console.WriteLine($"#{Id}th ant is cooking...");
             RemainingNodes.AddRange(Context.DisjunctiveGraph.OperationVertices);
 
@@ -64,7 +36,7 @@ namespace Scheduling.Solver.AntColonyOptimization
 
                 //TODO: descobrir como baixar o tempo do ChooseNextMove (atualmente está levando na ordem dos décimos de segundo)
                 var selectedMove = ChooseNextMove(feasibleMoves);
-                
+
                 EvaluateCompletionTime(selectedMove);
                 LocalPheromoneUpdate(selectedMove);
 
@@ -75,27 +47,8 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         private void LocalPheromoneUpdate(Orientation selectedMove)
         {
-            if (!Context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) || !Context.PheromoneTrail.TryUpdate(selectedMove, (1 - Context.Phi) * currentPheromoneValue + Context.Phi * Context.Tau0, currentPheromoneValue))
+            if (!Context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) || !Context.PheromoneTrail.TryUpdate(selectedMove, (1 - context.Phi) * currentPheromoneValue + context.Phi * context.Tau0, currentPheromoneValue))
                 Console.WriteLine("Unable to decay pheromone after construction step...");
-        }
-
-        public void Log()
-        {
-            // print loading sequence
-            foreach (var machine in LoadingSequence.Keys)
-            {
-                Console.Write($"{machine.Id}: ");
-                foreach (var node in LoadingSequence[machine].Reverse())
-                    Console.Write($" {node}[{StartTimes[node.Operation]}-{CompletionTimes[node.Operation]}] ");
-
-                Console.WriteLine("");
-            }
-
-            // printing topological sort (acyclic evidence)
-            Console.WriteLine("Topological sort: ");
-            foreach (var node in ConjunctiveGraph.TopologicalSort())
-                Console.Write($" {node} ");
-            Console.WriteLine("");
         }
 
         private void LinkinToSink()
@@ -164,7 +117,7 @@ namespace Scheduling.Solver.AntColonyOptimization
             }
 
             // pseudo random proportional rule
-            if (Random.Shared.NextDouble() <= Context.Q0)
+            if (Random.Shared.NextDouble() <= context.Q0)
                 return greedyMove?.DirectedEdge;
 
             // roulette wheel
@@ -202,8 +155,8 @@ namespace Scheduling.Solver.AntColonyOptimization
                     var intersection = lastScheduledNode.IncidentDisjunctions.Intersect(candidateNode.IncidentDisjunctions);
                     return intersection.Select(disjunction =>
                     {
-                        var direction = disjunction.Target == candidateNode 
-                                        ? Direction.SourceToTarget 
+                        var direction = disjunction.Target == candidateNode
+                                        ? Direction.SourceToTarget
                                         : Direction.TargetToSource;
                         return new FeasibleMove(disjunction, direction);
                     });

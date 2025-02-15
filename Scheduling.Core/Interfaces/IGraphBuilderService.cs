@@ -5,8 +5,6 @@ namespace Scheduling.Core.Interfaces
 {
     public interface IGraphBuilderService
     {
-        DisjunctiveGraphModel BuildDisjunctiveGraphByBenchmarkFile(string benchmarkFile);
-
-        DisjunctiveGraphModel BuildDisjunctiveGraph(IEnumerable<Job> jobs, IEnumerable<Machine> machines);
+        DisjunctiveGraphModel BuildDisjunctiveGraph(Instance fjspInstance);
     }
 }

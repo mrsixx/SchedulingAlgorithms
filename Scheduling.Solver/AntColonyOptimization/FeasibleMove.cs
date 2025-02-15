@@ -1,4 +1,5 @@
 ﻿using Scheduling.Core.Graph;
+using Scheduling.Solver.AntColonyOptimization.Solvers;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization

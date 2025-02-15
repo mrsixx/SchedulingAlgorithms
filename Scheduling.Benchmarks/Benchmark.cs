@@ -1,8 +1,8 @@
 ﻿using static System.Reflection.Metadata.BlobBuilder;
 
-namespace Scheduling.Core.Benchmark
+namespace Scheduling.Benchmarks
 {
-    public class BenchmarkReader
+    public class Benchmark
     {
         public const long INFINITY = Int64.MaxValue;
 
@@ -39,33 +39,34 @@ namespace Scheduling.Core.Benchmark
 
         public long TrivialUpperBound { get; private set; }
 
-        public void ReadInstance(string fileName)
+        public static Benchmark FromFile(string fileName)
         {
+            var benchmark = new Benchmark();
             using StreamReader input = new(fileName);
             var separators = new char[] { '\t', ' ' };
             string[] splitted = input.ReadLine()
                 .Split(separators, StringSplitOptions.RemoveEmptyEntries);
-            JobCount = int.Parse(splitted[0]);
-            MachineCount = int.Parse(splitted[1]);
+            benchmark.JobCount = int.Parse(splitted[0]);
+            benchmark.MachineCount = int.Parse(splitted[1]);
 
-            OperationCount = 0;
+            benchmark.OperationCount = 0;
 
-            long[][][] processingTime = new long[JobCount][][];
-            OperationId = new int[JobCount][];
-            JobOperationCount = new int[JobCount];
-            for (int j = 0; j < JobCount; ++j)
+            long[][][] processingTime = new long[benchmark.JobCount][][];
+            benchmark.OperationId = new int[benchmark.JobCount][];
+            benchmark.JobOperationCount = new int[benchmark.JobCount];
+            for (int j = 0; j < benchmark.JobCount; ++j)
             {
                 splitted = input.ReadLine()
                     .Split(separators, StringSplitOptions.RemoveEmptyEntries);
-                JobOperationCount[j] = int.Parse(splitted[0]);
-                OperationId[j] = new int[JobOperationCount[j]];
-                processingTime[j] = new long[JobOperationCount[j]][];
+                benchmark.JobOperationCount[j] = int.Parse(splitted[0]);
+                benchmark.OperationId[j] = new int[benchmark.JobOperationCount[j]];
+                processingTime[j] = new long[benchmark.JobOperationCount[j]][];
                 int k = 1;
-                for (int o = 0; o < JobOperationCount[j]; ++o)
+                for (int o = 0; o < benchmark.JobOperationCount[j]; ++o)
                 {
                     int nbMachinesOperation = int.Parse(splitted[k]);
                     k++;
-                    processingTime[j][o] = Enumerable.Repeat(INFINITY, MachineCount).ToArray();
+                    processingTime[j][o] = Enumerable.Repeat(INFINITY, benchmark.MachineCount).ToArray();
                     for (int m = 0; m < nbMachinesOperation; ++m)
                     {
                         int machine = int.Parse(splitted[k]) - 1;
@@ -73,24 +74,24 @@ namespace Scheduling.Core.Benchmark
                         processingTime[j][o][machine] = time;
                         k += 2;
                     }
-                    OperationId[j][o] = OperationCount;
-                    OperationCount++;
+                    benchmark.OperationId[j][o] = benchmark.OperationCount;
+                    benchmark.OperationCount++;
                 }
             }
 
             // Trivial upper bound for the start times of the tasks
             long maxSumProcessingTimes = 0;
-            ProcessingTime = new long[OperationCount][];
-            for (int j = 0; j < JobCount; ++j)
+            benchmark.ProcessingTime = new long[benchmark.OperationCount][];
+            for (int j = 0; j < benchmark.JobCount; ++j)
             {
                 long maxProcessingTime = 0;
-                for (int o = 0; o < JobOperationCount[j]; ++o)
+                for (int o = 0; o < benchmark.JobOperationCount[j]; ++o)
                 {
-                    int task = OperationId[j][o];
-                    ProcessingTime[task] = new long[MachineCount];
-                    for (int m = 0; m < MachineCount; ++m)
+                    int task = benchmark.OperationId[j][o];
+                    benchmark.ProcessingTime[task] = new long[benchmark.MachineCount];
+                    for (int m = 0; m < benchmark.MachineCount; ++m)
                     {
-                        ProcessingTime[task][m] = processingTime[j][o][m];
+                        benchmark.ProcessingTime[task][m] = processingTime[j][o][m];
                         if (
                             processingTime[j][o][m] != INFINITY
                             && processingTime[j][o][m] > maxProcessingTime
@@ -103,7 +104,8 @@ namespace Scheduling.Core.Benchmark
                 }
             }
             //TrivialUpperBound = maxSumProcessingTimes + OperationCount * maxSetup;
-            TrivialUpperBound = maxSumProcessingTimes;
+            benchmark.TrivialUpperBound = maxSumProcessingTimes;
+            return benchmark;
         }
     }
 }

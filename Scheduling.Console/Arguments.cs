@@ -8,8 +8,10 @@ namespace Scheduling.Console
         public string InstanceFile { get; set; } = "";
 
         [Option('o', "output", Required = true, HelpText = "Output file path.")]
-
         public string OutputFile { get; set; } = "";
+
+        [Option('s', "solver", Required = true, HelpText = "Solver algorithm name.")]
+        public string SolverName { get; set; } = "";
 
         [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
         public bool Verbose { get; set; }
@@ -34,5 +36,14 @@ namespace Scheduling.Console
 
         [Option("iterations", Required = false, HelpText = "ACS: Number of iterations.")]
         public int Iterations { get; set; } = 100;
+
+        [Option("lazygens", Required = false, HelpText = "ACS: Number of allowed stagnant generations.")]
+        public int AllowedStagnantGenerations { get; set; } = 20;
+
+        [Option("parallel", Required = false, HelpText = "Use parallel approach to solve.")]
+        public bool UseParallelApproach { get; set; }
+
+        [Option("debug", Required = false, HelpText = "Enable debug.")]
+        public bool EnableDebug { get; set; }
     }
 }

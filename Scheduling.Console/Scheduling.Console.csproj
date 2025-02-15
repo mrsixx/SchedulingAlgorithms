@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Scheduling.Benchmarks\Scheduling.Benchmarks.csproj" />
     <ProjectReference Include="..\Scheduling.Core\Scheduling.Core.csproj" />
     <ProjectReference Include="..\Scheduling.Solver\Scheduling.Solver.csproj" />
   </ItemGroup>

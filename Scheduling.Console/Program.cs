@@ -1,37 +1,39 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using CommandLine;
-using Newtonsoft.Json;
+using Scheduling.Benchmarks;
+using Scheduling.Benchmarks.Interfaces;
 using Scheduling.Console;
 using Scheduling.Core.Interfaces;
 using Scheduling.Core.Services;
 using Scheduling.Solver.AntColonyOptimization;
+using Scheduling.Solver.Interfaces;
 
 Parser.Default.ParseArguments<Arguments>(args)
     .WithParsed(opt =>
     {
-        var logger = opt.Verbose ? new Logger() : null;
-        IGraphBuilderService graphBuilderService = new GraphBuilderService(logger);
+        ILogger logger = new Logger();
         IGraphExporterService graphExporterService = new GraphExporterService();
+        IBenchmarkReaderService benchmarkReaderService = new BenchmarkReaderService(logger);
+        IAlgorithmFactory algorithmFactory = new AlgorithmFactory(opt);
 
-        var graph = graphBuilderService.BuildDisjunctiveGraphByBenchmarkFile(opt.InstanceFile);
-        graphExporterService.ExportDisjunctiveGraphToGraphviz(graph, opt.OutputFile);
-
-        //var graph = graphBuilderService.BuildDisjunctiveGraph(CustomInstances.SampleInstance());
-        var solution = new IterativeAntColonyOptimizatonSolver(graph, opt.Alpha, opt.Beta,
-                opt.Rho, opt.Phi, opt.Tau0, opt.Ants, opt.Iterations)
-            .Verbose(logger)
-            .Solve();
+        var problemInstance = benchmarkReaderService.ReadInstance(opt.InstanceFile);
         
+        var solution = algorithmFactory.GetSolverAlgorithm()
+                        .WithLogger(logger, with: opt.Verbose)
+                        .Solve(problemInstance);
+
         solution.Context.EmployeeOfTheMonth.Log();
-        graphExporterService.ExportConjunctiveGraphToGraphviz(
-            solution.Context.BestGraph,
-            solution.Context.BestSoFar.MachineAssignment,
-            solution.Context.BestSoFar.StartTimes,
-            solution.Context.BestSoFar.CompletionTimes,
-            $"{opt.OutputFile}.sol");
 
-        var json = JsonConvert.SerializeObject(solution.GetOutput());
-
+        if (opt.EnableDebug)
+        {
+            graphExporterService.ExportDisjunctiveGraphToGraphviz(solution.Context.DisjunctiveGraph, opt.OutputFile);
+            graphExporterService.ExportConjunctiveGraphToGraphviz(
+                solution.Context.BestGraph,
+                solution.Context.BestSoFar.MachineAssignment,
+                solution.Context.BestSoFar.StartTimes,
+                solution.Context.BestSoFar.CompletionTimes,
+                $"{opt.OutputFile}.sol");
+        }
     });
 
 Console.ReadKey();

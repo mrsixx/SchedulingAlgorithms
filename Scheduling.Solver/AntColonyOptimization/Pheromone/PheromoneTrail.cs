@@ -3,7 +3,7 @@ using Scheduling.Core.Graph;
 using Scheduling.Solver.Interfaces;
 using System.Collections;
 
-namespace Scheduling.Solver.AntColonyOptimization
+namespace Scheduling.Solver.AntColonyOptimization.Pheromone
 {
     public class PheromoneTrail : IPheromoneTrail<Orientation, double>
     {

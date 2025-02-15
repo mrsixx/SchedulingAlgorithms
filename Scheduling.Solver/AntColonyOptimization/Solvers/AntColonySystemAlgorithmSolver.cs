@@ -1,40 +1,24 @@
 ﻿using Scheduling.Core.Extensions;
-using Scheduling.Core.Graph;
-using Scheduling.Core.Interfaces;
+using Scheduling.Core.FJSP;
+using Scheduling.Solver.AntColonyOptimization.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 using System.Diagnostics;
 
-namespace Scheduling.Solver.AntColonyOptimization
+namespace Scheduling.Solver.AntColonyOptimization.Solvers
 {
-    public abstract class AntColonyOptimizationAlgorithmSolver(DisjunctiveGraphModel graph,
-                                          double alpha = 0.9,
-                                          double beta = 1.2,
-                                          double rho = 0.01,
-                                          double phi = 0.04,
-                                          double tau0 = 0.001,
-                                          int ants = 300,
-                                          int iterations = 100,
-                                          int stagnantGenerationsAllowed = 20) : IFlexibleJobShopSchedulingSolver
+    public abstract class AntColonySystemAlgorithmSolver(
+        double alpha,
+        double beta,
+        double rho,
+        double phi,
+        double tau0,
+        int ants,
+        int iterations,
+        int stagnantGenerationsAllowed,
+        ISolveApproach solveApproach) : AntColonyOptimizationAlgorithmSolver(
+        alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
     {
-        private ILogger? _logger;
-
-        /// <summary>
-        /// Weight of pheromone factor constant
-        /// </summary>
-        public double Alpha { get; init; } = alpha;
-
-        /// <summary>
-        /// Weight of distance factor constant
-        /// </summary>
-        public double Beta { get; init; } = beta;
-
-        /// <summary>
-        /// Pheromone evaporation rate constant
-        /// </summary>
-        public double Rho { get; init; } = rho;
-
-
         /// <summary>
         /// Pheromone decay coefficient
         /// </summary>
@@ -45,46 +29,16 @@ namespace Scheduling.Solver.AntColonyOptimization
         /// </summary>
         public double Q0 { get; internal set; }
 
-        /// <summary>
-        /// Initial pheromone amount over graph edges
-        /// </summary>
-        public double Tau0 { get; init; } = tau0;
 
-        /// <summary>
-        /// Amount of ants
-        /// </summary>
-        public int AntCount { get; init; } = ants;
-
-        /// <summary>
-        /// Number of iterations
-        /// </summary>
-        public int Iterations { get; init; } = iterations;
-
-
-        /// <summary>
-        /// How long should ants continue without improving the solution
-        /// </summary>
-        public int StagnantGenerationsAllowed { get; init; } = stagnantGenerationsAllowed;
-
-        public DisjunctiveGraphModel DisjunctiveGraph { get; init; } = graph;
-
-        public abstract IPheromoneTrail<Orientation, double> PheromoneTrail { get; }
-
-
-        public AntColonyOptimizationAlgorithmSolver Verbose(ILogger logger)
+        public override Solution Solve(Instance instance)
         {
-            _logger = logger;
-            return this;
-        }
-
-        public FjspSolution Solve()
-        {
-            Log($"Starting ACO algorithm with following parameters:");
-            Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Initial pheromone = {Tau0}.");
-
+            Log($"Creating disjunctive graph...");
+            CreateDisjunctiveGraphModel(instance);
+            Log($"Starting ACS algorithm with following parameters:");
+            Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Phi= {Phi}; Initial pheromone = {Tau0}.");
             Stopwatch sw = new();
             Stopwatch iSw = new();
-            Colony colony = new();
+            Colony colony = new(DisjunctiveGraph);
             sw.Start();
             SetInitialPheromoneAmount(Tau0);
             Log($"Depositing {Tau0} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
@@ -95,7 +49,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                 Log($"\nQ0 becomes {Q0}");
                 Log($"Generating {AntCount} artificial ants from #{currentIteration}th wave...");
                 iSw.Restart();
-                Ant[] ants = BugsLife(currentIteration);
+                BaseAnt[] ants = BugsLife(currentIteration);
                 iSw.Stop();
                 Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
@@ -119,13 +73,11 @@ namespace Scheduling.Solver.AntColonyOptimization
             if (colony.EmployeeOfTheMonth is not null)
                 Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
 
-            FjspSolution solution = new(colony);
+            Solution solution = new(colony);
             Log($"Makespan: {solution.Makespan}");
 
             return solution;
         }
-
-        public abstract Ant[] BugsLife(int currentIteration);
 
         private void PheromoneOfflineUpdate(int currentIteration, Colony colony)
         {
@@ -147,15 +99,5 @@ namespace Scheduling.Solver.AntColonyOptimization
                     Log($"Offline Update pheromone failed on {orientation}");
             }
         }
-
-        private void SetInitialPheromoneAmount(double amount)
-        {
-            foreach (var disjunction in DisjunctiveGraph.Disjunctions)
-                foreach (var orientation in disjunction.Orientations)
-                    if (!PheromoneTrail.TryAdd(orientation, amount))
-                        Log($"Error on adding pheromone over {orientation}");
-        }
-
-        protected void Log(string message) => _logger?.Log(message);
     }
 }
