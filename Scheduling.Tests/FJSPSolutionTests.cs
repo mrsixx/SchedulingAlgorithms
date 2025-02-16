@@ -8,17 +8,37 @@ namespace Scheduling.Tests
 {
     public class FJSPSolutionTests
     {
-        public const string BENCHMARK_FILE = "C:\\Users\\Matheus Ribeiro\\source\\repos\\mrsixx\\SchedulingAlgorithms\\Scheduling.Benchmarks\\Data\\6_Fattahi\\Fattahi12.fjs";
         private IBenchmarkReaderService _readerService = new BenchmarkReaderService(null);
-        private IFlexibleJobShopSchedulingSolver _solver = new AntColonySystemV2Solver(
-            1.0, 1.0, 0.5, 0.5, 100, 10, 1,
-            1, new IterativeSolveApproach());
-        
-        [Fact]
-        public void FjspSolution_ReleaseDateRestriction_MustBeSatisfied()
+        private const string BENCHMARK_FILE = "C:\\Users\\Matheus Ribeiro\\source\\repos\\mrsixx\\SchedulingAlgorithms\\Scheduling.Benchmarks\\Data\\6_Fattahi\\Fattahi12.fjs";
+
+        #region Solvers batch
+        public static IEnumerable<object[]> GetSolvers()
+        {
+            yield return
+            [
+                new AntColonySystemV1Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new AntColonySystemV2Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new AntColonySystemV1Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
+            ];
+            yield return
+            [
+                new AntColonySystemV2Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
+            ];
+        }
+        #endregion
+
+        [Theory]
+        [MemberData(nameof(GetSolvers))]
+        public void FjspSolution_ReleaseDateRestriction_MustBeSatisfied(IFlexibleJobShopSchedulingSolver solver)
         {
             var instance = _readerService.ReadInstance(BENCHMARK_FILE);
-            var solution = _solver.Solve(instance);
+            var solution = solver.Solve(instance);
             
             foreach (var job in instance.Jobs)
             {
@@ -29,11 +49,12 @@ namespace Scheduling.Tests
         }
 
 
-        [Fact]
-        public void FjspSolution_ConjunctiveRestriction_MustBeSatisfied()
+        [Theory]
+        [MemberData(nameof(GetSolvers))]
+        public void FjspSolution_ConjunctiveRestriction_MustBeSatisfied(IFlexibleJobShopSchedulingSolver solver)
         {
             var instance = _readerService.ReadInstance(BENCHMARK_FILE);
-            var solution = _solver.Solve(instance);
+            var solution = solver.Solve(instance);
 
             foreach (var job in instance.Jobs)
             {
@@ -49,11 +70,12 @@ namespace Scheduling.Tests
         }
 
 
-        [Fact]
-        public void FjspSolution_DisjunctiveRestriction_MustBeSatisfied()
+        [Theory]
+        [MemberData(nameof(GetSolvers))]
+        public void FjspSolution_DisjunctiveRestriction_MustBeSatisfied(IFlexibleJobShopSchedulingSolver solver)
         {
             var instance = _readerService.ReadInstance(BENCHMARK_FILE);
-            var solution = _solver.Solve(instance);
+            var solution = solver.Solve(instance);
 
 
             foreach (var machine in instance.Machines)
