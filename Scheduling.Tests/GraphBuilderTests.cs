@@ -2,8 +2,6 @@ using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Interfaces;
 using Scheduling.Core.Services;
-using System.ComponentModel;
-using System.Runtime.InteropServices.Marshalling;
 
 namespace Scheduling.Tests
 {
@@ -14,7 +12,6 @@ namespace Scheduling.Tests
 
         public GraphBuilderTests()
         {
-
             _graphBuilderService = new GraphBuilderService();
             _graphExporterService = new GraphExporterService();
         }
@@ -23,8 +20,9 @@ namespace Scheduling.Tests
         public void BuildDisjunctiveGraph_GraphSize_MustCorrespondInstance()
         {
 
-            var (jobs, machines) = BuildInstance();
-            var disjunctiveGraphModel = _graphBuilderService.BuildDisjunctiveGraph(jobs, machines);
+            var instance = BuildInstance();
+            var disjunctiveGraphModel = _graphBuilderService.BuildDisjunctiveGraph(instance);
+
 
             Assert.Equal(10, disjunctiveGraphModel.VertexCount); // 8 operations + source and sink nodes
             Assert.Equal(42, disjunctiveGraphModel.EdgeCount);
@@ -36,11 +34,11 @@ namespace Scheduling.Tests
         public void BuildDisjunctiveGraph_OperationsSequence_MustTurnsIntoConjunctions()
         {
 
-            var (jobs, machines) = BuildInstance();
-            var disjunctiveGraphModel = _graphBuilderService.BuildDisjunctiveGraph(jobs, machines);
+            var instance = BuildInstance();
+            var disjunctiveGraphModel = _graphBuilderService.BuildDisjunctiveGraph(instance);
 
             // subsequent operations turns into conjunctions
-            foreach (var job in jobs)
+            foreach (var job in instance.Jobs)
                 for (int i = 0; i < job.Operations.Count - 1; i++)
                     Assert.True(disjunctiveGraphModel.HasConjunction(job.Operations[i].Id, job.Operations[i + 1].Id));
         }
@@ -50,12 +48,13 @@ namespace Scheduling.Tests
         public void BuildDisjunctiveGraph_SameMachinePoolOperations_MustTurnsIntoDisjunctions()
         {
 
-            var (jobs, machines) = BuildInstance();
-            var disjunctiveGraphModel = _graphBuilderService.BuildDisjunctiveGraph(jobs, machines);
+            var instance = BuildInstance();
+            var disjunctiveGraphModel = _graphBuilderService.BuildDisjunctiveGraph(instance);
+
             // subsequent operations turned into conjunctions
             foreach (var (o1, o2) in disjunctiveGraphModel.OperationsAssimetricCartesianProduct())
             {
-                if(o1 != o2 && o1.Operation.BelongsToTheSameMachinePoolThan(o2.Operation))
+                if (o1 != o2 && o1.Operation.BelongsToTheSameMachinePoolThan(o2.Operation))
                     Assert.True(disjunctiveGraphModel.HasDisjunction(o1.Id, o2.Id));
                 else
                     Assert.False(disjunctiveGraphModel.HasDisjunction(o1.Id, o2.Id));
@@ -63,7 +62,7 @@ namespace Scheduling.Tests
             }
         }
 
-        private static (List<Job>, List<Machine>) BuildInstance()
+        private static Instance BuildInstance()
         {
             Dictionary<Machine, long> weight = [];
             Action<Machine> setWeight = m => weight.Add(m, 1);
@@ -74,7 +73,7 @@ namespace Scheduling.Tests
             var pool4 = new List<Machine> { new(6) };
             List<Machine> machines = [.. pool1, .. pool2, .. pool3, .. pool4];
             machines.ForEach(setWeight);
-            
+
             Job job1 = new(1), job2 = new(2), job3 = new(3);
             Operation o1 = new(1, weight), o2 = new(2, weight), o3 = new(3, weight);
             Operation o4 = new(4, weight), o5 = new(5, weight);
@@ -95,10 +94,10 @@ namespace Scheduling.Tests
             job1.Operations.AddRange([o1, o2, o3]);
             job2.Operations.AddRange([o4, o5]);
             job3.Operations.AddRange([o6, o7, o8]);
-            
+
             var jobs = new List<Job> { job1, job2, job3 };
 
-            return (jobs, machines);
+            return new(jobs, machines);
         }
     }
 }

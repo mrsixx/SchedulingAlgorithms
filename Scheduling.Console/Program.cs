@@ -5,7 +5,6 @@ using Scheduling.Benchmarks.Interfaces;
 using Scheduling.Console;
 using Scheduling.Core.Interfaces;
 using Scheduling.Core.Services;
-using Scheduling.Solver.AntColonyOptimization;
 using Scheduling.Solver.Interfaces;
 
 Parser.Default.ParseArguments<Arguments>(args)
@@ -17,7 +16,7 @@ Parser.Default.ParseArguments<Arguments>(args)
         IAlgorithmFactory algorithmFactory = new AlgorithmFactory(opt);
 
         var problemInstance = benchmarkReaderService.ReadInstance(opt.InstanceFile);
-        
+
         var solution = algorithmFactory.GetSolverAlgorithm()
                         .WithLogger(logger, with: opt.Verbose)
                         .Solve(problemInstance);
@@ -35,5 +34,3 @@ Parser.Default.ParseArguments<Arguments>(args)
                 $"{opt.OutputFile}.sol");
         }
     });
-
-Console.ReadKey();
