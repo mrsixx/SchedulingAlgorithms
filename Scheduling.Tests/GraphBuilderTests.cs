@@ -7,14 +7,8 @@ namespace Scheduling.Tests
 {
     public class GraphBuilderTests
     {
-        private readonly IGraphBuilderService _graphBuilderService;
-        private readonly IGraphExporterService _graphExporterService;
-
-        public GraphBuilderTests()
-        {
-            _graphBuilderService = new GraphBuilderService();
-            _graphExporterService = new GraphExporterService();
-        }
+        private readonly IGraphBuilderService _graphBuilderService = new GraphBuilderService();
+        private readonly IGraphExporterService _graphExporterService = new GraphExporterService();
 
         [Fact]
         public void BuildDisjunctiveGraph_GraphSize_MustCorrespondInstance()
@@ -39,8 +33,14 @@ namespace Scheduling.Tests
 
             // subsequent operations turns into conjunctions
             foreach (var job in instance.Jobs)
-                for (int i = 0; i < job.Operations.Count - 1; i++)
-                    Assert.True(disjunctiveGraphModel.HasConjunction(job.Operations[i].Id, job.Operations[i + 1].Id));
+            {
+                var operation = job.Operations.First;
+                while (operation.Next is not null)
+                {
+                    Assert.True(disjunctiveGraphModel.HasConjunction(operation.Value.Id, operation.Next.Value.Id));
+                    operation = operation.Next;
+                }
+            }
         }
 
 

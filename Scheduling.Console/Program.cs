@@ -21,16 +21,16 @@ Parser.Default.ParseArguments<Arguments>(args)
                         .WithLogger(logger, with: opt.Verbose)
                         .Solve(problemInstance);
 
-        solution.Context.EmployeeOfTheMonth.Log();
+        solution.Log();
 
-        if (opt.EnableDebug)
-        {
-            graphExporterService.ExportDisjunctiveGraphToGraphviz(solution.Context.DisjunctiveGraph, opt.OutputFile);
-            graphExporterService.ExportConjunctiveGraphToGraphviz(
-                solution.Context.BestGraph,
-                solution.Context.BestSoFar.MachineAssignment,
-                solution.Context.BestSoFar.StartTimes,
-                solution.Context.BestSoFar.CompletionTimes,
-                $"{opt.OutputFile}.sol");
-        }
+        //if (opt.EnableDebug)
+        //{
+        //    graphExporterService.ExportDisjunctiveGraphToGraphviz(solution.Context.DisjunctiveGraph, opt.OutputFile);
+        //    graphExporterService.ExportConjunctiveGraphToGraphviz(
+        //        solution.Context.BestGraph,
+        //        solution.Context.BestSoFar.MachineAssignment,
+        //        solution.Context.BestSoFar.StartTimes,
+        //        solution.Context.BestSoFar.CompletionTimes,
+        //        $"{opt.OutputFile}.sol");
+        //}
     });

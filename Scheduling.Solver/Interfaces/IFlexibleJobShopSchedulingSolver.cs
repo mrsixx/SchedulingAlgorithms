@@ -13,6 +13,7 @@ namespace Scheduling.Solver.Interfaces
         /// Solve a flexible job shop with sequence dependent setup times problem instance 
         /// </summary>
         /// <returns>A object representing solution with machine alocation and start dates of each operation</returns>
-        Solution Solve(Instance instance);
+        IFjspSolution Solve(Instance instance);
+
     }
 }

@@ -30,7 +30,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
         public double Q0 { get; internal set; }
 
 
-        public override Solution Solve(Instance instance)
+        public override IFjspSolution Solve(Instance instance)
         {
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
@@ -73,7 +73,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
             if (colony.EmployeeOfTheMonth is not null)
                 Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
 
-            Solution solution = new(colony);
+            AcsSolution solution = new(colony);
             Log($"Makespan: {solution.Makespan}");
 
             return solution;

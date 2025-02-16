@@ -70,7 +70,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
             return this;
         }
 
-        public abstract Solution Solve(Instance instance);
+        public abstract IFjspSolution Solve(Instance instance);
 
         public abstract BaseAnt[] BugsLife(int currentIteration);
 

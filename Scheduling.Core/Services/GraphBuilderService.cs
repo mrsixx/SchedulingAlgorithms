@@ -30,20 +30,18 @@ namespace Scheduling.Core.Services
                 // 1st operation of each job linked with source
                 Node previousNode = graph.Source;
                 Operation? previousOperation = null;
-                
-                job.Operations
-                    .ForEach(operation =>
-                    {
-                        var operationNode = new Node(operation);
-                        graph.AddVertex(operationNode);
-                        graph.AddConjunction(previousNode, operationNode);
-                        previousNode = operationNode;
-                        previousOperation = operation;
-                    });
+                var currentOperation = job.Operations.First;
+                while (currentOperation is not null)
+                {
+                    var operationNode = new Node(currentOperation.Value);
+                    graph.AddVertex(operationNode);
+                    graph.AddConjunction(previousNode, operationNode);
+                    previousNode = operationNode;
+                    currentOperation = currentOperation.Next;
+                }
 
                 //last operation of each job linked with sink
-                if (previousOperation is not null)
-                    graph.AddConjunction(previousNode, graph.Sink);
+                graph.AddConjunction(previousNode, graph.Sink);
             });
 
             // create disjunctions between every operation running on same pool

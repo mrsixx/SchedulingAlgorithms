@@ -1,4 +1,5 @@
-﻿using Scheduling.Solver.AntColonyOptimization.Solvers;
+﻿using Scheduling.Solver;
+using Scheduling.Solver.AntColonyOptimization.Solvers;
 using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Console
@@ -19,7 +20,10 @@ namespace Scheduling.Console
                 case "acsv2":
                     return new AntColonySystemV2Solver(
                         args.Alpha, args.Beta, args.Rho, args.Phi, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);
-                default:
+                case "greedy":
+                    return new GreedyHeuristicAlgorithmSolver();
+
+               default:
                     throw new Exception("Algoritmo não implementado");
             }
         }
