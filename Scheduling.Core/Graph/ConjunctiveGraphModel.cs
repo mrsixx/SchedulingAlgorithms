@@ -28,5 +28,10 @@ namespace Scheduling.Core.Graph
             return [];
         }
 
+        public bool Contains(Orientation orientation)
+        {
+            return Edges.Any(e => e.Source.Equals(orientation.Source) && e.Target.Equals(orientation.Target));
+        }
+
     }
 }

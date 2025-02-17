@@ -1,16 +1,17 @@
-﻿using Scheduling.Core.Extensions;
+﻿using System.Diagnostics;
+using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Solver.AntColonyOptimization.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
-using System.Diagnostics;
 
 namespace Scheduling.Solver.AntColonyOptimization.Solvers
 {
-    public class AntSystemAlgorithmSolver(
+    public class ElitistAntSystemAlgorithmSolver(
         double alpha,
         double beta,
         double rho,
+        double e,
         double tau0,
         int ants,
         int iterations,
@@ -18,11 +19,16 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
         ISolveApproach solveApproach) : AntColonyOptimizationAlgorithmSolver(
         alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
     {
+        /// <summary>
+        /// Elitist weight
+        /// </summary>
+        public double E { get; init; } = e;
+
         public override IFjspSolution Solve(Instance instance)
         {
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
-            Log($"Starting AS algorithm with following parameters:");
+            Log($"Starting EAS algorithm with following parameters:");
             Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Initial pheromone = {Tau0}.");
             Stopwatch sw = new();
             Stopwatch iSw = new();
@@ -40,7 +46,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
                 Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
                 Log($"Running offline pheromone update...");
-                PheromoneOfflineUpdate(ants);
+                PheromoneOfflineUpdate(ants, colony);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth.Makespan}");
 
@@ -65,15 +71,18 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
             return solution;
         }
 
-        private void PheromoneOfflineUpdate(BaseAnt[] ants)
+        private void PheromoneOfflineUpdate(BaseAnt[] ants, Colony colony)
         {
+            var bestSoFarSolution = colony.BestSoFar.ConjunctiveGraph;
+            var bestSoFarDelta = colony.BestSoFar.Makespan.Inverse();
             foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
             {
-                var antsUsingOrientation = ants.Where(ant => ant.ConjunctiveGraph.Contains(orientation)).ToHashSet();
+                var antsUsingOrientation = ants.Where(ant =>  ant.ConjunctiveGraph.Contains(orientation)).ToHashSet();
 
                 // if the ant is not using this orientation, then its contribution to delta is 0
                 var delta = antsUsingOrientation.Sum(ant => ant.Makespan.Inverse());
-                var updatedAmount = (1 - Rho) * currentPheromoneAmount + Rho * delta;
+                var elitistReinforcement = bestSoFarSolution.Contains(orientation) ? E * bestSoFarDelta : 0;
+                var updatedAmount = (1 - Rho) * currentPheromoneAmount + Rho * delta + elitistReinforcement;
 
                 if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {orientation}");
@@ -85,7 +94,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
             return SolveApproach.Solve<BaseAnt>(currentIteration, this, BugSpawner);
         }
 
-        private AntSystemAnt BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
+        private ElitistAntSystemAnt BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
 
     }
 }

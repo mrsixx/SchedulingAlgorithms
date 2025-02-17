@@ -108,30 +108,5 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             if (!Context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) || !Context.PheromoneTrail.TryUpdate(selectedMove, (1 - context.Phi) * currentPheromoneValue + context.Phi * context.Tau0, currentPheromoneValue))
                 Console.WriteLine("Unable to decay pheromone after construction step...");
         }
-
-        private void EvaluateCompletionTime(Orientation selectedMove)
-        {
-            var node = selectedMove.Target;
-            var machine = selectedMove.Machine;
-
-            var jobPredecessorNode = node.DirectPredecessor;
-            var machinePredecessorNode = LoadingSequence[machine].Peek();
-
-            
-            var jobCompletionTime = CompletionTimes[jobPredecessorNode.Operation];
-            var machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation];
-            var processingTime = node.Operation.GetProcessingTime(machine);
-
-            // update loading sequence, starting and completion times
-            StartTimes[node.Operation] = Math.Max(machineCompletionTime, jobCompletionTime);
-            CompletionTimes[node.Operation] = StartTimes[node.Operation] + processingTime;
-            LoadingSequence[machine].Push(node);
-            if (!MachineAssignment.TryAdd(node.Operation, machine))
-                throw new Exception($"Machine already assigned to this operation");
-
-            ConjunctiveGraph.AddConjunctionAndVertices(selectedMove);
-            ConjunctiveGraph.AddConjunctionAndVertices(new Conjunction(jobPredecessorNode, node));
-        }
-
     }
 }

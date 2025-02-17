@@ -46,6 +46,62 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
         }
 
 
+        protected void EvaluateCompletionTime(Orientation selectedMove)
+        {
+            var node = selectedMove.Target;
+            var machine = selectedMove.Machine;
+
+            var jobPredecessorNode = node.DirectPredecessor;
+            var machinePredecessorNode = LoadingSequence[machine].Peek();
+
+
+            var jobCompletionTime = CompletionTimes[jobPredecessorNode.Operation];
+            var machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation];
+            var processingTime = node.Operation.GetProcessingTime(machine);
+
+            // update loading sequence, starting and completion times
+            StartTimes[node.Operation] = Math.Max(machineCompletionTime, jobCompletionTime);
+            CompletionTimes[node.Operation] = StartTimes[node.Operation] + processingTime;
+            LoadingSequence[machine].Push(node);
+            if (!MachineAssignment.TryAdd(node.Operation, machine))
+                throw new Exception($"Machine already assigned to this operation");
+
+            ConjunctiveGraph.AddConjunctionAndVertices(selectedMove);
+            ConjunctiveGraph.AddConjunctionAndVertices(new Conjunction(jobPredecessorNode, node));
+        }
+
+        protected IFeasibleMove ProbabilityRule(IEnumerable<IFeasibleMove> feasibleMoves)
+        {
+            var sum = 0.0;
+            var rouletteWheel = new List<(IFeasibleMove Move, double Probability)>();
+
+            // create roulette wheel and evaluate greedy move for pseudorandom proportional rule at same time (in O(n))
+            foreach (var move in feasibleMoves)
+            {
+                var tauXy = move.GetPheromoneAmount(context); // pheromone amount
+                var etaXy = move.Weight.Inverse(); // heuristic information
+                var tauXyAlpha = Math.Pow(tauXy, context.Alpha); // pheromone amount raised to power alpha
+                var etaXyBeta = Math.Pow(etaXy, context.Beta); // heuristic information raised to power beta
+
+                double probFactor = tauXyAlpha * etaXyBeta;
+                rouletteWheel.Add((move, probFactor));
+                sum += probFactor;
+            }
+
+            // roulette wheel
+            var cumulative = 0.0;
+            var randomValue = Random.Shared.NextDouble() * sum;
+
+            foreach (var (move, probability) in rouletteWheel)
+            {
+                cumulative += probability;
+                if (randomValue <= cumulative)
+                    return move;
+            }
+
+            throw new InvalidOperationException("FATAL ERROR: No move was selected.");
+        }
+
         public abstract void WalkAround();
 
         public void Log()

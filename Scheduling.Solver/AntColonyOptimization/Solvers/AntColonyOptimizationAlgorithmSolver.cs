@@ -1,4 +1,5 @@
-﻿using Scheduling.Core.FJSP;
+﻿using Scheduling.Core.Extensions;
+using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using Scheduling.Core.Interfaces;
 using Scheduling.Core.Services;
@@ -81,6 +82,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
                     if (!PheromoneTrail.TryAdd(orientation, amount))
                         Log($"Error on adding pheromone over {orientation}");
         }
+
 
         protected void CreateDisjunctiveGraphModel(Instance instance)
         {

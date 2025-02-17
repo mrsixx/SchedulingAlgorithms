@@ -66,33 +66,6 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             }
         }
 
-        private void EvaluateCompletionTime(Orientation selectedMove)
-        {
-            var node = selectedMove.Target;
-            var machine = selectedMove.Machine;
-            EvaluateCompletionTime(node, machine);
-            ConjunctiveGraph.AddConjunctionAndVertices(selectedMove);
-        }
-
-        private void EvaluateCompletionTime(Node node, Machine machine)
-        {
-
-            var jobPredecessorNode = node.DirectPredecessor;
-            var machinePredecessorNode = LoadingSequence[machine].Peek();
-            ConjunctiveGraph.AddConjunctionAndVertices(new Conjunction(jobPredecessorNode, node));
-            var jobCompletionTime = CompletionTimes[jobPredecessorNode.Operation];
-            var machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation];
-
-            var processingTime = node.Operation.GetProcessingTime(machine);
-            CompletionTimes[node.Operation] = Math.Max(machineCompletionTime, jobCompletionTime) + processingTime;
-            StartTimes[node.Operation] = CompletionTimes[node.Operation] - processingTime;
-
-
-            LoadingSequence[machine].Push(node);
-            if (!MachineAssignment.TryAdd(node.Operation, machine))
-                throw new Exception($"Machine already assigned to this operation");
-        }
-
         private Orientation ChooseNextMove(IEnumerable<IFeasibleMove> feasibleMoves)
         {
             var sum = 0.0;

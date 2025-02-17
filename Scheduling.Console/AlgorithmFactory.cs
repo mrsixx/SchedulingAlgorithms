@@ -17,6 +17,9 @@ namespace Scheduling.Console
                 case "as":
                     return new AntSystemAlgorithmSolver(
                         args.Alpha, args.Beta, args.Rho, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);
+                case "eas":
+                    return new ElitistAntSystemAlgorithmSolver(
+                        args.Alpha, args.Beta, args.Rho, args.E, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);
                 case "acsv1":
                     return new AntColonySystemV1Solver(
                         args.Alpha, args.Beta, args.Rho, args.Phi, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);

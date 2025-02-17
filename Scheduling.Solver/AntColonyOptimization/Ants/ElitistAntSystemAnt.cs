@@ -1,11 +1,17 @@
-﻿using Scheduling.Core.Extensions;
-using Scheduling.Core.Graph;
+﻿using Scheduling.Core.Graph;
 using Scheduling.Solver.AntColonyOptimization.Solvers;
 using static Scheduling.Core.Enums.DirectionEnum;
+using System.Xml.Linq;
 
 namespace Scheduling.Solver.AntColonyOptimization.Ants
 {
-    public class AntSystemAnt(int id, int generation, AntSystemAlgorithmSolver context) : BaseAnt(id, generation, context)
+    /// <summary>
+    /// Elitist ant is equals an normal ant
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="generation"></param>
+    /// <param name="context"></param>
+    public class ElitistAntSystemAnt(int id, int generation, ElitistAntSystemAlgorithmSolver context) : BaseAnt(id, generation, context)
     {
 
         public override void WalkAround()
@@ -57,6 +63,5 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
 
             return ProbabilityRule(feasibleMoves);
         }
-
     }
 }

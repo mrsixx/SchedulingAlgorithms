@@ -25,6 +25,14 @@ namespace Scheduling.Tests
             ];
             yield return
             [
+                new ElitistAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, e: 10, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new ElitistAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, e: 10, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
+            ];
+            yield return
+            [
                 new AntColonySystemV1Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
             ];
             yield return
