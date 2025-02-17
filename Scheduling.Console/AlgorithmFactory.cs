@@ -14,6 +14,9 @@ namespace Scheduling.Console
             
             switch (args.SolverName.ToLowerInvariant().Trim())
             {
+                case "as":
+                    return new AntSystemAlgorithmSolver(
+                        args.Alpha, args.Beta, args.Rho, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);
                 case "acsv1":
                     return new AntColonySystemV1Solver(
                         args.Alpha, args.Beta, args.Rho, args.Phi, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);

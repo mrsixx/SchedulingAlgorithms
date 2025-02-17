@@ -1,17 +1,15 @@
 ﻿using Scheduling.Core.Extensions;
-using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using Scheduling.Solver.AntColonyOptimization.Solvers;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization.Ants
 {
-    public class ListSchedulingAcsAntV2(int id, int generation, AntColonySystemAlgorithmSolver context)
-        : BaseAnt(id, generation, context)
+    public class AntSystemAnt(int id, int generation, AntSystemAlgorithmSolver context) : BaseAnt(id, generation, context)
     {
 
         public override void WalkAround()
-        { 
+        {
             InitializeDataStructures();
 
             var conjunctiveDegreeCounters = new Dictionary<Node, int>();
@@ -20,15 +18,13 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             );
 
             HashSet<Node> scheduledNodes = [Context.DisjunctiveGraph.Source];
-            HashSet<Node> unscheduledNodes = [..Context.DisjunctiveGraph.Source.Successors];
-            
+            HashSet<Node> unscheduledNodes = [.. Context.DisjunctiveGraph.Source.Successors];
+
             while (unscheduledNodes.Any())
             {
                 var nextMove = ChooseNextFeasibleMove(unscheduledNodes, scheduledNodes);
-                
+
                 EvaluateCompletionTime(nextMove.DirectedEdge);
-                
-                LocalPheromoneUpdate(nextMove.DirectedEdge);
 
                 // update data structures
                 unscheduledNodes.Remove(nextMove.DirectedEdge.Target);
@@ -58,16 +54,15 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
                     .Select(disjunction => new FeasibleMove(disjunction,
                         disjunction.Target == candidateNode ? Direction.SourceToTarget : Direction.TargetToSource));
             });
-            
-            return PseudoProbabilityRule(feasibleMoves);
+
+            return ProbabilityRule(feasibleMoves);
         }
 
-        private IFeasibleMove PseudoProbabilityRule(IEnumerable<IFeasibleMove> feasibleMoves)
+        private IFeasibleMove ProbabilityRule(IEnumerable<IFeasibleMove> feasibleMoves)
         {
             var sum = 0.0;
             var rouletteWheel = new List<(IFeasibleMove Move, double Probability)>();
-            IFeasibleMove? greedyMove = null;
-            var greedyFactor = double.MinValue;
+
             // create roulette wheel and evaluate greedy move for pseudorandom proportional rule at same time (in O(n))
             foreach (var move in feasibleMoves)
             {
@@ -76,18 +71,10 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
                 var tauXyAlpha = Math.Pow(tauXy, context.Alpha); // pheromone amount raised to power alpha
                 var etaXyBeta = Math.Pow(etaXy, context.Beta); // heuristic information raised to power beta
 
-                double probFactor = tauXyAlpha * etaXyBeta, pseudoProbFactor = tauXy * etaXyBeta;
+                double probFactor = tauXyAlpha * etaXyBeta;
                 rouletteWheel.Add((move, probFactor));
                 sum += probFactor;
-
-                if (greedyFactor >= pseudoProbFactor) continue;
-                greedyFactor = pseudoProbFactor;
-                greedyMove = move;
             }
-
-            // pseudo random proportional rule
-            if (Random.Shared.NextDouble() <= context.Q0)
-                return greedyMove;
 
             // roulette wheel
             var cumulative = 0.0;
@@ -103,12 +90,6 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             throw new InvalidOperationException("FATAL ERROR: No move was selected.");
         }
 
-        private void LocalPheromoneUpdate(Orientation selectedMove)
-        {
-            if (!Context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) || !Context.PheromoneTrail.TryUpdate(selectedMove, (1 - context.Phi) * currentPheromoneValue + context.Phi * context.Tau0, currentPheromoneValue))
-                Console.WriteLine("Unable to decay pheromone after construction step...");
-        }
-
         private void EvaluateCompletionTime(Orientation selectedMove)
         {
             var node = selectedMove.Target;
@@ -117,7 +98,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             var jobPredecessorNode = node.DirectPredecessor;
             var machinePredecessorNode = LoadingSequence[machine].Peek();
 
-            
+
             var jobCompletionTime = CompletionTimes[jobPredecessorNode.Operation];
             var machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation];
             var processingTime = node.Operation.GetProcessingTime(machine);

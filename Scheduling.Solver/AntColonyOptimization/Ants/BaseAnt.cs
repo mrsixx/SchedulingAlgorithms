@@ -1,4 +1,5 @@
 ﻿using QuikGraph.Algorithms;
+using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using Scheduling.Solver.AntColonyOptimization.Solvers;

@@ -1,6 +1,4 @@
-﻿using Scheduling.Core.Graph;
-using Scheduling.Solver.AntColonyOptimization.Ants;
-using Scheduling.Solver.AntColonyOptimization.Pheromone;
+﻿using Scheduling.Solver.AntColonyOptimization.Ants;
 using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.AntColonyOptimization.Solvers
