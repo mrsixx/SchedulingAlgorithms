@@ -28,7 +28,7 @@ namespace Scheduling.Console
         [Option("phi", Required = false, HelpText = "ACS: Pheromone decay rate parameter.")]
         public double Phi { get; set; } = 0.04;
 
-        [Option("e", Required = false, HelpText = "EAS: Elitist reinforcement weight.")]
+        [Option("ew", Required = false, HelpText = "EAS: Elitist reinforcement weight.")]
         public double E { get; set; } = 10;
 
         [Option("tau0", Required = false, HelpText = "ACO: Initial pheromone amount.")]
