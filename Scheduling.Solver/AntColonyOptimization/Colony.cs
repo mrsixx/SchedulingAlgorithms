@@ -1,4 +1,5 @@
-﻿using Scheduling.Core.Extensions;
+﻿using System.Diagnostics;
+using Scheduling.Core.Extensions;
 using Scheduling.Core.Graph;
 using Scheduling.Solver.AntColonyOptimization.Ants;
 using Scheduling.Solver.Extensions;
@@ -22,6 +23,9 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public BaseAnt BestSoFar => IterationBests.MinBy(a => a.Value.Makespan).Value;
 
+
+        public Stopwatch Watch { get; private set; } = new();
+        
         public void UpdateBestPath(BaseAnt[] ants)
         {
             foreach (var ant in ants)

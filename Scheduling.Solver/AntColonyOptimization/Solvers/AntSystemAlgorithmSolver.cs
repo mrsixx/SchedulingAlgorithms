@@ -24,10 +24,9 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
             CreateDisjunctiveGraphModel(instance);
             Log($"Starting AS algorithm with following parameters:");
             Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Initial pheromone = {Tau0}.");
-            Stopwatch sw = new();
             Stopwatch iSw = new();
             Colony colony = new(DisjunctiveGraph);
-            sw.Start();
+            colony.Watch.Start();
             SetInitialPheromoneAmount(Tau0);
             Log($"Depositing {Tau0} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
             for (int i = 0; i < Iterations; i++)
@@ -51,9 +50,9 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
                     break;
                 }
             }
-            sw.Stop();
+            colony.Watch.Stop();
 
-            Log($"Every ant has stopped after {sw.Elapsed}.");
+            Log($"Every ant has stopped after {colony.Watch.Elapsed}.");
             Log("\nFinishing execution...");
 
             if (colony.EmployeeOfTheMonth is not null)
