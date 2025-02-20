@@ -36,6 +36,8 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
                         unscheduledNodes.Add(node);
                 });
             }
+        
+            SinksToSink();
         }
 
         /// <summary>

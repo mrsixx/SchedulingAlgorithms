@@ -72,7 +72,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
             if (colony.EmployeeOfTheMonth is not null)
                 Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
 
-            AcsSolution solution = new(colony);
+            AntColonyOptimizationSolution solution = new(colony);
             Log($"Makespan: {solution.Makespan}");
 
             return solution;

@@ -102,6 +102,24 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             throw new InvalidOperationException("FATAL ERROR: No move was selected.");
         }
 
+        
+        protected void SinksToSink()
+        {
+            var sinks = ConjunctiveGraph.Sinks().ToList();
+            foreach (var sink in sinks)
+            {
+                if(sink.Equals(FinalNode)) continue;
+                var machine = MachineAssignment[sink.Operation];
+
+                Disjunction disjunction = sink.IncidentDisjunctions.First(
+                    d => d.Machine.Equals(machine) && d.Other(sink).Equals(FinalNode)
+                );                
+
+                var orientation = disjunction.Orientations.First(c => c.Target == FinalNode);
+                ConjunctiveGraph.AddConjunctionAndVertices(orientation);
+                CompletionTimes[FinalNode.Operation] = Math.Max(CompletionTimes[FinalNode.Operation], CompletionTimes[sink.Operation]);
+            }
+        }
         public abstract void WalkAround();
 
         public void Log()

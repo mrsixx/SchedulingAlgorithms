@@ -39,7 +39,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
                 Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
                 Log($"Running offline pheromone update...");
-                PheromoneOfflineUpdate(ants);
+                PheromoneUpdate(ants);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth.Makespan}");
 
@@ -58,13 +58,13 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
             if (colony.EmployeeOfTheMonth is not null)
                 Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
 
-            AcsSolution solution = new(colony);
+            AntColonyOptimizationSolution solution = new(colony);
             Log($"Makespan: {solution.Makespan}");
 
             return solution;
         }
 
-        private void PheromoneOfflineUpdate(BaseAnt[] ants)
+        private void PheromoneUpdate(BaseAnt[] ants)
         {
             foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
             {

@@ -4,7 +4,7 @@ using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.Models
 {
-    public class AcsSolution(Colony colony) : IFjspSolution
+    public class AntColonyOptimizationSolution(Colony colony) : IFjspSolution
     {
         public Colony Context { get; } = colony;
 

@@ -7,7 +7,7 @@ namespace Scheduling.Console
         [Option('i', "input", Required = true, HelpText = "Instance file path.")]
         public string InstanceFile { get; set; } = "";
 
-        [Option('o', "output", Required = true, HelpText = "Output file path.")]
+        [Option('o', "output", Required = false, HelpText = "Output file path.")]
         public string OutputFile { get; set; } = "";
 
         [Option('s', "solver", Required = true, HelpText = "Solver algorithm name.")]
