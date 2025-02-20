@@ -6,6 +6,7 @@ using Scheduling.Console;
 using Scheduling.Core.Interfaces;
 using Scheduling.Core.Services;
 using Scheduling.Solver.Interfaces;
+using Scheduling.Solver.Services;
 
 Parser.Default.ParseArguments<Arguments>(args)
     .WithParsed(opt =>
@@ -14,15 +15,22 @@ Parser.Default.ParseArguments<Arguments>(args)
         IGraphExporterService graphExporterService = new GraphExporterService();
         IBenchmarkReaderService benchmarkReaderService = new BenchmarkReaderService(logger);
         IAlgorithmFactory algorithmFactory = new AlgorithmFactory(opt);
+        IResultFileBuilderService resultFileBuilderService = new ResultFileBuilderService();
 
         var problemInstance = benchmarkReaderService.ReadInstance(opt.InstanceFile);
 
-        var solution = algorithmFactory.GetSolverAlgorithm()
-                        .WithLogger(logger, with: opt.Verbose)
-                        .Solve(problemInstance);
+        var solver = algorithmFactory.GetSolverAlgorithm()
+                        .WithLogger(logger, with: opt.Verbose);
 
-        solution.Log();
+        List<IFjspSolution> solutions = [];
+        for (int i = 0; i < opt.Runs; i++)
+        {
+            var solution = solver.Solve(problemInstance);
+                solution.Log();
+                solutions.Add(solution);
+        }
 
+        resultFileBuilderService.Export(opt.InstanceFile, opt.SolverName, solutions);
         //if (opt.EnableDebug)
         //{
         //    graphExporterService.ExportDisjunctiveGraphToGraphviz(solution.Context.DisjunctiveGraph, opt.OutputFile);

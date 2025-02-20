@@ -5,6 +5,9 @@ namespace Scheduling.Benchmarks
     public class Benchmark
     {
         public const long INFINITY = Int64.MaxValue;
+        
+
+        public string Name { get; private set; } = "";
 
         /// <summary>
         /// |T| - Number of jobs
@@ -46,6 +49,8 @@ namespace Scheduling.Benchmarks
             var separators = new char[] { '\t', ' ' };
             string[] splitted = input.ReadLine()
                 .Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+            benchmark.Name = fileName;
             benchmark.JobCount = int.Parse(splitted[0]);
             benchmark.MachineCount = int.Parse(splitted[1]);
 

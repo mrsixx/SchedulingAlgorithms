@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
-using Scheduling.Core.Extensions;
 using Scheduling.Core.Graph;
 using Scheduling.Solver.AntColonyOptimization.Ants;
-using Scheduling.Solver.Extensions;
 
 namespace Scheduling.Solver.AntColonyOptimization
 {

@@ -3,6 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# algorithm output files
+/Scheduling.Benchmarks/Data/*/*.csv
+
+
 # User-specific files
 *.rsuser
 *.suo

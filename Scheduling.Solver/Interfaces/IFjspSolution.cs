@@ -1,4 +1,5 @@
-﻿using Scheduling.Core.FJSP;
+﻿using System.Diagnostics;
+using Scheduling.Core.FJSP;
 
 namespace Scheduling.Solver.Interfaces
 {
@@ -9,6 +10,8 @@ namespace Scheduling.Solver.Interfaces
         Dictionary<Operation, double> CompletionTimes { get; }
 
         Dictionary<Operation, Machine> MachineAssignment { get; }
+
+        public Stopwatch Watch { get; }
 
         double Makespan { get; }
 

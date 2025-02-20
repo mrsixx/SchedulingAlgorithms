@@ -48,5 +48,9 @@ namespace Scheduling.Console
 
         [Option("debug", Required = false, HelpText = "Enable debug.")]
         public bool EnableDebug { get; set; }
+
+        
+        [Option("runs", Required = false, HelpText = "# of algorithm runs.")]
+        public int Runs { get; set; } = 1;
     }
 }

@@ -20,11 +20,11 @@ namespace Scheduling.Solver
 
         public IFjspSolution Solve(Instance instance)
         {
-            Stopwatch sw = new();
-            Log($"Starting greedy algorithm");
-            sw.Start();
-            // creating data structures
             var solution = new GreedySolution();
+            solution.Watch.Start();
+            
+            // creating data structures
+            Log($"Starting greedy algorithm");
             var unscheduledJobOperations = new Dictionary<Job, LinkedListNode<Operation>>();
             var loadingSequence = new Dictionary<Machine, LinkedList<Operation>>();
             instance.Jobs.ToList().ForEach(job => unscheduledJobOperations.Add(job, job.Operations.First));
@@ -53,10 +53,9 @@ namespace Scheduling.Solver
                 else
                     unscheduledJobOperations[operation.Value.Job] = operation.Next;
             }
-            sw.Stop();
-            Log($"Solution found after {sw.Elapsed}.");
+            solution.Watch.Stop();
+            Log($"Solution found after {solution.Watch.Elapsed}.");
             Log("\nFinishing execution...");
-            Log($"Makespan: {solution.Makespan}");
 
             // creating mu function
             foreach (var (m, operations) in loadingSequence)
