@@ -34,6 +34,12 @@ namespace Scheduling.Console
         [Option("tau0", Required = false, HelpText = "ACO: Initial pheromone amount.")]
         public double Tau0 { get; set; } = 0.001;
 
+        [Option("taumax", Required = false, HelpText = "MMAS: Max pheromone amount.")]
+        public double TauMax { get; set; } = 100.000;
+
+        [Option("taumin", Required = false, HelpText = "MMAS: Min pheromone amount.")]
+        public double TauMin { get; set; } = 0.001;
+
         [Option("ants", Required = false, HelpText = "ACO: Number of ants.")]
         public int Ants { get; set; } = 300;
 
