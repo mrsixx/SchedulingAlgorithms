@@ -1,51 +1,55 @@
-﻿using Scheduling.Core.Extensions;
+﻿using System.Diagnostics;
+using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Solver.AntColonyOptimization.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
-using System.Diagnostics;
 
 namespace Scheduling.Solver.AntColonyOptimization.Solvers
 {
-    public abstract class AntColonySystemAlgorithmSolver(
+    public class MaxMinAntSystemAlgorithmSolver(
         double alpha,
         double beta,
         double rho,
-        double phi,
-        double tau0,
+        double tauMin,
+        double tauMax,
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach solveApproach) : AntColonyOptimizationAlgorithmSolver(
-        alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
+        ISolveApproach solveApproach)
+        : AntColonyOptimizationAlgorithmSolver(alpha, beta, rho, 0, ants, iterations,
+            stagnantGenerationsAllowed, solveApproach)
     {
-        /// <summary>
-        /// Pheromone decay coefficient
-        /// </summary>
-        public double Phi { get; init; } = phi;
 
         /// <summary>
-        /// Pseudorandom proportional rule parameter (between 0 and 1)
+        /// Max pheromone amount accepted over graph edges
         /// </summary>
-        public double Q0 { get; internal set; }
+        public double TauMax { get; init; } = tauMax;
 
+        /// <summary>
+        /// Min pheromone amount accepted over graph edges
+        /// </summary>
+        public double TauMin { get; init; } = tauMin;
+
+        public override BaseAnt[] BugsLife(int currentIteration)
+        {
+            return SolveApproach.Solve(currentIteration, this, BugSpawner);
+        }
 
         public override IFjspSolution Solve(Instance instance)
         {
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
             Log($"Starting ACS algorithm with following parameters:");
-            Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Phi= {Phi}; Initial pheromone = {Tau0}.");
+            Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Min pheromone = {TauMin}; Max pheromone = {TauMax}.");
             Stopwatch iSw = new();
             Colony colony = new(DisjunctiveGraph);
             colony.Watch.Start();
-            SetInitialPheromoneAmount(Tau0);
-            Log($"Depositing {Tau0} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
+            SetInitialPheromoneAmount(TauMax);
+            Log($"Depositing {TauMax} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
             for (int i = 0; i < Iterations; i++)
             {
                 var currentIteration = i + 1;
-                Q0 = Math.Log(currentIteration) / Math.Log(Iterations);
-                Log($"\nQ0 becomes {Q0}");
                 Log($"Generating {AntCount} artificial ants from #{currentIteration}th wave...");
                 iSw.Restart();
                 BaseAnt[] ants = BugsLife(currentIteration);
@@ -53,7 +57,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
                 Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
                 Log($"Running offline pheromone update...");
-                PheromoneOfflineUpdate(currentIteration, colony);
+                PheromoneUpdate(currentIteration, colony);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth.Makespan}");
 
@@ -78,26 +82,29 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
             return solution;
         }
 
-        private void PheromoneOfflineUpdate(int currentIteration, Colony colony)
+        private MaxMinAnt BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
+
+        private void PheromoneUpdate(int currentIteration, Colony colony)
         {
-            var iterationBestAnt = colony.IterationBests[currentIteration];
-            var bestGraphEdges = iterationBestAnt.ConjunctiveGraph.Edges
+            var bestGraphEdges = colony.BestSoFar.ConjunctiveGraph.Edges
                                 .Where(e => e.HasAssociatedOrientation)
                                 .Select(e => e.AssociatedOrientation)
                                 .ToHashSet();
 
-            var delta = iterationBestAnt.Makespan.Inverse();
-
-            foreach (var orientation in bestGraphEdges)
+            foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
             {
-                if (orientation is not null && PheromoneTrail.TryGetValue(orientation, out double currentPheromoneAmount))
-                {
-                    // new pheromone amount it's a convex combination between currentPheromoneAmount and delta 
-                    var updatedAmount = (1 - Rho) * currentPheromoneAmount + Rho * delta;
+                var orientationBelongsToBestGraph = bestGraphEdges.Contains(orientation);
+                // pheromone deposited only by best so far ant
+                var delta = orientationBelongsToBestGraph ? colony.BestSoFar.Makespan.Inverse() : 0;
+                var updatedAmount = (1 - Rho) * currentPheromoneAmount + delta;
+                
+                if(updatedAmount < TauMin)
+                    updatedAmount = TauMin;
+                else if(updatedAmount > TauMax)
+                    updatedAmount = TauMax;
 
-                    if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
-                        Log($"Offline Update pheromone failed on {orientation}");
-                }
+                if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
+                    Log($"Offline Update pheromone failed on {orientation}");
             }
         }
     }

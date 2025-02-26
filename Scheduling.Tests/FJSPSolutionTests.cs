@@ -16,6 +16,7 @@ namespace Scheduling.Tests
         #region Solvers batch
         public static IEnumerable<object[]> GetSolvers()
         {
+            # region AS 
             yield return
             [
                 new AntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
@@ -24,6 +25,9 @@ namespace Scheduling.Tests
             [
                 new AntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
             ];
+            #endregion
+
+            # region EAS
             yield return
             [
                 new ElitistAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, e: 10, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
@@ -32,6 +36,21 @@ namespace Scheduling.Tests
             [
                 new ElitistAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, e: 10, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
             ];
+            #endregion
+            
+            # region MMAS
+            yield return
+            [
+                new MaxMinAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, tauMin: 100, tauMax: 200, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new MaxMinAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, tauMin: 100, tauMax: 200, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
+            ];
+            #endregion
+
+            
+            # region ACS
             yield return
             [
                 new AntColonySystemV1Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
@@ -48,6 +67,9 @@ namespace Scheduling.Tests
             [
                 new AntColonySystemV2Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
             ];
+            #endregion
+
+            
             yield return
             [
                 new GreedyHeuristicAlgorithmSolver()

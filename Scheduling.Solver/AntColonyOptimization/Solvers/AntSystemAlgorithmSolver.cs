@@ -71,8 +71,8 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
                 var antsUsingOrientation = ants.Where(ant => ant.ConjunctiveGraph.Contains(orientation)).ToHashSet();
 
                 // if the ant is not using this orientation, then its contribution to delta is 0
-                var delta = antsUsingOrientation.Sum(ant => ant.Makespan.Inverse());
-                var updatedAmount = (1 - Rho) * currentPheromoneAmount + Rho * delta;
+                var sum = antsUsingOrientation.Sum(ant => ant.Makespan.Inverse());
+                var updatedAmount = (1 - Rho) * currentPheromoneAmount +  sum;
 
                 if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {orientation}");
