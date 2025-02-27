@@ -57,12 +57,12 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             var sinks = ConjunctiveGraph.Sinks().ToList();
             foreach (var sink in sinks)
             {
-                var machine = MachineAssignment[sink.Operation];
+                var machine = MachineAssignment[sink.Operation.Id];
                 var disjunction = sink.IncidentDisjunctions.Intersect(sinkDisjunctions).First(d => d.Machine == machine);
                 if (disjunction is null) continue;
                 var orientation = disjunction.Orientations.First(c => c.Target == FinalNode);
                 ConjunctiveGraph.AddConjunctionAndVertices(orientation);
-                CompletionTimes[FinalNode.Operation] = Math.Max(CompletionTimes[FinalNode.Operation], CompletionTimes[sink.Operation]);
+                CompletionTimes[FinalNode.Operation.Id] = Math.Max(CompletionTimes[FinalNode.Operation.Id], CompletionTimes[sink.Operation.Id]);
             }
         }
 

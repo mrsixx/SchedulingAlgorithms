@@ -60,7 +60,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
 
         public DisjunctiveGraphModel DisjunctiveGraph { get; private set; }
 
-        public IPheromoneTrail<Orientation, double> PheromoneTrail { get; } = solveApproach.GetPheromoneTrail();
+        public IPheromoneTrail<Orientation, double> PheromoneTrail { get; set; }
 
         public ISolveApproach SolveApproach { get; } = solveApproach;
 
@@ -77,6 +77,8 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
 
         protected void SetInitialPheromoneAmount(double amount)
         {
+            PheromoneTrail = SolveApproach.CreatePheromoneTrail();
+            
             foreach (var disjunction in DisjunctiveGraph.Disjunctions)
                 foreach (var orientation in disjunction.Orientations)
                     if (!PheromoneTrail.TryAdd(orientation, amount))

@@ -6,7 +6,7 @@ namespace Scheduling.Solver.Interfaces
 {
     public interface ISolveApproach
     {
-        IPheromoneTrail<Orientation, double> GetPheromoneTrail();
+        IPheromoneTrail<Orientation, double> CreatePheromoneTrail();
 
         T[] Solve<T>(int currentIteration, AntColonyOptimizationAlgorithmSolver solverContext, Func<int, int, T> bugSpawner) where T : BaseAnt; 
     }

@@ -16,13 +16,13 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
 
         public Dictionary<Machine, Stack<Node>> LoadingSequence { get; } = [];
 
-        public Dictionary<Operation, Machine> MachineAssignment { get; } = [];
+        public Dictionary<int, Machine> MachineAssignment { get; } = [];
 
-        public Dictionary<Operation, double> CompletionTimes { get; } = [];
+        public Dictionary<int, double> CompletionTimes { get; } = [];
 
-        public Dictionary<Operation, double> StartTimes { get; } = [];
+        public Dictionary<int, double> StartTimes { get; } = [];
 
-        public double Makespan => CompletionTimes[FinalNode.Operation];
+        public double Makespan => CompletionTimes[FinalNode.Operation.Id];
 
         public Node StartNode => Context.DisjunctiveGraph.Source;
 
@@ -36,8 +36,8 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             // Initialize starting and completion times for each operation
             Context.DisjunctiveGraph.Vertices.ToList().ForEach(node =>
             {
-                CompletionTimes.Add(node.Operation, 0);
-                StartTimes.Add(node.Operation, 0);
+                CompletionTimes.Add(node.Operation.Id, 0);
+                StartTimes.Add(node.Operation.Id, 0);
             });
             // Initialize loading sequences for each machine
             Context.DisjunctiveGraph.Machines.ForEach(machine =>
@@ -55,15 +55,15 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             var machinePredecessorNode = LoadingSequence[machine].Peek();
 
 
-            var jobCompletionTime = CompletionTimes[jobPredecessorNode.Operation];
-            var machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation];
+            var jobCompletionTime = CompletionTimes[jobPredecessorNode.Operation.Id];
+            var machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation.Id];
             var processingTime = node.Operation.GetProcessingTime(machine);
 
             // update loading sequence, starting and completion times
-            StartTimes[node.Operation] = Math.Max(machineCompletionTime, jobCompletionTime);
-            CompletionTimes[node.Operation] = StartTimes[node.Operation] + processingTime;
+            StartTimes[node.Operation.Id] = Math.Max(machineCompletionTime, jobCompletionTime);
+            CompletionTimes[node.Operation.Id] = StartTimes[node.Operation.Id] + processingTime;
             LoadingSequence[machine].Push(node);
-            if (!MachineAssignment.TryAdd(node.Operation, machine))
+            if (!MachineAssignment.TryAdd(node.Operation.Id, machine))
                 throw new Exception($"Machine already assigned to this operation");
 
             ConjunctiveGraph.AddConjunctionAndVertices(selectedMove);
@@ -109,7 +109,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             foreach (var sink in sinks)
             {
                 if(sink.Equals(FinalNode)) continue;
-                var machine = MachineAssignment[sink.Operation];
+                var machine = MachineAssignment[sink.Operation.Id];
 
                 Disjunction disjunction = sink.IncidentDisjunctions.First(
                     d => d.Machine.Equals(machine) && d.Other(sink).Equals(FinalNode)
@@ -117,7 +117,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
 
                 var orientation = disjunction.Orientations.First(c => c.Target == FinalNode);
                 ConjunctiveGraph.AddConjunctionAndVertices(orientation);
-                CompletionTimes[FinalNode.Operation] = Math.Max(CompletionTimes[FinalNode.Operation], CompletionTimes[sink.Operation]);
+                CompletionTimes[FinalNode.Operation.Id] = Math.Max(CompletionTimes[FinalNode.Operation.Id], CompletionTimes[sink.Operation.Id]);
             }
         }
         public abstract void WalkAround();
@@ -129,7 +129,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             {
                 Console.Write($"{machine.Id}: ");
                 foreach (var node in LoadingSequence[machine].Reverse())
-                    Console.Write($" {node}[{StartTimes[node.Operation]}-{CompletionTimes[node.Operation]}] ");
+                    Console.Write($" {node}[{StartTimes[node.Operation.Id]}-{CompletionTimes[node.Operation.Id]}] ");
 
                 Console.WriteLine("");
             }

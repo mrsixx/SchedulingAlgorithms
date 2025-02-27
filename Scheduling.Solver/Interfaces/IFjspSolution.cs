@@ -5,11 +5,21 @@ namespace Scheduling.Solver.Interfaces
 {
     public interface IFjspSolution
     {
-        Dictionary<Operation, double> StartTimes { get; }
+        
+        /// <summary>
+        /// Start time by operation Id
+        /// </summary>
+        Dictionary<int, double> StartTimes { get; }
 
-        Dictionary<Operation, double> CompletionTimes { get; }
+        /// <summary>
+        /// Completion Times by operation Id
+        /// </summary>
+        Dictionary<int, double> CompletionTimes { get; }
 
-        Dictionary<Operation, Machine> MachineAssignment { get; }
+        /// <summary>
+        /// Machine Assignment by operation Id
+        /// </summary>
+        Dictionary<int, Machine> MachineAssignment { get; }
 
         public Stopwatch Watch { get; }
 

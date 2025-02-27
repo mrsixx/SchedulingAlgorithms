@@ -16,11 +16,15 @@ namespace Scheduling.Solver.Services
             sb.AppendLine(string.Join(',', ["Makespan", "Ellapsed(ms)"]));
 
             foreach(var solution in solutions){
-                sb.AppendLine(string.Join(',', [solution.Makespan, Convert.ToString(solution.Watch.ElapsedMilliseconds)]));
+                try {
+                    sb.AppendLine(string.Join(',', [solution.Makespan, Convert.ToString(solution.Watch.ElapsedMilliseconds)]));
+                }
+                catch(Exception e) {
+                    sb.AppendLine(string.Join(',', [$"Erro: {e.Message}", Convert.ToString(solution.Watch.ElapsedMilliseconds)]));
+                }
             }
 
             writer.Write(sb);
-
         }
     }
 }

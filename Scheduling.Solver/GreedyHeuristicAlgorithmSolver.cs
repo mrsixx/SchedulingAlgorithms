@@ -39,12 +39,12 @@ namespace Scheduling.Solver
                 var jobPredecessor = operation.Previous;
 
                 var startTime = Math.Max(
-                    machinePredecessor != null ? solution.CompletionTimes[machinePredecessor.Value] : 0,
-                    jobPredecessor != null ? solution.CompletionTimes[jobPredecessor.Value] : 0
+                    machinePredecessor != null ? solution.CompletionTimes[machinePredecessor.Value.Id] : 0,
+                    jobPredecessor != null ? solution.CompletionTimes[jobPredecessor.Value.Id] : 0
                 );
 
-                solution.StartTimes.TryAdd(operation.Value, startTime);
-                solution.CompletionTimes.TryAdd(operation.Value, startTime + operation.Value.GetProcessingTime(machine));
+                solution.StartTimes.TryAdd(operation.Value.Id, startTime);
+                solution.CompletionTimes.TryAdd(operation.Value.Id, startTime + operation.Value.GetProcessingTime(machine));
 
                 // updating data structures
                 loadingSequence[machine].AddLast(operation.Value);
@@ -60,7 +60,7 @@ namespace Scheduling.Solver
             // creating mu function
             foreach (var (m, operations) in loadingSequence)
                 foreach (var o in operations)
-                    solution.MachineAssignment.Add(o, m);
+                    solution.MachineAssignment.Add(o.Id, m);
 
             return solution;
         }

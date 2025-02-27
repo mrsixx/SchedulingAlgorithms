@@ -87,7 +87,7 @@ namespace Scheduling.Tests
             foreach (var job in instance.Jobs)
             {
                 var firstOperation = job.Operations.First();
-                var jobStartTime = solution.StartTimes[firstOperation];
+                var jobStartTime = solution.StartTimes[firstOperation.Id];
                 Assert.True(jobStartTime >= job.ReleaseDate, "Restriction 1 was violated");
             }
         }
@@ -106,7 +106,7 @@ namespace Scheduling.Tests
                 foreach (var operation in job.Operations)
                 {
                     if (previousOperation is not null)
-                        Assert.True(solution.StartTimes[operation] >= solution.CompletionTimes[previousOperation], "Restriction 2 was violated");
+                        Assert.True(solution.StartTimes[operation.Id] >= solution.CompletionTimes[previousOperation.Id], "Restriction 2 was violated");
 
                     previousOperation = operation;
                 }
