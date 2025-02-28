@@ -45,9 +45,6 @@ if __name__ == "__main__":
         i = 0
         for file in files:
             i += 1
-            if i > 1:
-                break
-
             print(f'Instância {i}/{len(files)}...\n')
             
             for solver, params in approachs.items():
