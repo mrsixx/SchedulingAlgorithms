@@ -8,7 +8,7 @@ namespace Scheduling.Console
         public string InstanceFile { get; set; } = "";
 
         [Option('o', "output", Required = false, HelpText = "Output file path.")]
-        public string OutputFile { get; set; } = "";
+        public string OutputPath { get; set; } = "";
 
         [Option('s', "solver", Required = true, HelpText = "Solver algorithm name.")]
         public string SolverName { get; set; } = "";

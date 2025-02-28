@@ -22,6 +22,7 @@ Parser.Default.ParseArguments<Arguments>(args)
         var solver = algorithmFactory.GetSolverAlgorithm()
                         .WithLogger(logger, with: opt.Verbose);
 
+
         List<IFjspSolution> solutions = [];
         for (int i = 0; i < opt.Runs; i++)
         {
@@ -30,7 +31,7 @@ Parser.Default.ParseArguments<Arguments>(args)
                 solutions.Add(solution);
         }
 
-        resultFileBuilderService.Export(opt.InstanceFile, opt.SolverName, solutions);
+        resultFileBuilderService.Export(opt.InstanceFile, opt.SolverName, opt.UseParallelApproach, solutions, outputDir: opt.OutputPath);
         //if (opt.EnableDebug)
         //{
         //    graphExporterService.ExportDisjunctiveGraphToGraphviz(solution.Context.DisjunctiveGraph, opt.OutputFile);
