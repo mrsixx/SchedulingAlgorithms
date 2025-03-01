@@ -11,7 +11,10 @@ namespace Scheduling.Solver.Services
             var approach = parallelApproach ? "parallel" : "iterative";
             var fileName = Path.GetFileName(instanceFile);
             var filePath = string.IsNullOrWhiteSpace(outputDir) ? Path.GetDirectoryName(instanceFile) : outputDir;
-            var outputFilename = $"{filePath}/{fileName}.{solverName}-{approach}.csv";
+            
+            var benchmarkName = Directory.GetParent(instanceFile)?.Name ?? "Benchmark";
+
+            var outputFilename = $"{filePath}/{fileName}.{benchmarkName}-{solverName}-{approach}.csv";
             if (!Directory.Exists(filePath))
                 Directory.CreateDirectory(filePath);
 
