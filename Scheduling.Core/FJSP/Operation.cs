@@ -23,7 +23,8 @@
             try
             {
                 if (m is null) return 0;
-                if (Id is SINK_ID or SOURCE_ID) return 0;
+                if (Id is SINK_ID) return 0;
+                if (Id is SOURCE_ID) return Convert.ToDouble(Job.ReleaseDate);
 
                 return ProcessingTimes[m];
             }

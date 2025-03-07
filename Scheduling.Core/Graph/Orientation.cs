@@ -28,11 +28,8 @@ namespace Scheduling.Core.Graph
         {
             get
             {
-                //TODO: change to release date
                 if (Source.IsSourceNode)
-                    return 0;
-                    //return Convert.ToDouble(Target.Operation.Job.ReleaseDate.Ticks);
-
+                    return Convert.ToDouble(Target.Operation.Job.ReleaseDate);
                 return Source.Operation.GetProcessingTime(Machine);
             }
         }

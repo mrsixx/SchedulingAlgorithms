@@ -55,8 +55,10 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             var jobPredecessorNode = node.DirectPredecessor;
             var machinePredecessorNode = LoadingSequence[machine].Peek();
 
-
-            var jobCompletionTime = CompletionTimes[jobPredecessorNode.Operation.Id];
+            //se a primeira operação do job, start time tem que ser maior ou igual release date, 
+            var jobCompletionTime = jobPredecessorNode.Equals(StartNode)
+                                                ? node.Operation.Job.ReleaseDate  // release date if it's first operation
+                                                : CompletionTimes[jobPredecessorNode.Operation.Id]; // else it's predecessor completionTime
             var machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation.Id];
             var processingTime = node.Operation.GetProcessingTime(machine);
 

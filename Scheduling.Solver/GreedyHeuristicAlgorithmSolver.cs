@@ -37,10 +37,11 @@ namespace Scheduling.Solver
                 // evaluate start e completion times
                 var machinePredecessor = loadingSequence[machine].Last;
                 var jobPredecessor = operation.Previous;
+                var jobReleaseDate = Convert.ToDouble(operation.Value.Job.ReleaseDate);
 
                 var startTime = Math.Max(
                     machinePredecessor != null ? solution.CompletionTimes[machinePredecessor.Value.Id] : 0,
-                    jobPredecessor != null ? solution.CompletionTimes[jobPredecessor.Value.Id] : 0
+                    jobPredecessor != null ? solution.CompletionTimes[jobPredecessor.Value.Id] : jobReleaseDate
                 );
 
                 solution.StartTimes.TryAdd(operation.Value.Id, startTime);

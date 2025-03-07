@@ -37,7 +37,7 @@ namespace Scheduling.Tests
                 new ElitistAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, e: 10, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
             ];
             #endregion
-            
+
             # region MMAS
             yield return
             [
@@ -49,7 +49,7 @@ namespace Scheduling.Tests
             ];
             #endregion
 
-            
+
             # region ACS
             yield return
             [
@@ -69,7 +69,7 @@ namespace Scheduling.Tests
             ];
             #endregion
 
-            
+
             yield return
             [
                 new GreedyHeuristicAlgorithmSolver()
@@ -82,6 +82,7 @@ namespace Scheduling.Tests
         public void FjspSolution_ReleaseDateRestriction_MustBeSatisfied(IFlexibleJobShopSchedulingSolver solver)
         {
             var instance = _readerService.ReadInstance(BENCHMARK_FILE);
+            instance.Jobs.ToList().ForEach(j => j.ReleaseDate = Random.Shared.Next(10, 100));
             var solution = solver.Solve(instance);
             
             foreach (var job in instance.Jobs)
