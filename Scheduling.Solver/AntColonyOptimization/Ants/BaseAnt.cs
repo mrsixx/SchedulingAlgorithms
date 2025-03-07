@@ -2,6 +2,7 @@
 using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
+using static Scheduling.Core.Enums.DirectionEnum;
 using Scheduling.Solver.AntColonyOptimization.Solvers;
 
 namespace Scheduling.Solver.AntColonyOptimization.Ants
@@ -102,6 +103,15 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
             throw new InvalidOperationException("FATAL ERROR: No move was selected.");
         }
 
+        protected IEnumerable<IFeasibleMove> GetFeasibleMoves(HashSet<Node> unscheduledNodes, HashSet<Node> scheduledNodes) {
+            return unscheduledNodes.SelectMany(candidateNode =>
+            {
+                return candidateNode.IncidentDisjunctions
+                    .Where(disjunction => scheduledNodes.Contains(disjunction.Other(candidateNode)))
+                    .Select(disjunction => new FeasibleMove(disjunction,
+                        disjunction.Target == candidateNode ? Direction.SourceToTarget : Direction.TargetToSource));
+            });
+        }
         
         protected void SinksToSink()
         {
@@ -120,6 +130,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
                 CompletionTimes[FinalNode.Operation.Id] = Math.Max(CompletionTimes[FinalNode.Operation.Id], CompletionTimes[sink.Operation.Id]);
             }
         }
+        
         public abstract void WalkAround();
 
         public void Log()

@@ -52,14 +52,9 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
         /// <returns></returns>
         private IFeasibleMove ChooseNextFeasibleMove(HashSet<Node> unscheduledNodes, HashSet<Node> scheduledNodes)
         {
+            
             // a feasible move is an arc from scheduled node to an unscheduled node
-            var feasibleMoves = unscheduledNodes.SelectMany(candidateNode =>
-            {
-                return candidateNode.IncidentDisjunctions
-                    .Where(disjunction => scheduledNodes.Contains(disjunction.Other(candidateNode)))
-                    .Select(disjunction => new FeasibleMove(disjunction,
-                        disjunction.Target == candidateNode ? Direction.SourceToTarget : Direction.TargetToSource));
-            });
+            var feasibleMoves = GetFeasibleMoves(unscheduledNodes, scheduledNodes);
             
             return PseudoProbabilityRule(feasibleMoves);
         }
@@ -107,7 +102,8 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
 
         private void LocalPheromoneUpdate(Orientation selectedMove)
         {
-            if (!Context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) || !Context.PheromoneTrail.TryUpdate(selectedMove, (1 - context.Phi) * currentPheromoneValue + context.Phi * context.Tau0, currentPheromoneValue))
+            if (!Context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) || 
+                !Context.PheromoneTrail.TryUpdate(selectedMove, (1 - context.Phi) * currentPheromoneValue + context.Phi * context.Tau0, currentPheromoneValue))
                 Console.WriteLine("Unable to decay pheromone after construction step...");
         }
     }

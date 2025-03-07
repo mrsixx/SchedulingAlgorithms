@@ -43,21 +43,16 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
         }
 
         /// <summary>
-        /// Create feasible moves set and use pseudo probability rule to choose one
+        /// Create feasible moves set and use probability rule to choose one
         /// </summary>
         /// <param name="unscheduledNodes"></param>
         /// <param name="scheduledNodes"></param>
         /// <returns></returns>
         private IFeasibleMove ChooseNextFeasibleMove(HashSet<Node> unscheduledNodes, HashSet<Node> scheduledNodes)
         {
+            
             // a feasible move is an arc from scheduled node to an unscheduled node
-            var feasibleMoves = unscheduledNodes.SelectMany(candidateNode =>
-            {
-                return candidateNode.IncidentDisjunctions
-                    .Where(disjunction => scheduledNodes.Contains(disjunction.Other(candidateNode)))
-                    .Select(disjunction => new FeasibleMove(disjunction,
-                        disjunction.Target == candidateNode ? Direction.SourceToTarget : Direction.TargetToSource));
-            });
+            var feasibleMoves = GetFeasibleMoves(unscheduledNodes, scheduledNodes);
             
             return ProbabilityRule(feasibleMoves);
         }
