@@ -28,7 +28,10 @@ namespace Scheduling.Console
         [Option("phi", Required = false, HelpText = "ACS: Pheromone decay rate parameter.")]
         public double Phi { get; set; } = 0.04;
 
-        [Option("ew", Required = false, HelpText = "EAS: Elitist reinforcement weight.")]
+        [Option("ranksize", Required = false, HelpText = "RBAS: Rank size parameter.")]
+        public int RankSize { get; set; } = 10;
+
+        [Option("elitistweight", Required = false, HelpText = "EAS: Elitist reinforcement weight.")]
         public double E { get; set; } = 10;
 
         [Option("tau0", Required = false, HelpText = "ACO: Initial pheromone amount.")]
@@ -55,7 +58,6 @@ namespace Scheduling.Console
         [Option("debug", Required = false, HelpText = "Enable debug.")]
         public bool EnableDebug { get; set; }
 
-        
         [Option("runs", Required = false, HelpText = "# of algorithm runs.")]
         public int Runs { get; set; } = 1;
     }

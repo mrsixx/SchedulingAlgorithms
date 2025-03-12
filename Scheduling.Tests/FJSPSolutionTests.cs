@@ -27,6 +27,17 @@ namespace Scheduling.Tests
             ];
             #endregion
 
+            # region RBAS 
+            yield return
+            [
+                new RankBasedAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, rankSize: 5, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new RankBasedAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, rankSize: 5, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
+            ];
+            #endregion
+
             # region EAS
             yield return
             [
