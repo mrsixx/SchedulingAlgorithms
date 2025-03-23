@@ -29,6 +29,7 @@ def extrair_metricas(arquivos):
     instance, approach, solver = [], [], []
     min_makespan, mean_makespan, max_makespan = [], [], []
     min_cpu_time, mean_cpu_time, max_cpu_time = [], [], []
+    std_makespan, std_cpu_time = [], []
 
     for arquivo in sorted(arquivos, key=lambda x: x['instance'], reverse=False):
         # Ler o arquivo CSV
@@ -41,9 +42,12 @@ def extrair_metricas(arquivos):
         min_makespan.append(tabela['Makespan'].min()) 
         mean_makespan.append(tabela['Makespan'].mean()) 
         max_makespan.append(tabela['Makespan'].max())
+        std_makespan.append(tabela['Makespan'].std())
+
         min_cpu_time.append(tabela['Ellapsed(ms)'].min())
         mean_cpu_time.append(tabela['Ellapsed(ms)'].mean())
         max_cpu_time.append(tabela['Ellapsed(ms)'].max())
+        std_cpu_time.append(tabela['Ellapsed(ms)'].std())
 
     return pd.DataFrame({
         'Instance': instance,
@@ -52,9 +56,11 @@ def extrair_metricas(arquivos):
         'Makespan (min)': min_makespan,
         'Makespan (avg)': mean_makespan,
         'Makespan (max)': max_makespan,
+        'Makespan (std)': std_makespan,
         'CPU TIME(ms) (min)': min_cpu_time,
         'CPU TIME(ms) (avg)': mean_cpu_time,
         'CPU TIME(ms) (max)': max_cpu_time,
+        'CPU TIME(ms) (std)': std_cpu_time,
     }) 
 
 def mover_arquivos_lixeira(arquivos, lixeira_dir):
