@@ -1,9 +1,10 @@
 ﻿using Scheduling.Benchmarks;
 using Scheduling.Benchmarks.Interfaces;
 using Scheduling.Core.FJSP;
-using Scheduling.Solver;
+using Scheduling.Solver.Greedy;
 using Scheduling.Solver.AntColonyOptimization.Solvers;
 using Scheduling.Solver.Interfaces;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms;
 
 namespace Scheduling.Tests
 {
@@ -19,64 +20,64 @@ namespace Scheduling.Tests
             # region AS 
             yield return
             [
-                new AntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+                new AntSystemAlgorithmV1(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
             ];
             yield return
             [
-                new AntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
+                new AntSystemAlgorithmV1(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
             ];
             #endregion
 
             # region RBAS 
             yield return
             [
-                new RankBasedAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, rankSize: 5, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+                new RankBasedAntSystemAlgorithmV1(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, rankSize: 5, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
             ];
             yield return
             [
-                new RankBasedAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, rankSize: 5, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
+                new RankBasedAntSystemAlgorithmV1(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, rankSize: 5, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
             ];
             #endregion
 
             # region EAS
             yield return
             [
-                new ElitistAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, e: 10, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+                new ElitistAntSystemAlgorithmV1(alpha: 1.0, beta: 1.0, rho: 0.5, e: 10, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
             ];
             yield return
             [
-                new ElitistAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, e: 10, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
+                new ElitistAntSystemAlgorithmV1(alpha: 1.0, beta: 1.0, rho: 0.5, e: 10, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
             ];
             #endregion
 
             # region MMAS
             yield return
             [
-                new MaxMinAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, tauMin: 100, tauMax: 200, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+                new MaxMinAntSystemAlgorithmV1(alpha: 1.0, beta: 1.0, rho: 0.5, tauMin: 100, tauMax: 200, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
             ];
             yield return
             [
-                new MaxMinAntSystemAlgorithmSolver(alpha: 1.0, beta: 1.0, rho: 0.5, tauMin: 100, tauMax: 200, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
+                new MaxMinAntSystemAlgorithmV1(alpha: 1.0, beta: 1.0, rho: 0.5, tauMin: 100, tauMax: 200, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
             ];
             #endregion
 
 
             # region ACS
+            // yield return
+            // [
+            //     new AntColonySystemV0Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+            // ];
+            // yield return
+            // [
+            //     new AntColonySystemV0Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+            // ];
             yield return
             [
-                new AntColonySystemV1Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+                new AntColonySystemAlgorithmV1(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
             ];
             yield return
             [
-                new AntColonySystemV2Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
-            ];
-            yield return
-            [
-                new AntColonySystemV1Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
-            ];
-            yield return
-            [
-                new AntColonySystemV2Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
+                new AntColonySystemAlgorithmV1(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())
             ];
             #endregion
 

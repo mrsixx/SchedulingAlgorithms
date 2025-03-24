@@ -5,14 +5,9 @@ using System.Collections;
 
 namespace Scheduling.Solver.AntColonyOptimization.Pheromone
 {
-    public class PheromoneTrail : IPheromoneTrail<Orientation, double>
+    public class PheromoneTrail : IPheromoneTrail<Orientation>
     {
-        private readonly Dictionary<Orientation, double> _trail;
-
-        public PheromoneTrail()
-        {
-            _trail = new Dictionary<Orientation, double>();
-        }
+        private readonly Dictionary<Orientation, double> _trail = [];
 
 
         public bool TryAdd(Orientation key, double value)

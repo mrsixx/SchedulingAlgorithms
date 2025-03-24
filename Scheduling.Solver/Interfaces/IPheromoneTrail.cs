@@ -1,11 +1,11 @@
 ﻿namespace Scheduling.Solver.Interfaces
 {
-    public interface IPheromoneTrail<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
+    public interface IPheromoneTrail<TKey>: IEnumerable<KeyValuePair<TKey, double>>
     {
-        bool TryAdd(TKey key, TValue value);
+        bool TryAdd(TKey key, double value);
 
-        bool TryGetValue(TKey key, out TValue value);
+        bool TryGetValue(TKey key, out double value);
 
-        bool TryUpdate(TKey key, TValue newValue, TValue comparisonValue);
+        bool TryUpdate(TKey key, double newValue, double comparisonValue);
     }
 }

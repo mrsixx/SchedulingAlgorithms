@@ -35,18 +35,16 @@ if __name__ == "__main__":
 
     approachs = {
         'greedy': '--solver greedy',
-        'asv1-i': '--solver ASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100',
-        'asv1-p': '--solver ASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --parallel',
-        'rbasv1-i': '--solver RBASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5',
-        'rbasv1-p': '--solver RBASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5 --parallel',
-        'easv1-i': '--solver EASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --elitistweight 100',
-        'easv1-p': '--solver EASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --elitistweight 100 --parallel',
-        'mmasv1-i': '--solver MMASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --taumin 10 --taumax 1000',
-        'mmasv1-p': '--solver MMASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --taumin 10 --taumax 1000 --parallel',
-        'acsv0-i': '--solver ACSV0 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04',
-        'acsv0-p': '--solver ACSV0 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04 --parallel',
-        'acsv1-i': '--solver ACSV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04',
-        'acsv1-p': '--solver ACSV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04 --parallel',
+        # 'as-i': '--solver as --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100',
+        # 'as-p': '--solver as --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --parallel',
+        # 'eas-i': '--solver eas --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ew 100',
+        # 'eas-p': '--solver eas --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ew 100 --parallel',
+        # 'mmas-i': '--solver mmas --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --taumin 10 --taumax 1000',
+        'mmas-p': '--solver mmas --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --taumin 10 --taumax 1000 --parallel',
+        # 'acsv1-i': '--solver acsv1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04',
+        # 'acsv1-p': '--solver acsv1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04 --parallel',
+        # 'acsv2-i': '--solver acsv2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04',
+        # 'acsv2-p': '--solver acsv2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04 --parallel',
     }
 
     i = 0

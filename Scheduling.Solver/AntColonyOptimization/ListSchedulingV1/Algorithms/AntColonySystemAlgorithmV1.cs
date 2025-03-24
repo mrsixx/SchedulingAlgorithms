@@ -1,15 +1,14 @@
-﻿using Scheduling.Core.Extensions;
+﻿using System.Diagnostics;
+using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
-using Scheduling.Solver.AntColonyOptimization.Ants;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
-using System.Diagnostics;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
 
-namespace Scheduling.Solver.AntColonyOptimization.Solvers
+namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 {
-    public abstract class AntColonySystemAlgorithmSolver(
+    public class AntColonySystemAlgorithmV1(
         double alpha,
         double beta,
         double rho,
@@ -18,9 +17,11 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach<Orientation> solveApproach) : AntColonyOptimizationAlgorithmSolver(
+        ISolveApproach<Orientation> solveApproach)
+        : AntColonyV1AlgorithmSolver(
         alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
     {
+
         /// <summary>
         /// Pheromone decay coefficient
         /// </summary>
@@ -31,6 +32,11 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
         /// </summary>
         public double Q0 { get; internal set; }
 
+    
+        public override AntV1[] BugsLife(int currentIteration)
+        {
+            return SolveApproach.Solve(currentIteration, this, BugSpawner);
+        }
 
         public override IFjspSolution Solve(Instance instance)
         {
@@ -53,7 +59,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
                 var ants = BugsLife(currentIteration);
                 iSw.Stop();
                 Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
-                colony.UpdateBestPath(ants as AntV1[]);
+                colony.UpdateBestPath(ants);
                 Log($"Running offline pheromone update...");
                 PheromoneOfflineUpdate(currentIteration, colony);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
@@ -79,6 +85,8 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
 
             return solution;
         }
+
+        private AntColonySystemAntV1 BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
 
         private void PheromoneOfflineUpdate(int currentIteration, Colony colony)
         {

@@ -5,11 +5,11 @@ using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.AntColonyOptimization.Solvers
 {
-    public class IterativeSolveApproach : ISolveApproach
+    public class IterativeSolveApproach : ISolveApproach<Orientation>
     {
-        public IPheromoneTrail<Orientation, double> CreatePheromoneTrail() => new PheromoneTrail();
+        public IPheromoneTrail<Orientation> CreatePheromoneTrail() => new PheromoneTrail();
 
-        public T[] Solve<T>(int currentIteration, AntColonyOptimizationAlgorithmSolver solverContext, Func<int, int, T> bugSpawner) where T : BaseAnt
+        public T[] Solve<T>(int currentIteration, IAntColonyAlgorithm solverContext, Func<int, int, T> bugSpawner) where T : BaseAnt
         {
             var ants = new T[solverContext.AntCount];
             solverContext.Log($"#{currentIteration}th wave ants start to walk...");

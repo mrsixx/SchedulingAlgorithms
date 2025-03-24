@@ -5,11 +5,11 @@ using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.AntColonyOptimization.Solvers
 {
-    public class ParallelSolveApproach : ISolveApproach
+    public class ParallelSolveApproach : ISolveApproach<Orientation>
     {
-        public IPheromoneTrail<Orientation, double> CreatePheromoneTrail() => new ThreadSafePheromoneTrail();
+        public IPheromoneTrail<Orientation> CreatePheromoneTrail() => new ThreadSafePheromoneTrail();
 
-        public T[] Solve<T>(int currentIteration, AntColonyOptimizationAlgorithmSolver solverContext, Func<int, int, T> bugSpawner) where T : BaseAnt
+        public T[] Solve<T>(int currentIteration, IAntColonyAlgorithm solverContext, Func<int, int, T> bugSpawner) where T : BaseAnt
         {
             
             var ants = GenerateAntsWave(currentIteration, solverContext, bugSpawner);
@@ -18,7 +18,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
             return ants.Select(a => (T)a.Ant).ToArray();
         }
 
-        private static AsyncAnt[] GenerateAntsWave<T>(int currentIteration, AntColonyOptimizationAlgorithmSolver solverContext,
+        private static AsyncAnt[] GenerateAntsWave<T>(int currentIteration, IAntColonyAlgorithm solverContext,
             Func<int, int, T> bugSpawner) where T : BaseAnt
         {
             var ants = new AsyncAnt[solverContext.AntCount];

@@ -4,10 +4,12 @@ using Scheduling.Solver.AntColonyOptimization.Solvers;
 
 namespace Scheduling.Solver.Interfaces
 {
-    public interface ISolveApproach
+    public interface ISolveApproach<TPheromonePoint>
     {
-        IPheromoneTrail<Orientation, double> CreatePheromoneTrail();
+        IPheromoneTrail<TPheromonePoint> CreatePheromoneTrail();
 
-        T[] Solve<T>(int currentIteration, AntColonyOptimizationAlgorithmSolver solverContext, Func<int, int, T> bugSpawner) where T : BaseAnt; 
+        T[] Solve<T>(int currentIteration, 
+                    IAntColonyAlgorithm solverContext, 
+                    Func<int, int, T> bugSpawner) where T : BaseAnt; 
     }
 }

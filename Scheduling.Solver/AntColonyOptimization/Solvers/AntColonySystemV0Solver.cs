@@ -5,7 +5,7 @@ using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.AntColonyOptimization.Solvers
 {
-    public class AntColonySystemV1Solver(
+    public class AntColonySystemV0Solver(
         double alpha,
         double beta,
         double rho,
@@ -14,7 +14,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach solveApproach)
+        ISolveApproach<Orientation> solveApproach)
         : AntColonySystemAlgorithmSolver(alpha, beta, rho, phi, tau0, ants, iterations,
             stagnantGenerationsAllowed, solveApproach)
     {
@@ -23,7 +23,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
             return SolveApproach.Solve<BaseAnt>(currentIteration, this, BugSpawner);
         }
 
-        private ListSchedulingAcsAntV2 BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
+        private AntColonySystemAntV0 BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
 
     }
 }

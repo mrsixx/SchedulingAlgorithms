@@ -1,13 +1,15 @@
-﻿using Scheduling.Core.Extensions;
+using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
+using Scheduling.Core.Graph;
 using Scheduling.Solver.AntColonyOptimization.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 using System.Diagnostics;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
 
-namespace Scheduling.Solver.AntColonyOptimization.Solvers
+namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 {
-    public class AntSystemAlgorithmSolver(
+    public class AntSystemAlgorithmV1(
         double alpha,
         double beta,
         double rho,
@@ -15,7 +17,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach solveApproach) : AntColonyOptimizationAlgorithmSolver(
+        ISolveApproach<Orientation> solveApproach) : AntColonyV1AlgorithmSolver(
         alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
     {
         public override IFjspSolution Solve(Instance instance)
@@ -34,7 +36,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
                 var currentIteration = i + 1;
                 Log($"Generating {AntCount} artificial ants from #{currentIteration}th wave...");
                 iSw.Restart();
-                BaseAnt[] ants = BugsLife(currentIteration);
+                var ants = BugsLife(currentIteration);
                 iSw.Stop();
                 Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
@@ -64,7 +66,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
             return solution;
         }
 
-        private void PheromoneUpdate(BaseAnt[] ants)
+        private void PheromoneUpdate(AntV1[] ants)
         {
             foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
             {
@@ -79,12 +81,12 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
             }
         }
 
-        public override BaseAnt[] BugsLife(int currentIteration)
+        public override AntV1[] BugsLife(int currentIteration)
         {
-            return SolveApproach.Solve<BaseAnt>(currentIteration, this, BugSpawner);
+            return SolveApproach.Solve(currentIteration, this, BugSpawner);
         }
 
-        private AntSystemAnt BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
+        private AntSystemAntV1 BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
 
     }
 }

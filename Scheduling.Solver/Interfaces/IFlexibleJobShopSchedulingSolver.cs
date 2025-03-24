@@ -15,5 +15,6 @@ namespace Scheduling.Solver.Interfaces
         /// <returns>A object representing solution with machine alocation and start dates of each operation</returns>
         IFjspSolution Solve(Instance instance);
 
+        void Log(string message);
     }
 }

@@ -2,9 +2,8 @@
 using Scheduling.Core.Interfaces;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
-using System.Diagnostics;
 
-namespace Scheduling.Solver
+namespace Scheduling.Solver.Greedy
 {
     public class GreedyHeuristicAlgorithmSolver : IFlexibleJobShopSchedulingSolver
     {

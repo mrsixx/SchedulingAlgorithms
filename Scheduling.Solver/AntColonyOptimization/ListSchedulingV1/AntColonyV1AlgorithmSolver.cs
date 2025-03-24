@@ -1,4 +1,4 @@
-﻿using Scheduling.Core.Extensions;
+using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using Scheduling.Core.Interfaces;
@@ -7,9 +7,9 @@ using Scheduling.Solver.AntColonyOptimization.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 
-namespace Scheduling.Solver.AntColonyOptimization.Solvers
+namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
 {
-    public abstract class AntColonyOptimizationAlgorithmSolver(
+    public abstract class AntColonyV1AlgorithmSolver(
                                           double alpha,
                                           double beta,
                                           double rho,
@@ -73,7 +73,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
 
         public abstract IFjspSolution Solve(Instance instance);
 
-        public abstract BaseAnt[] BugsLife(int currentIteration);
+        public abstract AntV1[] BugsLife(int currentIteration);
 
         protected void SetInitialPheromoneAmount(double amount)
         {

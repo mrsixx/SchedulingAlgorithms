@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 
 namespace Scheduling.Solver.AntColonyOptimization.Pheromone
 {
-    public class ThreadSafePheromoneTrail : IPheromoneTrail<Orientation, double>
+    public class ThreadSafePheromoneTrail : IPheromoneTrail<Orientation>
     {
         private readonly ConcurrentDictionary<Orientation, double> _trail;
         public ThreadSafePheromoneTrail()
