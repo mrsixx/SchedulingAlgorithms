@@ -13,6 +13,8 @@ namespace Scheduling.Solver.AntColonyOptimization.Pheromone
             _trail = new ConcurrentDictionary<Orientation, double>();
         }
 
+        public IPheromoneTrail<Orientation> CreatePheromoneTrail() => new ThreadSafePheromoneTrail();
+
         public bool TryAdd(Orientation key, double value)
             => _trail.TryAdd(key, value);
        

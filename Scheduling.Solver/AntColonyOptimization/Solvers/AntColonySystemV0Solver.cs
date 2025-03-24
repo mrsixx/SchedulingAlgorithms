@@ -14,13 +14,13 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach<Orientation> solveApproach)
+        ISolveApproach solveApproach)
         : AntColonySystemAlgorithmSolver(alpha, beta, rho, phi, tau0, ants, iterations,
             stagnantGenerationsAllowed, solveApproach)
     {
-        public override BaseAnt[] BugsLife(int currentIteration)
+        public override AntColonySystemAntV0[] BugsLife(int currentIteration)
         {
-            return SolveApproach.Solve<BaseAnt>(currentIteration, this, BugSpawner);
+            return SolveApproach.Solve(currentIteration, this, BugSpawner);
         }
 
         private AntColonySystemAntV0 BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);

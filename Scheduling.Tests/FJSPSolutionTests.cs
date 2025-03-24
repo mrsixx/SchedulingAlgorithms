@@ -11,8 +11,8 @@ namespace Scheduling.Tests
     public class FJSPSolutionTests
     {
         private IBenchmarkReaderService _readerService = new BenchmarkReaderService(null);
-        //private const string BENCHMARK_FILE = "C:\\Users\\Matheus Ribeiro\\source\\repos\\mrsixx\\SchedulingAlgorithms\\Scheduling.Benchmarks\\Data\\6_Fattahi\\Fattahi12.fjs";
-        private const string BENCHMARK_FILE = "//workspaces//SchedulingAlgorithms//Scheduling.Benchmarks//Data//6_Fattahi//Fattahi12.fjs";
+        private const string BENCHMARK_FILE = "C:\\Users\\Matheus Ribeiro\\source\\repos\\mrsixx\\SchedulingAlgorithms\\Scheduling.Benchmarks\\Data\\6_Fattahi\\Fattahi12.fjs";
+        //private const string BENCHMARK_FILE = "//workspaces//SchedulingAlgorithms//Scheduling.Benchmarks//Data//6_Fattahi//Fattahi12.fjs";
 
         #region Solvers batch
         public static IEnumerable<object[]> GetSolvers()
@@ -62,15 +62,15 @@ namespace Scheduling.Tests
             #endregion
 
 
-            # region ACS
-            // yield return
-            // [
-            //     new AntColonySystemV0Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
-            // ];
-            // yield return
-            // [
-            //     new AntColonySystemV0Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
-            // ];
+            #region ACS
+            yield return
+            [
+                new AntColonySystemV0Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new AntColonySystemV0Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+            ];
             yield return
             [
                 new AntColonySystemAlgorithmV1(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())

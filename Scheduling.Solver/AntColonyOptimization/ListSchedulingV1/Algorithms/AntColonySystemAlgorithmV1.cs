@@ -1,10 +1,9 @@
-﻿using System.Diagnostics;
-using Scheduling.Core.Extensions;
+﻿using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
-using Scheduling.Core.Graph;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
+using System.Diagnostics;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 {
@@ -17,8 +16,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach<Orientation> solveApproach)
-        : AntColonyV1AlgorithmSolver(
+        ISolveApproach solveApproach)
+        : AntColonyV1AlgorithmSolver<AntColonySystemAntV1>(
         alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
     {
 
@@ -32,8 +31,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         /// </summary>
         public double Q0 { get; internal set; }
 
-    
-        public override AntV1[] BugsLife(int currentIteration)
+
+        public override AntColonySystemAntV1[] BugsLife(int currentIteration)
         {
             return SolveApproach.Solve(currentIteration, this, BugSpawner);
         }

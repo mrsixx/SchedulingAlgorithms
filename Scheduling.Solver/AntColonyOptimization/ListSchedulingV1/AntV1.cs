@@ -1,43 +1,46 @@
 using QuikGraph.Algorithms;
 using Scheduling.Core.Extensions;
-using Scheduling.Solver.Interfaces;
 using Scheduling.Core.Graph;
 using Scheduling.Solver.AntColonyOptimization.Ants;
+using Scheduling.Solver.Interfaces;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
 {
     public abstract class AntV1 : BaseAnt
     {
-        public AntV1(int id, int generation, AntColonyV1AlgorithmSolver context) {
+        public AntV1(int id, int generation)
+        {
             Id = id;
             Generation = generation;
-            Context = context;
         }
-        
+
+
+        public abstract AntColonyAlgorithmSolverBase Context { get; }
 
         public ConjunctiveGraphModel ConjunctiveGraph { get; } = new();
 
         public override double Makespan => CompletionTimes[FinalNode.Operation.Id];
 
-        public Node StartNode => Context.DisjunctiveGraph.Source;
+        public DisjunctiveGraphModel DisjunctiveGraph =>
+            ((AntColonyV1AlgorithmSolver<AntV1>)(object)Context).DisjunctiveGraph;
 
-        public Node FinalNode => Context.DisjunctiveGraph.Sink;
+        public Node StartNode => DisjunctiveGraph.Source;
 
-        public AntColonyV1AlgorithmSolver Context { get; }
+        public Node FinalNode => DisjunctiveGraph.Sink;
 
 
         public void InitializeDataStructures()
         {
             // Initialize starting and completion times for each operation
-            Context.DisjunctiveGraph.Vertices.ToList().ForEach(node =>
+            DisjunctiveGraph.Vertices.ToList().ForEach(node =>
             {
                 CompletionTimes.Add(node.Operation.Id, 0);
                 StartTimes.Add(node.Operation.Id, 0);
             });
             // Initialize loading sequences for each machine
-            Context.DisjunctiveGraph.Machines.ForEach(machine =>
-                LoadingSequence.Add(machine, new Stack<Node>([Context.DisjunctiveGraph.Source]))
+            DisjunctiveGraph.Machines.ForEach(machine =>
+                LoadingSequence.Add(machine, new Stack<Node>([DisjunctiveGraph.Source]))
             );
         }
 
@@ -100,7 +103,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
             throw new InvalidOperationException("FATAL ERROR: No move was selected.");
         }
 
-        public IEnumerable<IFeasibleMove<Orientation>> GetFeasibleMoves(HashSet<Node> unscheduledNodes, HashSet<Node> scheduledNodes) {
+        public IEnumerable<IFeasibleMove<Orientation>> GetFeasibleMoves(HashSet<Node> unscheduledNodes, HashSet<Node> scheduledNodes)
+        {
             return unscheduledNodes.SelectMany(candidateNode =>
             {
                 return candidateNode.IncidentDisjunctions
@@ -109,26 +113,26 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
                         disjunction.Target == candidateNode ? Direction.SourceToTarget : Direction.TargetToSource));
             });
         }
-        
+
         public void SinksToSink()
         {
             var sinks = ConjunctiveGraph.Sinks().ToList();
             foreach (var sink in sinks)
             {
-                if(sink.Equals(FinalNode)) continue;
+                if (sink.Equals(FinalNode)) continue;
                 var machine = MachineAssignment[sink.Operation.Id];
 
                 Disjunction disjunction = sink.IncidentDisjunctions.First(
                     d => d.Machine.Equals(machine) && d.Other(sink).Equals(FinalNode)
-                );                
+                );
 
                 var orientation = disjunction.Orientations.First(c => c.Target == FinalNode);
                 ConjunctiveGraph.AddConjunctionAndVertices(orientation);
                 CompletionTimes[FinalNode.Operation.Id] = Math.Max(CompletionTimes[FinalNode.Operation.Id], CompletionTimes[sink.Operation.Id]);
             }
         }
-        
-        public virtual void LocalPheromoneUpdate(Orientation selectedMove) {}
+
+        public virtual void LocalPheromoneUpdate(Orientation selectedMove) { }
 
         public void Log()
         {

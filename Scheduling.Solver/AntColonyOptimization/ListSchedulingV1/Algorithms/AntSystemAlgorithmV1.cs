@@ -17,7 +17,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach<Orientation> solveApproach) : AntColonyV1AlgorithmSolver(
+        ISolveApproach solveApproach) : AntColonyV1AlgorithmSolver<AntSystemAntV1>(
         alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
     {
         public override IFjspSolution Solve(Instance instance)
@@ -81,7 +81,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             }
         }
 
-        public override AntV1[] BugsLife(int currentIteration)
+        public override AntSystemAntV1[] BugsLife(int currentIteration)
         {
             return SolveApproach.Solve(currentIteration, this, BugSpawner);
         }

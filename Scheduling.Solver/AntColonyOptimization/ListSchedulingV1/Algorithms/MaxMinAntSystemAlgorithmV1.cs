@@ -1,11 +1,9 @@
-﻿using System.Diagnostics;
-using Scheduling.Core.Extensions;
+﻿using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
-using Scheduling.Core.Graph;
-using Scheduling.Solver.AntColonyOptimization.Ants;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
+using System.Diagnostics;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 {
@@ -18,8 +16,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach<Orientation> solveApproach)
-        : AntColonyV1AlgorithmSolver(alpha, beta, rho, 0, ants, iterations,
+        ISolveApproach solveApproach)
+        : AntColonyV1AlgorithmSolver<MaxMinAntSystemAntV1>(alpha, beta, rho, 0, ants, iterations,
             stagnantGenerationsAllowed, solveApproach)
     {
 
@@ -33,7 +31,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         /// </summary>
         public double TauMin { get; init; } = tauMin;
 
-        public override AntV1[] BugsLife(int currentIteration)
+        public override MaxMinAntSystemAntV1[] BugsLife(int currentIteration)
         {
             return SolveApproach.Solve(currentIteration, this, BugSpawner);
         }
@@ -99,10 +97,10 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 // pheromone deposited only by best so far ant
                 var delta = orientationBelongsToBestGraph ? colony.BestSoFar.Makespan.Inverse() : 0;
                 var updatedAmount = (1 - Rho) * currentPheromoneAmount + delta;
-                
-                if(updatedAmount < TauMin)
+
+                if (updatedAmount < TauMin)
                     updatedAmount = TauMin;
-                else if(updatedAmount > TauMax)
+                else if (updatedAmount > TauMax)
                     updatedAmount = TauMax;
 
                 if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))

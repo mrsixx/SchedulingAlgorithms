@@ -1,15 +1,12 @@
-using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using Scheduling.Core.Interfaces;
 using Scheduling.Core.Services;
-using Scheduling.Solver.AntColonyOptimization.Ants;
 using Scheduling.Solver.Interfaces;
-using Scheduling.Solver.Models;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
 {
-    public abstract class AntColonyV1AlgorithmSolver(
+    public abstract class AntColonyV1AlgorithmSolver<TAnt>(
                                           double alpha,
                                           double beta,
                                           double rho,
@@ -17,52 +14,18 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
                                           int ants,
                                           int iterations,
                                           int stagnantGenerationsAllowed,
-                                          ISolveApproach<Orientation> solveApproach) : IAntColonyAlgorithm
+                                          ISolveApproach solveApproach) : 
+                                            AntColonyAlgorithmSolverBase(alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed), 
+                                            IAntColonyAlgorithm<Orientation, TAnt>
     {
         protected ILogger? Logger;
         protected IGraphBuilderService GraphBuilderService;
-        /// <summary>
-        /// Weight of pheromone factor constant
-        /// </summary>
-        public double Alpha { get; init; } = alpha;
 
-        /// <summary>
-        /// Weight of distance factor constant
-        /// </summary>
-        public double Beta { get; init; } = beta;
-
-        /// <summary>
-        /// Pheromone evaporation rate constant
-        /// </summary>
-        public double Rho { get; init; } = rho;
-
-
-        /// <summary>
-        /// Initial pheromone amount over graph edges
-        /// </summary>
-        public double Tau0 { get; init; } = tau0;
-
-        /// <summary>
-        /// Amount of ants
-        /// </summary>
-        public int AntCount { get; init; } = ants;
-
-        /// <summary>
-        /// Number of iterations
-        /// </summary>
-        public int Iterations { get; init; } = iterations;
-
-
-        /// <summary>
-        /// How long should ants continue without improving the solution
-        /// </summary>
-        public int StagnantGenerationsAllowed { get; init; } = stagnantGenerationsAllowed;
+         public ISolveApproach SolveApproach { get; } = solveApproach;
 
         public DisjunctiveGraphModel DisjunctiveGraph { get; private set; }
 
-        public IPheromoneTrail<Orientation> PheromoneTrail { get; set; }
-
-        public ISolveApproach<Orientation> SolveApproach { get; } = solveApproach;
+        public override IPheromoneTrail<Orientation> PheromoneTrail { get; protected set; }
 
         public IFlexibleJobShopSchedulingSolver WithLogger(ILogger logger, bool with = false)
         {
@@ -73,18 +36,17 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
 
         public abstract IFjspSolution Solve(Instance instance);
 
-        public abstract AntV1[] BugsLife(int currentIteration);
+        public abstract TAnt[] BugsLife(int currentIteration);
 
         protected void SetInitialPheromoneAmount(double amount)
         {
-            PheromoneTrail = SolveApproach.CreatePheromoneTrail();
-            
+            PheromoneTrail = PheromoneTrail.CreatePheromoneTrail();
+
             foreach (var disjunction in DisjunctiveGraph.Disjunctions)
                 foreach (var orientation in disjunction.Orientations)
                     if (!PheromoneTrail.TryAdd(orientation, amount))
                         Log($"Error on adding pheromone over {orientation}");
         }
-
 
         protected void CreateDisjunctiveGraphModel(Instance instance)
         {

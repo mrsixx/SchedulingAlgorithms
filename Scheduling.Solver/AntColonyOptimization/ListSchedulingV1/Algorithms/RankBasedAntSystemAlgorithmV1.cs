@@ -1,11 +1,9 @@
 ﻿using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
-using Scheduling.Core.Graph;
-using Scheduling.Solver.AntColonyOptimization.Ants;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 using System.Diagnostics;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 {
@@ -18,7 +16,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach<Orientation> solveApproach) : AntColonyV1AlgorithmSolver(
+        ISolveApproach solveApproach) : AntColonyV1AlgorithmSolver<RankBasedAntSystemAntV1>(
         alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
     {
         /// <summary>
@@ -79,18 +77,18 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
             {
                 // if using orientation, increase is proportional rank position and quality
-                var sum = topAnts.Select((ant, rank) => 
-                    ant.ConjunctiveGraph.Contains(orientation) ? (size - rank) * ant.Makespan.Inverse() : 0 
+                var sum = topAnts.Select((ant, rank) =>
+                    ant.ConjunctiveGraph.Contains(orientation) ? (size - rank) * ant.Makespan.Inverse() : 0
                 ).Sum();
 
-                var updatedAmount = (1 - Rho) * currentPheromoneAmount +  sum;
+                var updatedAmount = (1 - Rho) * currentPheromoneAmount + sum;
 
                 if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {orientation}");
             }
         }
 
-        public override AntV1[] BugsLife(int currentIteration)
+        public override RankBasedAntSystemAntV1[] BugsLife(int currentIteration)
         {
             return SolveApproach.Solve(currentIteration, this, BugSpawner);
         }

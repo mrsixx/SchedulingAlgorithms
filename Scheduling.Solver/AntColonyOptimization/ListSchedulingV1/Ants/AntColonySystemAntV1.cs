@@ -1,18 +1,20 @@
 ﻿using Scheduling.Core.Extensions;
 using Scheduling.Core.Graph;
-using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms;
+using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants
 {
     public class AntColonySystemAntV1(int id, int generation, AntColonySystemAlgorithmV1 context)
-        : AntV1(id, generation, context)
+        : AntV1(id, generation)
     {
 
         public override void WalkAround()
         {
             ListSchedulingV1Heuristic.Construct(this);
         }
+
+        public override AntColonyAlgorithmSolverBase Context => context;
 
         /// <summary>
         /// Create feasible moves set and use pseudo probability rule to choose one
@@ -23,7 +25,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants
             return PseudoProbabilityRule(feasibleMoves);
         }
 
-        private IFeasibleMove<Orientation>PseudoProbabilityRule(IEnumerable<IFeasibleMove<Orientation>> feasibleMoves)
+        private IFeasibleMove<Orientation> PseudoProbabilityRule(IEnumerable<IFeasibleMove<Orientation>> feasibleMoves)
         {
             var sum = 0.0;
             var rouletteWheel = new List<(IFeasibleMove<Orientation> Move, double Probability)>();
@@ -66,8 +68,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants
 
         public override void LocalPheromoneUpdate(Orientation selectedMove)
         {
-            if (!Context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) || 
-                !Context.PheromoneTrail.TryUpdate(selectedMove, (1 - context.Phi) * currentPheromoneValue + context.Phi * context.Tau0, currentPheromoneValue))
+            if (!context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) ||
+                !context.PheromoneTrail.TryUpdate(selectedMove, (1 - context.Phi) * currentPheromoneValue + context.Phi * context.Tau0, currentPheromoneValue))
                 Console.WriteLine("Unable to decay pheromone after construction step...");
         }
     }

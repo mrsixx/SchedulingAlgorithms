@@ -12,7 +12,7 @@ namespace Scheduling.Solver.AntColonyOptimization
         /// </summary>
         public AntV1? EmployeeOfTheMonth { get; private set; }
 
-        public Dictionary<int, AntV1> IterationBests { get; private set; } = [];
+        public Dictionary<int, AntV1> IterationBests { get; } = [];
 
         public AntV1 BestSoFar => IterationBests.MinBy(a => a.Value.Makespan).Value;
 

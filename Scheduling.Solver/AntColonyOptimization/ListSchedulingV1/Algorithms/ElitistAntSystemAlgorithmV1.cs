@@ -1,11 +1,9 @@
-using System.Diagnostics;
 using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
-using Scheduling.Core.Graph;
-using Scheduling.Solver.AntColonyOptimization.Ants;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
+using System.Diagnostics;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 {
@@ -18,7 +16,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach<Orientation> solveApproach) : AntColonyV1AlgorithmSolver(
+        ISolveApproach solveApproach) : AntColonyV1AlgorithmSolver<ElitistAntSystemAntV1>(
         alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
     {
         /// <summary>
@@ -78,7 +76,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             var bestSoFarDelta = colony.BestSoFar.Makespan.Inverse();
             foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
             {
-                var antsUsingOrientation = ants.Where(ant =>  ant.ConjunctiveGraph.Contains(orientation)).ToHashSet();
+                var antsUsingOrientation = ants.Where(ant => ant.ConjunctiveGraph.Contains(orientation)).ToHashSet();
 
                 // if the ant is not using this orientation, then its contribution to delta is 0
                 var sum = antsUsingOrientation.Sum(ant => ant.Makespan.Inverse());
@@ -90,7 +88,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             }
         }
 
-        public override AntV1[] BugsLife(int currentIteration)
+        public override ElitistAntSystemAntV1[] BugsLife(int currentIteration)
         {
             return SolveApproach.Solve(currentIteration, this, BugSpawner);
         }

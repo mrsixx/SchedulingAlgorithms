@@ -16,8 +16,9 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
     /// <param name="generation"></param>
     /// <param name="context"></param>
     public class AntColonySystemAntV0(int id, int generation, AntColonySystemAlgorithmSolver context)
-        : AntV1(id, generation, null)
+        : AntV1(id, generation)
     {
+        public override AntColonyAlgorithmSolverBase Context => context;
         public HashSet<Node> RemainingNodes { get; } = [];
 
 
@@ -25,7 +26,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
         {
             InitializeDataStructures();
             Console.WriteLine($"#{Id}th ant is cooking...");
-            RemainingNodes.AddRange(Context.DisjunctiveGraph.OperationVertices);
+            RemainingNodes.AddRange(DisjunctiveGraph.OperationVertices);
 
             Stopwatch timer = new();
             while (RemainingNodes.Count > 0)

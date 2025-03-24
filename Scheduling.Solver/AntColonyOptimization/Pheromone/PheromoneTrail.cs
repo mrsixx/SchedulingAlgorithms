@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using Scheduling.Core.Graph;
+﻿using Scheduling.Core.Graph;
 using Scheduling.Solver.Interfaces;
 using System.Collections;
 
@@ -9,6 +8,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Pheromone
     {
         private readonly Dictionary<Orientation, double> _trail = [];
 
+        public IPheromoneTrail<Orientation> CreatePheromoneTrail() => new PheromoneTrail();
 
         public bool TryAdd(Orientation key, double value)
         {

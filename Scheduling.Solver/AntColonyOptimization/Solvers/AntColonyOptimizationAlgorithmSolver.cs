@@ -17,52 +17,19 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
                                           int ants,
                                           int iterations,
                                           int stagnantGenerationsAllowed,
-                                          ISolveApproach<Orientation> solveApproach) : IAntColonyAlgorithm
+                                          ISolveApproach solveApproach) : 
+                                        AntColonyAlgorithmSolverBase(alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed), 
+                                        IAntColonyAlgorithm<Orientation, AntColonySystemAntV0>
     {
         protected ILogger? Logger;
         protected IGraphBuilderService GraphBuilderService;
-        /// <summary>
-        /// Weight of pheromone factor constant
-        /// </summary>
-        public double Alpha { get; init; } = alpha;
-
-        /// <summary>
-        /// Weight of distance factor constant
-        /// </summary>
-        public double Beta { get; init; } = beta;
-
-        /// <summary>
-        /// Pheromone evaporation rate constant
-        /// </summary>
-        public double Rho { get; init; } = rho;
-
-
-        /// <summary>
-        /// Initial pheromone amount over graph edges
-        /// </summary>
-        public double Tau0 { get; init; } = tau0;
-
-        /// <summary>
-        /// Amount of ants
-        /// </summary>
-        public int AntCount { get; init; } = ants;
-
-        /// <summary>
-        /// Number of iterations
-        /// </summary>
-        public int Iterations { get; init; } = iterations;
-
-
-        /// <summary>
-        /// How long should ants continue without improving the solution
-        /// </summary>
-        public int StagnantGenerationsAllowed { get; init; } = stagnantGenerationsAllowed;
+        
 
         public DisjunctiveGraphModel DisjunctiveGraph { get; private set; }
 
-        public IPheromoneTrail<Orientation> PheromoneTrail { get; set; }
+        public override IPheromoneTrail<Orientation> PheromoneTrail { get; protected set; }
 
-        public ISolveApproach<Orientation> SolveApproach { get; } = solveApproach;
+        public ISolveApproach SolveApproach { get; } = solveApproach;
 
         public IFlexibleJobShopSchedulingSolver WithLogger(ILogger logger, bool with = false)
         {
@@ -73,11 +40,11 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
 
         public abstract IFjspSolution Solve(Instance instance);
 
-        public abstract BaseAnt[] BugsLife(int currentIteration);
+        public abstract AntColonySystemAntV0[] BugsLife(int currentIteration);
 
         protected void SetInitialPheromoneAmount(double amount)
         {
-            PheromoneTrail = SolveApproach.CreatePheromoneTrail();
+            PheromoneTrail = PheromoneTrail.CreatePheromoneTrail();
             
             foreach (var disjunction in DisjunctiveGraph.Disjunctions)
                 foreach (var orientation in disjunction.Orientations)

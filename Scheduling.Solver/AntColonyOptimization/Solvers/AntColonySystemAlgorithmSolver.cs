@@ -18,7 +18,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Solvers
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach<Orientation> solveApproach) : AntColonyOptimizationAlgorithmSolver(
+        ISolveApproach solveApproach) : AntColonyOptimizationAlgorithmSolver(
         alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
     {
         /// <summary>

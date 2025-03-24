@@ -8,8 +8,9 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants
     /// <param name="id"></param>
     /// <param name="generation"></param>
     /// <param name="context"></param>
-    public class ElitistAntSystemAntV1(int id, int generation, ElitistAntSystemAlgorithmV1 context) : AntV1(id, generation, context)
+    public class ElitistAntSystemAntV1(int id, int generation, ElitistAntSystemAlgorithmV1 context) : AntV1(id, generation)
     {
+        public override AntColonyAlgorithmSolverBase Context => context;
 
         public override void WalkAround()
         {

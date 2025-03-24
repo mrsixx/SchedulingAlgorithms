@@ -10,12 +10,12 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
             ant.InitializeDataStructures();
 
             var conjunctiveDegreeCounters = new Dictionary<Node, int>();
-            ant.Context.DisjunctiveGraph.Vertices.ToList().ForEach(
+            ant.DisjunctiveGraph.Vertices.ToList().ForEach(
                 node => conjunctiveDegreeCounters.Add(node, node.IncidentConjunctions.Count)
             );
 
-            HashSet<Node> scheduledNodes = [ant.Context.DisjunctiveGraph.Source];
-            HashSet<Node> unscheduledNodes = [.. ant.Context.DisjunctiveGraph.Source.Successors];
+            HashSet<Node> scheduledNodes = [ant.DisjunctiveGraph.Source];
+            HashSet<Node> unscheduledNodes = [.. ant.DisjunctiveGraph.Source.Successors];
 
             while (unscheduledNodes.Any())
             {
