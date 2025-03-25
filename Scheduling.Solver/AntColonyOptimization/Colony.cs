@@ -1,22 +1,18 @@
-﻿using Scheduling.Core.Graph;
-using Scheduling.Solver.Interfaces;
+﻿using Scheduling.Solver.Interfaces;
 using System.Diagnostics;
 
-namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
+namespace Scheduling.Solver.AntColonyOptimization
 {
-    public class ColonyV1<TAnt>(DisjunctiveGraphModel disjunctiveGraph) : IColony<TAnt> where TAnt : BaseAnt<TAnt>
+    public class Colony<TAnt> : IColony<TAnt> where TAnt : BaseAnt<TAnt>
     {
         /// <summary>
         /// Ant whose found best path
         /// </summary>
-        public TAnt EmployeeOfTheMonth { get; private set; }
+        public TAnt? EmployeeOfTheMonth { get; private set; }
 
         public Dictionary<int, TAnt> IterationBests { get; } = [];
 
         public TAnt BestSoFar => IterationBests.MinBy(a => a.Value.Makespan).Value;
-
-
-        public ConjunctiveGraphModel BestGraph { get; private set; }
 
         public int LastProductiveGeneration { get; private set; } = 0;
 
@@ -31,14 +27,14 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
                 if (ant.Makespan < IterationBests[ant.Generation].Makespan)
                     IterationBests[ant.Generation] = ant;
 
-                var hasBestGraph = BestGraph is not null;
+                var hasBestSolution = EmployeeOfTheMonth is not null;
                 var antFoundBetterPath = ant.Makespan < EmployeeOfTheMonth?.Makespan;
-                if (hasBestGraph && !antFoundBetterPath) continue;
+                if (hasBestSolution && !antFoundBetterPath) continue;
 
-                //BestGraph = ant.ConjunctiveGraph;
                 EmployeeOfTheMonth = ant;
                 LastProductiveGeneration = ant.Generation;
             }
         }
+
     }
 }

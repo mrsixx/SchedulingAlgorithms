@@ -1,5 +1,4 @@
-﻿using Scheduling.Core.FJSP;
-using Scheduling.Solver.Interfaces;
+﻿using Scheduling.Solver.Interfaces;
 using System.Diagnostics;
 using Machine = Scheduling.Core.FJSP.Machine;
 

@@ -24,6 +24,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 
         public override AntColonySystemAntV1[] BugsLife(int currentIteration)
         {
+            AntColonySystemAntV1 BugSpawner(int id, int generation) => new(id, generation, this);
+
             return SolveApproach.Solve(currentIteration, this, BugSpawner);
         }
 
@@ -34,7 +36,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             Log($"Starting ACS algorithm with following parameters:");
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Phi= {Phi}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
-            ColonyV1<AntColonySystemAntV1> colony = new ColonyV1<AntColonySystemAntV1>(DisjunctiveGraph);
+            Colony<AntColonySystemAntV1> colony = new();
             colony.Watch.Start();
             SetInitialPheromoneAmount(Parameters.Tau0);
             Log($"Depositing {Parameters.Tau0} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
@@ -57,7 +59,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 var generationsSinceLastImprovement = i - colony.LastProductiveGeneration;
                 if (generationsSinceLastImprovement > Parameters.StagnantGenerationsAllowed)
                 {
-                    Log($"\n\nDeath from stagnation...");
+                    Log($"\n\nDeath by stagnation...");
                     break;
                 }
             }
@@ -74,8 +76,6 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 
             return solution;
         }
-
-        private AntColonySystemAntV1 BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
 
         private void PheromoneOfflineUpdate(int currentIteration, IColony<AntColonySystemAntV1> colony)
         {

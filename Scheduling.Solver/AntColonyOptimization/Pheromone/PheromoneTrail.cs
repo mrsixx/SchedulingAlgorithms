@@ -4,7 +4,7 @@ using System.Collections;
 
 namespace Scheduling.Solver.AntColonyOptimization.Pheromone
 {
-    public class PheromoneTrail<TPheromonePoint> : IPheromoneTrail<TPheromonePoint> where TPheromonePoint : notnull, new()
+    public class PheromoneTrail<TPheromonePoint> : IPheromoneTrail<TPheromonePoint> where TPheromonePoint : notnull
     {
         private readonly Dictionary<TPheromonePoint, double> _trail = [];
 
@@ -32,5 +32,6 @@ namespace Scheduling.Solver.AntColonyOptimization.Pheromone
             foreach (var t in _trail)
                 yield return t;
         }
+
     }
 }

@@ -17,7 +17,6 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
             Context = context;
         }
 
-
         public TContext Context { get; }
 
         public ConjunctiveGraphModel ConjunctiveGraph { get; } = new();
@@ -29,7 +28,6 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
         public Node StartNode => DisjunctiveGraph.Source;
 
         public Node FinalNode => DisjunctiveGraph.Sink;
-
 
         public void InitializeDataStructures()
         {
@@ -44,7 +42,6 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
                 LoadingSequence.Add(machine, new Stack<Node>([DisjunctiveGraph.Source]))
             );
         }
-
 
         public void EvaluateCompletionTime(Orientation selectedMove)
         {

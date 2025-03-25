@@ -6,6 +6,7 @@ using Scheduling.Solver.AntColonyOptimization.ListSchedulingV0;
 using Scheduling.Solver.Greedy;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms;
 
 namespace Scheduling.Tests
 {
@@ -60,6 +61,14 @@ namespace Scheduling.Tests
             yield return
             [
                 new MaxMinAntSystemAlgorithmV1(parameters, tauMin: 100, tauMax: 200, new ParallelSolveApproach())
+            ];
+            yield return
+            [
+                new MaxMinAntSystemAlgorithmV2(parameters, tauMin: 100, tauMax: 200, new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new MaxMinAntSystemAlgorithmV2(parameters, tauMin: 100, tauMax: 200, new ParallelSolveApproach())
             ];
             #endregion
 

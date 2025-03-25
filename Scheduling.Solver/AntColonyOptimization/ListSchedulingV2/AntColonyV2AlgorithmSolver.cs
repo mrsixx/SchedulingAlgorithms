@@ -4,72 +4,46 @@ using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
 {
-    public class AntColonyV2AlgorithmSolver<TAnt>(
-        double alpha,
-        double beta,
-        double rho,
-        double tau0,
-        int ants,
-        int iterations,
-        int stagnantGenerationsAllowed,
-        ISolveApproach solveApproach) : IAntColonyAlgorithm<Allocation, TAnt>
+    public abstract class AntColonyV2AlgorithmSolver<TSelf, TAnt>(Parameters parameters, ISolveApproach solveApproach) :
+        IAntColonyAlgorithm<Allocation, TAnt> where TSelf : AntColonyV2AlgorithmSolver<TSelf, TAnt>
     {
-        /// <summary>
-        /// Weight of pheromone factor constant
-        /// </summary>
-        public double Alpha { get; init; } = alpha;
-
-        /// <summary>
-        /// Weight of distance factor constant
-        /// </summary>
-        public double Beta { get; init; } = beta;
-
-        /// <summary>
-        /// Pheromone evaporation rate constant
-        /// </summary>
-        public double Rho { get; init; } = rho;
-
-
-        /// <summary>
-        /// Initial pheromone amount over graph edges
-        /// </summary>
-        public double Tau0 { get; init; } = tau0;
+        protected ILogger? Logger;
 
         /// <summary>
         /// Amount of ants
         /// </summary>
-        public int AntCount { get; init; } = ants;
+        public int AntCount { get; init; } = parameters.AntCount;
 
-        /// <summary>
-        /// Number of iterations
-        /// </summary>
-        public int Iterations { get; init; } = iterations;
+        public Parameters Parameters { get; } = parameters;
 
-        /// <summary>
-        /// How long should ants continue without improving the solution
-        /// </summary>
-        public int StagnantGenerationsAllowed { get; init; } = stagnantGenerationsAllowed;
+        public ISolveApproach SolveApproach { get; } = solveApproach;
 
-        public IPheromoneTrail<Allocation> PheromoneTrail { get; }
-
-        public TAnt[] BugsLife(int currentIteration)
-        {
-            throw new NotImplementedException();
-        }
+        public IPheromoneTrail<Allocation> PheromoneTrail { get; protected set; }
 
         public IFlexibleJobShopSchedulingSolver WithLogger(ILogger logger, bool with = false)
         {
-            throw new NotImplementedException();
+            if (with)
+                Logger = logger;
+            return this;
         }
 
-        public IFjspSolution Solve(Instance instance)
+        public abstract IFjspSolution Solve(Instance instance);
+
+        public abstract TAnt[] BugsLife(int currentIteration);
+
+        protected void SetInitialPheromoneAmount(double amount)
         {
-            throw new NotImplementedException();
+            PheromoneTrail = solveApproach.CreatePheromoneTrail<Allocation>();
+
+            foreach (var job in Instance.Jobs)
+                foreach (var operation in job.Operations)
+                    foreach (var machine in operation.EligibleMachines)
+                        if (!PheromoneTrail.TryAdd(new Allocation(operation, machine), amount))
+                            Log($"Error on adding pheromone over O{operation.Id}M{machine.Id}");
         }
 
-        public void Log(string message)
-        {
-            throw new NotImplementedException();
-        }
+        public Instance Instance { get; protected set; }
+
+        public void Log(string message) => Logger?.Log(message);
     }
 }

@@ -5,7 +5,7 @@ namespace Scheduling.Solver.AntColonyOptimization
 {
     public class ParallelSolveApproach : ISolveApproach
     {
-        public IPheromoneTrail<TPheromonePoint> CreatePheromoneTrail<TPheromonePoint>() where TPheromonePoint : notnull, new() 
+        public IPheromoneTrail<TPheromonePoint> CreatePheromoneTrail<TPheromonePoint>() where TPheromonePoint : notnull 
             => new ThreadSafePheromoneTrail<TPheromonePoint>();
 
         public TAnt[] Solve<TPheromonePoint, TAnt>(

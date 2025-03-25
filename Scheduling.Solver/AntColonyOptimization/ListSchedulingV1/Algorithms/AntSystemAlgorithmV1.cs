@@ -17,7 +17,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             Log($"Starting AS algorithm with following parameters:");
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
-            IColony<AntSystemAntV1> colony = new ColonyV1<AntSystemAntV1>(DisjunctiveGraph);
+            Colony<AntSystemAntV1> colony = new();
             colony.Watch.Start();
             SetInitialPheromoneAmount(Parameters.Tau0);
             Log($"Depositing {Parameters.Tau0} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
@@ -38,7 +38,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 var generationsSinceLastImprovement = i - colony.LastProductiveGeneration;
                 if (generationsSinceLastImprovement > Parameters.StagnantGenerationsAllowed)
                 {
-                    Log($"\n\nDeath from stagnation...");
+                    Log($"\n\nDeath by stagnation...");
                     break;
                 }
             }
@@ -73,10 +73,9 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 
         public override AntSystemAntV1[] BugsLife(int currentIteration)
         {
+            AntSystemAntV1 BugSpawner(int id, int generation) => new(id, generation, this);
+
             return SolveApproach.Solve(currentIteration, this, BugSpawner);
         }
-
-        private AntSystemAntV1 BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
-
     }
 }

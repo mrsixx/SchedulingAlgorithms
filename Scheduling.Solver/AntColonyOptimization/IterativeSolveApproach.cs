@@ -5,7 +5,7 @@ namespace Scheduling.Solver.AntColonyOptimization
 {
     public class IterativeSolveApproach : ISolveApproach
     {
-        public IPheromoneTrail<TPheromonePoint> CreatePheromoneTrail<TPheromonePoint>() where TPheromonePoint : notnull, new() => new PheromoneTrail<TPheromonePoint>();
+        public IPheromoneTrail<TPheromonePoint> CreatePheromoneTrail<TPheromonePoint>() where TPheromonePoint : notnull => new PheromoneTrail<TPheromonePoint>();
 
         public TAnt[] Solve<TPheromonePoint, TAnt>(int currentIteration, IAntColonyAlgorithm<TPheromonePoint, TAnt> solverContext, Func<int, int, TAnt> bugSpawner) where TAnt : BaseAnt<TAnt>
         {
