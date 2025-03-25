@@ -7,18 +7,8 @@ using System.Diagnostics;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 {
-    public class MaxMinAntSystemAlgorithmV1(
-        double alpha,
-        double beta,
-        double rho,
-        double tauMin,
-        double tauMax,
-        int ants,
-        int iterations,
-        int stagnantGenerationsAllowed,
-    ISolveApproach solveApproach)
-        : AntColonyV1AlgorithmSolver<MaxMinAntSystemAlgorithmV1, MaxMinAntSystemAntV1>(alpha, beta, rho, 0, ants, iterations,
-            stagnantGenerationsAllowed, solveApproach)
+    public class MaxMinAntSystemAlgorithmV1(Parameters parameters, double tauMin, double tauMax, ISolveApproach solveApproach)
+        : AntColonyV1AlgorithmSolver<MaxMinAntSystemAlgorithmV1, MaxMinAntSystemAntV1>(parameters, solveApproach)
     {
 
         /// <summary>
@@ -41,13 +31,13 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
             Log($"Starting ACS algorithm with following parameters:");
-            Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Min pheromone = {TauMin}; Max pheromone = {TauMax}.");
+            Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Min pheromone = {TauMin}; Max pheromone = {TauMax}.");
             Stopwatch iSw = new();
             IColony<MaxMinAntSystemAntV1> colony = new ColonyV1<MaxMinAntSystemAntV1>(DisjunctiveGraph);
             colony.Watch.Start();
             SetInitialPheromoneAmount(TauMax);
             Log($"Depositing {TauMax} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
-            for (int i = 0; i < Iterations; i++)
+            for (int i = 0; i < Parameters.Iterations; i++)
             {
                 var currentIteration = i + 1;
                 Log($"Generating {AntCount} artificial ants from #{currentIteration}th wave...");
@@ -62,7 +52,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth.Makespan}");
 
                 var generationsSinceLastImprovement = i - colony.LastProductiveGeneration;
-                if (generationsSinceLastImprovement > StagnantGenerationsAllowed)
+                if (generationsSinceLastImprovement > Parameters.StagnantGenerationsAllowed)
                 {
                     Log($"\n\nDeath from stagnation...");
                     break;
@@ -96,7 +86,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 var orientationBelongsToBestGraph = bestGraphEdges.Contains(orientation);
                 // pheromone deposited only by best so far ant
                 var delta = orientationBelongsToBestGraph ? colony.BestSoFar.Makespan.Inverse() : 0;
-                var updatedAmount = (1 - Rho) * currentPheromoneAmount + delta;
+                var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta;
 
                 if (updatedAmount < TauMin)
                     updatedAmount = TauMin;

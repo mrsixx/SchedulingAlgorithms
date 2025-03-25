@@ -6,57 +6,19 @@ using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
 {
-    public abstract class AntColonyV1AlgorithmSolver<TSelf, TAnt>(
-                                          double alpha,
-                                          double beta,
-                                          double rho,
-                                          double tau0,
-                                          int ants,
-                                          int iterations,
-                                          int stagnantGenerationsAllowed,
-                                          ISolveApproach solveApproach) : 
-                                            IAntColonyAlgorithm<Orientation, TAnt> where TSelf : AntColonyV1AlgorithmSolver<TSelf, TAnt>
+    public abstract class AntColonyV1AlgorithmSolver<TSelf, TAnt>(Parameters parameters, ISolveApproach solveApproach) : 
+        IAntColonyAlgorithm<Orientation, TAnt> where TSelf : AntColonyV1AlgorithmSolver<TSelf, TAnt>
     {
         protected ILogger? Logger;
         protected IGraphBuilderService GraphBuilderService;
 
-        #region hiperparameters
-        /// <summary>
-        /// Weight of pheromone factor constant
-        /// </summary>
-        public double Alpha { get; init; } = alpha;
-
-        /// <summary>
-        /// Weight of distance factor constant
-        /// </summary>
-        public double Beta { get; init; } = beta;
-
-        /// <summary>
-        /// Pheromone evaporation rate constant
-        /// </summary>
-        public double Rho { get; init; } = rho;
-
-
-        /// <summary>
-        /// Initial pheromone amount over graph edges
-        /// </summary>
-        public double Tau0 { get; init; } = tau0;
 
         /// <summary>
         /// Amount of ants
         /// </summary>
-        public int AntCount { get; init; } = ants;
+        public int AntCount { get; init; } = parameters.AntCount;
 
-        /// <summary>
-        /// Number of iterations
-        /// </summary>
-        public int Iterations { get; init; } = iterations;
-
-        /// <summary>
-        /// How long should ants continue without improving the solution
-        /// </summary>
-        public int StagnantGenerationsAllowed { get; init; } = stagnantGenerationsAllowed;
-        #endregion
+        public Parameters Parameters { get; } = parameters;
 
         public ISolveApproach SolveApproach { get; } = solveApproach;
 

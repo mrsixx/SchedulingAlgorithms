@@ -12,27 +12,22 @@ namespace Scheduling.Console
         public IFlexibleJobShopSchedulingSolver GetSolverAlgorithm()
         {
             ISolveApproach solveApproach = Arguments.UseParallelApproach ? new ParallelSolveApproach() : new IterativeSolveApproach();
-
+            Parameters parameters = new Parameters(args.Alpha, args.Beta, args.Rho, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations);
             switch (args.SolverName.ToLowerInvariant().Trim())
             {
                 case "asv1":
-                    return new AntSystemAlgorithmV1(
-                        args.Alpha, args.Beta, args.Rho, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);
+                    return new AntSystemAlgorithmV1(parameters, solveApproach);
                 case "rbasv1":
-                    return new RankBasedAntSystemAlgorithmV1(
-                        args.Alpha, args.Beta, args.Rho, args.Tau0, args.RankSize, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);
+                    return new RankBasedAntSystemAlgorithmV1(parameters, args.RankSize, solveApproach);
                 case "easv1":
-                    return new ElitistAntSystemAlgorithmV1(
-                        args.Alpha, args.Beta, args.Rho, args.E, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);
+                    return new ElitistAntSystemAlgorithmV1(parameters, args.E, solveApproach);
                 case "mmasv1":
-                    return new MaxMinAntSystemAlgorithmV1(
-                        args.Alpha, args.Beta, args.Rho, args.TauMin, args.TauMax, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);
+                    return new MaxMinAntSystemAlgorithmV1(parameters, args.TauMin, args.TauMax, solveApproach);
                 //case "acsv0":
                 //    return new AntColonySystemV0Solver(
                 //        args.Alpha, args.Beta, args.Rho, args.Phi, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);
                 case "acsv1":
-                    return new AntColonySystemAlgorithmV1(
-                        args.Alpha, args.Beta, args.Rho, args.Phi, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);
+                    return new AntColonySystemAlgorithmV1(parameters, args.Phi, solveApproach);
                 case "greedy":
                     return new GreedyHeuristicAlgorithmSolver();
 

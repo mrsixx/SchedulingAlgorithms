@@ -82,8 +82,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
             {
                 var tauXy = move.GetPheromoneAmount(Context.PheromoneTrail); // pheromone amount
                 var etaXy = move.Weight.Inverse(); // heuristic information
-                var tauXyAlpha = Math.Pow(tauXy, Context.Alpha); // pheromone amount raised to power alpha
-                var etaXyBeta = Math.Pow(etaXy, Context.Beta); // heuristic information raised to power beta
+                var tauXyAlpha = Math.Pow(tauXy, Context.Parameters.Alpha); // pheromone amount raised to power alpha
+                var etaXyBeta = Math.Pow(etaXy, Context.Parameters.Beta); // heuristic information raised to power beta
 
                 double probFactor = tauXyAlpha * etaXyBeta;
                 rouletteWheel.Add((move, probFactor));

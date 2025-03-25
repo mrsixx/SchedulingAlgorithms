@@ -7,17 +7,8 @@ using System.Diagnostics;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 {
-    public class ElitistAntSystemAlgorithmV1(
-        double alpha,
-        double beta,
-        double rho,
-        double e,
-        double tau0,
-        int ants,
-    int iterations,
-    int stagnantGenerationsAllowed,
-        ISolveApproach solveApproach) : AntColonyV1AlgorithmSolver<ElitistAntSystemAlgorithmV1, ElitistAntSystemAntV1>(
-        alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
+    public class ElitistAntSystemAlgorithmV1(Parameters parameters, double e, ISolveApproach solveApproach) : 
+        AntColonyV1AlgorithmSolver<ElitistAntSystemAlgorithmV1, ElitistAntSystemAntV1>(parameters, solveApproach)
     {
         /// <summary>
         /// Elitist weight
@@ -29,13 +20,13 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
             Log($"Starting EAS algorithm with following parameters:");
-            Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Initial pheromone = {Tau0}.");
+            Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             IColony<ElitistAntSystemAntV1> colony = new ColonyV1<ElitistAntSystemAntV1>(DisjunctiveGraph);
             colony.Watch.Start();
-            SetInitialPheromoneAmount(Tau0);
-            Log($"Depositing {Tau0} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
-            for (int i = 0; i < Iterations; i++)
+            SetInitialPheromoneAmount(Parameters.Tau0);
+            Log($"Depositing {Parameters.Tau0} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
+            for (int i = 0; i < Parameters.Iterations; i++)
             {
                 var currentIteration = i + 1;
                 Log($"Generating {AntCount} artificial ants from #{currentIteration}th wave...");
@@ -50,7 +41,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth.Makespan}");
 
                 var generationsSinceLastImprovement = i - colony.LastProductiveGeneration;
-                if (generationsSinceLastImprovement > StagnantGenerationsAllowed)
+                if (generationsSinceLastImprovement > Parameters.StagnantGenerationsAllowed)
                 {
                     Log($"\n\nDeath from stagnation...");
                     break;
@@ -81,7 +72,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 // if the ant is not using this orientation, then its contribution to delta is 0
                 var sum = antsUsingOrientation.Sum(ant => ant.Makespan.Inverse());
                 var elitistReinforcement = bestSoFarSolution.Contains(orientation) ? bestSoFarDelta : 0;
-                var updatedAmount = (1 - Rho) * currentPheromoneAmount + sum + E * elitistReinforcement;
+                var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + sum + E * elitistReinforcement;
 
                 if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {orientation}");
