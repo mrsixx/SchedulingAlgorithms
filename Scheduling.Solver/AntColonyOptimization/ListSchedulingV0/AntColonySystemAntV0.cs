@@ -14,18 +14,33 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
     /// <param name="id"></param>
     /// <param name="generation"></param>
     /// <param name="context"></param>
-    public class AntColonySystemAntV0(int id, int generation, AntColonySystemAlgorithmSolver context)
-        : AntV1(id, generation)
+    public class AntColonySystemAntV0: BaseAnt<AntColonySystemAntV0>
     {
-        public override AntColonyAlgorithmSolverBase Context => context;
+        public AntColonySystemAntV0(int id, int generation, AntColonySystemAlgorithmV0 context)
+        {
+            Id = id;
+            Generation = generation;
+            Context = context;
+        }
+
+        public AntColonySystemAlgorithmV0 Context { get; }
+
+        public ConjunctiveGraphModel ConjunctiveGraph { get; } = new();
+
         public HashSet<Node> RemainingNodes { get; } = [];
+
+        public override double Makespan { get; }
+
+        public Node StartNode => Context.DisjunctiveGraph.Source;
+
+        public Node FinalNode => Context.DisjunctiveGraph.Sink;
 
 
         public override void WalkAround()
         {
             InitializeDataStructures();
             Console.WriteLine($"#{Id}th ant is cooking...");
-            RemainingNodes.AddRange(DisjunctiveGraph.OperationVertices);
+            RemainingNodes.AddRange(Context.DisjunctiveGraph.OperationVertices);
 
             Stopwatch timer = new();
             while (RemainingNodes.Count > 0)
@@ -46,9 +61,56 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
             LinkinToSink();
         }
 
-        public override void LocalPheromoneUpdate(Orientation selectedMove)
+        public override void Log()
         {
-            if (!Context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) || !Context.PheromoneTrail.TryUpdate(selectedMove, (1 - context.Phi) * currentPheromoneValue + context.Phi * context.Tau0, currentPheromoneValue))
+            throw new NotImplementedException();
+        }
+
+
+        public void InitializeDataStructures()
+        {
+            // Initialize starting and completion times for each operation
+            Context.DisjunctiveGraph.Vertices.ToList().ForEach(node =>
+            {
+                CompletionTimes.Add(node.Operation.Id, 0);
+                StartTimes.Add(node.Operation.Id, 0);
+            });
+            // Initialize loading sequences for each machine
+            Context.DisjunctiveGraph.Machines.ForEach(machine =>
+                LoadingSequence.Add(machine, new Stack<Node>([Context.DisjunctiveGraph.Source]))
+            );
+        }
+
+
+        public void EvaluateCompletionTime(Orientation selectedMove)
+        {
+            var node = selectedMove.Target;
+            var machine = selectedMove.Machine;
+
+            var jobPredecessorNode = node.DirectPredecessor;
+            var machinePredecessorNode = LoadingSequence[machine].Peek();
+
+            //se a primeira operação do job, start time tem que ser maior ou igual release date, 
+            var jobCompletionTime = jobPredecessorNode.Equals(StartNode)
+                                                ? node.Operation.Job.ReleaseDate  // release date if it's first operation
+                                                : CompletionTimes[jobPredecessorNode.Operation.Id]; // else it's predecessor completionTime
+            var machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation.Id];
+            var processingTime = node.Operation.GetProcessingTime(machine);
+
+            // update loading sequence, starting and completion times
+            StartTimes[node.Operation.Id] = Math.Max(machineCompletionTime, jobCompletionTime);
+            CompletionTimes[node.Operation.Id] = StartTimes[node.Operation.Id] + processingTime;
+            LoadingSequence[machine].Push(node);
+            if (!MachineAssignment.TryAdd(node.Operation.Id, machine))
+                throw new Exception($"Machine already assigned to this operation");
+
+            ConjunctiveGraph.AddConjunctionAndVertices(selectedMove);
+            ConjunctiveGraph.AddConjunctionAndVertices(new Conjunction(jobPredecessorNode, node));
+        }
+
+        public void LocalPheromoneUpdate(Orientation selectedMove)
+        {
+            if (!Context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) || !Context.PheromoneTrail.TryUpdate(selectedMove, (1 - Context.Phi) * currentPheromoneValue + Context.Phi * Context.Parameters.Tau0, currentPheromoneValue))
                 Console.WriteLine("Unable to decay pheromone after construction step...");
         }
 
@@ -78,8 +140,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
             {
                 var tauXy = move.GetPheromoneAmount(Context.PheromoneTrail); // pheromone amount
                 var etaXy = move.Weight.Inverse(); // heuristic information
-                var tauXyAlpha = Math.Pow(tauXy, Context.Alpha); // pheromone amount raised to power alpha
-                var etaXyBeta = Math.Pow(etaXy, Context.Beta); // heuristic information raised to power beta
+                var tauXyAlpha = Math.Pow(tauXy, Context.Parameters.Alpha); // pheromone amount raised to power alpha
+                var etaXyBeta = Math.Pow(etaXy, Context.Parameters.Beta); // heuristic information raised to power beta
 
                 double probFactor = tauXyAlpha * etaXyBeta, pseudoProbFactor = tauXy * etaXyBeta;
                 rouletteWheel.Add((move as FeasibleMove, probFactor));
@@ -91,7 +153,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
             }
 
             // pseudo random proportional rule
-            if (Random.Shared.NextDouble() <= context.Q0)
+            if (Random.Shared.NextDouble() <= Context.Q0)
                 return greedyMove?.DirectedEdge;
 
             // roulette wheel
