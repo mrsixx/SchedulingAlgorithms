@@ -1,29 +1,30 @@
 using QuikGraph.Algorithms;
 using Scheduling.Core.Extensions;
 using Scheduling.Core.Graph;
-using Scheduling.Solver.AntColonyOptimization.Ants;
 using Scheduling.Solver.Interfaces;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
 {
-    public abstract class AntV1 : BaseAnt
+    public abstract class AntV1<TSelf, TContext> : BaseAnt<TSelf> 
+        where TSelf: AntV1<TSelf, TContext>
+        where TContext : AntColonyV1AlgorithmSolver<TContext, TSelf>
     {
-        public AntV1(int id, int generation)
+        protected AntV1(int id, int generation, TContext context)
         {
             Id = id;
             Generation = generation;
+            Context = context;
         }
 
 
-        public abstract AntColonyAlgorithmSolverBase Context { get; }
+        public TContext Context { get; }
 
         public ConjunctiveGraphModel ConjunctiveGraph { get; } = new();
 
         public override double Makespan => CompletionTimes[FinalNode.Operation.Id];
 
-        public DisjunctiveGraphModel DisjunctiveGraph =>
-            ((AntColonyV1AlgorithmSolver<AntV1>)(object)Context).DisjunctiveGraph;
+        public DisjunctiveGraphModel DisjunctiveGraph => Context.DisjunctiveGraph;
 
         public Node StartNode => DisjunctiveGraph.Source;
 
@@ -134,7 +135,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
 
         public virtual void LocalPheromoneUpdate(Orientation selectedMove) { }
 
-        public void Log()
+        public override void Log()
         {
             // print loading sequence
             foreach (var machine in LoadingSequence.Keys)

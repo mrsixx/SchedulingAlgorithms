@@ -2,7 +2,7 @@ using Scheduling.Core.Graph;
 
 namespace Scheduling.Solver.Interfaces
 {
-    public interface IAntColonyAlgorithm<TPheromonePoint, TAnt> : IFlexibleJobShopSchedulingSolver
+    public interface IAntColonyAlgorithm<TPheromonePoint, out TAnt> : IFlexibleJobShopSchedulingSolver
     {
         int AntCount { get; }
 

@@ -6,6 +6,8 @@ namespace Scheduling.Core.Graph
 {
     public class Orientation : BaseEdge
     {
+        public Orientation() { }
+
         public Orientation(Disjunction disjunction, Direction fixedDirection) 
         {
             Source = disjunction.Source;

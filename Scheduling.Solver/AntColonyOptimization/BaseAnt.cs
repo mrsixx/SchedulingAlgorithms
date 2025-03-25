@@ -1,10 +1,9 @@
 ﻿using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
-using Scheduling.Solver.Interfaces;
 
-namespace Scheduling.Solver.AntColonyOptimization.Ants
+namespace Scheduling.Solver.AntColonyOptimization
 {
-    public abstract class BaseAnt
+    public abstract class BaseAnt<TSelf> where TSelf : BaseAnt<TSelf>
     {
         public int Id { get; init; }
 
@@ -21,5 +20,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Ants
         public abstract double Makespan { get; }
 
         public abstract void WalkAround();
+
+        public abstract void Log();
     }
 }

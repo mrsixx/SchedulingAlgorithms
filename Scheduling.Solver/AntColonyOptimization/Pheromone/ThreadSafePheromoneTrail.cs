@@ -1,28 +1,22 @@
-﻿using Scheduling.Core.Graph;
-using Scheduling.Solver.Interfaces;
+﻿using Scheduling.Solver.Interfaces;
 using System.Collections;
 using System.Collections.Concurrent;
 
 namespace Scheduling.Solver.AntColonyOptimization.Pheromone
 {
-    public class ThreadSafePheromoneTrail : IPheromoneTrail<Orientation>
+    public class ThreadSafePheromoneTrail<TPheromonePoint> : IPheromoneTrail<TPheromonePoint> where TPheromonePoint : notnull, new()
     {
-        private readonly ConcurrentDictionary<Orientation, double> _trail;
-        public ThreadSafePheromoneTrail()
-        {
-            _trail = new ConcurrentDictionary<Orientation, double>();
-        }
+        private readonly ConcurrentDictionary<TPheromonePoint, double> _trail = new();
 
-        public IPheromoneTrail<Orientation> CreatePheromoneTrail() => new ThreadSafePheromoneTrail();
 
-        public bool TryAdd(Orientation key, double value)
+        public bool TryAdd(TPheromonePoint key, double value)
             => _trail.TryAdd(key, value);
-       
 
-        public bool TryGetValue(Orientation key, out double value) 
+
+        public bool TryGetValue(TPheromonePoint key, out double value)
             => _trail.TryGetValue(key, out value);
 
-        public bool TryUpdate(Orientation key, double newValue, double comparisonValue) 
+        public bool TryUpdate(TPheromonePoint key, double newValue, double comparisonValue)
             => _trail.TryUpdate(key, newValue, comparisonValue);
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -30,7 +24,7 @@ namespace Scheduling.Solver.AntColonyOptimization.Pheromone
             return _trail.GetEnumerator();
         }
 
-        public IEnumerator<KeyValuePair<Orientation, double>> GetEnumerator()
+        public IEnumerator<KeyValuePair<TPheromonePoint, double>> GetEnumerator()
         {
             foreach (var t in _trail)
                 yield return t;

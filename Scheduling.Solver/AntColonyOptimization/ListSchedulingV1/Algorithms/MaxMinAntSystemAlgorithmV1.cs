@@ -16,8 +16,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach solveApproach)
-        : AntColonyV1AlgorithmSolver<MaxMinAntSystemAntV1>(alpha, beta, rho, 0, ants, iterations,
+    ISolveApproach solveApproach)
+        : AntColonyV1AlgorithmSolver<MaxMinAntSystemAlgorithmV1, MaxMinAntSystemAntV1>(alpha, beta, rho, 0, ants, iterations,
             stagnantGenerationsAllowed, solveApproach)
     {
 
@@ -43,7 +43,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             Log($"Starting ACS algorithm with following parameters:");
             Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Min pheromone = {TauMin}; Max pheromone = {TauMax}.");
             Stopwatch iSw = new();
-            Colony colony = new(DisjunctiveGraph);
+            IColony<MaxMinAntSystemAntV1> colony = new ColonyV1<MaxMinAntSystemAntV1>(DisjunctiveGraph);
             colony.Watch.Start();
             SetInitialPheromoneAmount(TauMax);
             Log($"Depositing {TauMax} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
@@ -76,7 +76,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             if (colony.EmployeeOfTheMonth is not null)
                 Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
 
-            AntColonyOptimizationSolution solution = new(colony);
+            AntColonyOptimizationSolution<MaxMinAntSystemAntV1> solution = new(colony);
             Log($"Makespan: {solution.Makespan}");
 
             return solution;
@@ -84,7 +84,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 
         private MaxMinAntSystemAntV1 BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
 
-        private void PheromoneUpdate(int currentIteration, Colony colony)
+        private void PheromoneUpdate(int currentIteration, IColony<MaxMinAntSystemAntV1> colony)
         {
             var bestGraphEdges = colony.BestSoFar.ConjunctiveGraph.Edges
                                 .Where(e => e.HasAssociatedOrientation)

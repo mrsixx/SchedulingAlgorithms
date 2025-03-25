@@ -5,16 +5,13 @@ using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants
 {
-    public class AntColonySystemAntV1(int id, int generation, AntColonySystemAlgorithmV1 context)
-        : AntV1(id, generation)
+    public class AntColonySystemAntV1(int id, int generation, AntColonySystemAlgorithmV1 context) : AntV1<AntColonySystemAntV1, AntColonySystemAlgorithmV1>(id, generation, context)
     {
 
         public override void WalkAround()
         {
-            ListSchedulingV1Heuristic.Construct(this);
+            ListSchedulingV1Heuristic<AntColonySystemAlgorithmV1, AntColonySystemAntV1>.Construct(this);
         }
-
-        public override AntColonyAlgorithmSolverBase Context => context;
 
         /// <summary>
         /// Create feasible moves set and use pseudo probability rule to choose one

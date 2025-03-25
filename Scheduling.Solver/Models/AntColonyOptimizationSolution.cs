@@ -5,10 +5,8 @@ using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.Models
 {
-    public class AntColonyOptimizationSolution(Colony colony) : IFjspSolution
+    public class AntColonyOptimizationSolution<TAnt>(IColony<TAnt> colony) : IFjspSolution where TAnt : BaseAnt<TAnt>
     {
-        public Colony Context { get; } = colony;
-
         public Dictionary<int, double> StartTimes { get; } = colony.EmployeeOfTheMonth?.StartTimes ?? [];
 
         public Dictionary<int, double> CompletionTimes { get; } = colony.EmployeeOfTheMonth?.CompletionTimes ?? [];
@@ -21,7 +19,7 @@ namespace Scheduling.Solver.Models
         
         public void Log()
         {
-            Context.EmployeeOfTheMonth.Log();
+            colony.EmployeeOfTheMonth.Log();
         }
     }
 }

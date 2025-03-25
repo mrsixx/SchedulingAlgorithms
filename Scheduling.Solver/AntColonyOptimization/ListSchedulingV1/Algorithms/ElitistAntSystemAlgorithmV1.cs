@@ -14,9 +14,9 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         double e,
         double tau0,
         int ants,
-        int iterations,
-        int stagnantGenerationsAllowed,
-        ISolveApproach solveApproach) : AntColonyV1AlgorithmSolver<ElitistAntSystemAntV1>(
+    int iterations,
+    int stagnantGenerationsAllowed,
+        ISolveApproach solveApproach) : AntColonyV1AlgorithmSolver<ElitistAntSystemAlgorithmV1, ElitistAntSystemAntV1>(
         alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
     {
         /// <summary>
@@ -31,7 +31,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             Log($"Starting EAS algorithm with following parameters:");
             Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Initial pheromone = {Tau0}.");
             Stopwatch iSw = new();
-            Colony colony = new(DisjunctiveGraph);
+            IColony<ElitistAntSystemAntV1> colony = new ColonyV1<ElitistAntSystemAntV1>(DisjunctiveGraph);
             colony.Watch.Start();
             SetInitialPheromoneAmount(Tau0);
             Log($"Depositing {Tau0} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
@@ -64,13 +64,13 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             if (colony.EmployeeOfTheMonth is not null)
                 Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
 
-            AntColonyOptimizationSolution solution = new(colony);
+            AntColonyOptimizationSolution<ElitistAntSystemAntV1> solution = new(colony);
             Log($"Makespan: {solution.Makespan}");
 
             return solution;
         }
 
-        private void PheromoneUpdate(AntV1[] ants, Colony colony)
+        private void PheromoneUpdate(ElitistAntSystemAntV1[] ants, IColony<ElitistAntSystemAntV1> colony)
         {
             var bestSoFarSolution = colony.BestSoFar.ConjunctiveGraph;
             var bestSoFarDelta = colony.BestSoFar.Makespan.Inverse();

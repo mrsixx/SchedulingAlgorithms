@@ -1,11 +1,12 @@
-using Scheduling.Solver.AntColonyOptimization.Ants;
 using Scheduling.Core.Graph;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
 {
-    public static class ListSchedulingV1Heuristic
+    public static class ListSchedulingV1Heuristic<TContext, TAnt>
+        where TContext : AntColonyV1AlgorithmSolver<TContext, TAnt>
+        where TAnt : AntV1<TAnt, TContext>
     {
-        public static void Construct(AntV1 ant) 
+        public static void Construct(TAnt ant)
         {
             ant.InitializeDataStructures();
 
@@ -35,7 +36,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
                         unscheduledNodes.Add(node);
                 });
             }
-        
+
             ant.SinksToSink();
         }
     }

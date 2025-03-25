@@ -2,8 +2,6 @@
 {
     public interface IPheromoneTrail<TKey>: IEnumerable<KeyValuePair<TKey, double>>
     {
-        IPheromoneTrail<TKey> CreatePheromoneTrail();
-
         bool TryAdd(TKey key, double value);
 
         bool TryGetValue(TKey key, out double value);

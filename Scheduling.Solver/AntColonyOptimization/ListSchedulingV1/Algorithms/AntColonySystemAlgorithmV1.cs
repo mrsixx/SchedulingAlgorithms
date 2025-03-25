@@ -16,8 +16,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         int ants,
         int iterations,
         int stagnantGenerationsAllowed,
-        ISolveApproach solveApproach)
-        : AntColonyV1AlgorithmSolver<AntColonySystemAntV1>(
+    ISolveApproach solveApproach)
+        : AntColonyV1AlgorithmSolver<AntColonySystemAlgorithmV1, AntColonySystemAntV1>(
         alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
     {
 
@@ -44,7 +44,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             Log($"Starting ACS algorithm with following parameters:");
             Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Phi= {Phi}; Initial pheromone = {Tau0}.");
             Stopwatch iSw = new();
-            Colony colony = new(DisjunctiveGraph);
+            ColonyV1<AntColonySystemAntV1> colony = new ColonyV1<AntColonySystemAntV1>(DisjunctiveGraph);
             colony.Watch.Start();
             SetInitialPheromoneAmount(Tau0);
             Log($"Depositing {Tau0} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
@@ -79,7 +79,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             if (colony.EmployeeOfTheMonth is not null)
                 Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
 
-            AntColonyOptimizationSolution solution = new(colony);
+            AntColonyOptimizationSolution<AntColonySystemAntV1> solution = new(colony);
             Log($"Makespan: {solution.Makespan}");
 
             return solution;
@@ -87,7 +87,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 
         private AntColonySystemAntV1 BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
 
-        private void PheromoneOfflineUpdate(int currentIteration, Colony colony)
+        private void PheromoneOfflineUpdate(int currentIteration, IColony<AntColonySystemAntV1> colony)
         {
             var iterationBestAnt = colony.IterationBests[currentIteration];
             var bestGraphEdges = iterationBestAnt.ConjunctiveGraph.Edges

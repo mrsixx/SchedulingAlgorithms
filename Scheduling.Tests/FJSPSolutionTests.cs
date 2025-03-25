@@ -1,8 +1,8 @@
 ﻿using Scheduling.Benchmarks;
 using Scheduling.Benchmarks.Interfaces;
 using Scheduling.Core.FJSP;
+using Scheduling.Solver.AntColonyOptimization;
 using Scheduling.Solver.Greedy;
-using Scheduling.Solver.AntColonyOptimization.Solvers;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms;
 
@@ -63,14 +63,14 @@ namespace Scheduling.Tests
 
 
             #region ACS
-            yield return
-            [
-                new AntColonySystemV0Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
-            ];
-            yield return
-            [
-                new AntColonySystemV0Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
-            ];
+            //yield return
+            //[
+            //    new AntColonySystemV0Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+            //];
+            //yield return
+            //[
+            //    new AntColonySystemV0Solver(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new IterativeSolveApproach())
+            //];
             yield return
             [
                 new AntColonySystemAlgorithmV1(alpha: 1.0, beta: 1.0, rho: 0.5, phi: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1, new ParallelSolveApproach())

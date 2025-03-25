@@ -14,9 +14,9 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         double tau0,
         int rankSize,
         int ants,
-        int iterations,
-        int stagnantGenerationsAllowed,
-        ISolveApproach solveApproach) : AntColonyV1AlgorithmSolver<RankBasedAntSystemAntV1>(
+    int iterations,
+    int stagnantGenerationsAllowed,
+        ISolveApproach solveApproach) : AntColonyV1AlgorithmSolver<RankBasedAntSystemAlgorithmV1, RankBasedAntSystemAntV1>(
         alpha, beta, rho, tau0, ants, iterations, stagnantGenerationsAllowed, solveApproach)
     {
         /// <summary>
@@ -31,7 +31,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             Log($"Starting AS algorithm with following parameters:");
             Log($"Alpha = {Alpha}; Beta = {Beta}; Rho = {Rho}; Initial pheromone = {Tau0}.");
             Stopwatch iSw = new();
-            Colony colony = new(DisjunctiveGraph);
+            IColony<RankBasedAntSystemAntV1> colony = new ColonyV1<RankBasedAntSystemAntV1>(DisjunctiveGraph);
             colony.Watch.Start();
             SetInitialPheromoneAmount(Tau0);
             Log($"Depositing {Tau0} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
@@ -64,13 +64,13 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             if (colony.EmployeeOfTheMonth is not null)
                 Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
 
-            AntColonyOptimizationSolution solution = new(colony);
+            AntColonyOptimizationSolution<RankBasedAntSystemAntV1> solution = new(colony);
             Log($"Makespan: {solution.Makespan}");
 
             return solution;
         }
 
-        private void PheromoneUpdate(AntV1[] ants)
+        private void PheromoneUpdate(RankBasedAntSystemAntV1[] ants)
         {
             var size = Math.Max(1, Math.Min(RankSize, ants.Length)); // ensures that size is an int between 1 and ants.Length
             var topAnts = ants.OrderBy(a => a.Makespan).Take(size).ToArray();
