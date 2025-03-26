@@ -2,6 +2,7 @@ using QuikGraph.Algorithms;
 using Scheduling.Core.Extensions;
 using Scheduling.Core.Graph;
 using Scheduling.Solver.Interfaces;
+using Scheduling.Solver.Models;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1

@@ -9,13 +9,13 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public int Generation { get; init; }
 
-        public Dictionary<Machine, Stack<Node>> LoadingSequence { get; } = [];
+        public virtual Dictionary<Machine, Stack<Node>> LoadingSequence { get; } = [];
 
-        public Dictionary<int, Machine> MachineAssignment { get; } = [];
+        public virtual Dictionary<int, Machine> MachineAssignment { get; } = [];
 
-        public Dictionary<int, double> CompletionTimes { get; } = [];
+        public virtual Dictionary<int, double> CompletionTimes { get; } = [];
 
-        public Dictionary<int, double> StartTimes { get; } = [];
+        public virtual Dictionary<int, double> StartTimes { get; } = [];
 
         public abstract double Makespan { get; }
 

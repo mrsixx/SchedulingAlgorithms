@@ -20,6 +20,7 @@ namespace Scheduling.Tests
         public static IEnumerable<object[]> GetSolvers()
         {
             Parameters parameters = new(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1);
+            
             # region AS 
             yield return
             [
@@ -96,6 +97,7 @@ namespace Scheduling.Tests
             [
                 new GreedyHeuristicAlgorithmSolver()
             ];
+            
         }
         #endregion
 

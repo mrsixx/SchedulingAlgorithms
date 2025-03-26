@@ -1,65 +1,102 @@
-﻿using Scheduling.Core.FJSP;
+﻿using System.Runtime.CompilerServices;
+using Scheduling.Core.Extensions;
+using Scheduling.Core.FJSP;
+using Scheduling.Core.Graph;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms;
+using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants
 {
     public class MaxMinAntSystemAntV2(int id, int generation, MaxMinAntSystemAlgorithmV2 context)
         : AntV2<MaxMinAntSystemAntV2, MaxMinAntSystemAlgorithmV2>(id, generation, context)
     {
+        public override double Makespan => CompletionTimes.Any() ? CompletionTimes.MaxBy(c => c.Value).Value : 0;
+
+        protected Dictionary<Machine, LinkedList<Operation>> LoadingSequence { get; } = [];
         public override void WalkAround()
         {
-            Solution.Watch.Start();
             // creating data structures
-            //Log($"Starting greedy algorithm");
-            var unscheduledJobOperations = new Dictionary<Job, LinkedListNode<Operation>>();
-            var loadingSequence = new Dictionary<Machine, LinkedList<Operation>>();
-            Instance.Jobs.ToList().ForEach(job => unscheduledJobOperations.Add(job, job.Operations.First));
-            Instance.Machines.ToList().ForEach(m => loadingSequence.Add(m, new LinkedList<Operation>()));
+            var unscheduledOperations = new HashSet<Operation>();
+            Instance.Jobs.ToList().ForEach(job => unscheduledOperations.Add(job.Operations.First.Value));
+            Instance.Machines.ToList().ForEach(m => LoadingSequence.Add(m, new LinkedList<Operation>()));
 
-            while (unscheduledJobOperations.Any())
+            while (unscheduledOperations.Any())
             {
-                var (operation, machine) = GetGreedyMachineAllocation(unscheduledJobOperations, Solution);
+                var feasibleMoves = GetFeasibleMoves(unscheduledOperations);
+                var nextMove = ProbabilityRule(feasibleMoves) as FeasibleMoveV2;
 
-                // evaluate start e completion times
-                var machinePredecessor = loadingSequence[machine].Last;
-                var jobPredecessor = operation.Previous;
-                var jobReleaseDate = Convert.ToDouble(operation.Value.Job.ReleaseDate);
+                var operationLinkedListNode = nextMove.Operation.Job.Operations.Find(nextMove.Operation);
 
-                var startTime = Math.Max(
-                    machinePredecessor != null ? Solution.CompletionTimes[machinePredecessor.Value.Id] : 0,
-                    jobPredecessor != null ? Solution.CompletionTimes[jobPredecessor.Value.Id] : jobReleaseDate
-                );
+                EvaluateCompletionTime(nextMove, operationLinkedListNode);
+                LocalPheromoneUpdate(nextMove.Allocation);
 
-                Solution.StartTimes.TryAdd(operation.Value.Id, startTime);
-                Solution.CompletionTimes.TryAdd(operation.Value.Id, startTime + operation.Value.GetProcessingTime(machine));
-
-                // updating data structures
-                loadingSequence[machine].AddLast(operation.Value);
-                if (operation.Next is null)
-                    unscheduledJobOperations.Remove(operation.Value.Job);
-                else
-                    unscheduledJobOperations[operation.Value.Job] = operation.Next;
+                unscheduledOperations.Remove(nextMove.Operation);
+                if (operationLinkedListNode.Next is not null)
+                    unscheduledOperations.Add(operationLinkedListNode.Next.Value);
             }
-            Solution.Watch.Stop();
             //Log($"Solution found after {solution.Watch.Elapsed}.");
             //Log("\nFinishing execution...");
 
             // creating mu function
-            foreach (var (m, operations) in loadingSequence)
+            foreach (var (m, operations) in LoadingSequence)
             foreach (var o in operations)
-                Solution.MachineAssignment.Add(o.Id, m);
+                MachineAssignment.Add(o.Id, m);
         }
 
-        private (LinkedListNode<Operation>, Machine) GetGreedyMachineAllocation(Dictionary<Job, LinkedListNode<Operation>> unscheduledJobOperations, GreedySolution solution)
+        public void EvaluateCompletionTime(FeasibleMoveV2 selectedMove, LinkedListNode<Operation> operationLinkedListNode)
         {
-            var candidateAllocations = unscheduledJobOperations.Values
-                .SelectMany(operation => operation.Value.EligibleMachines
-                    .Select(machine => (operation, machine)));
+            // evaluate start e completion times
+            var machinePredecessor = LoadingSequence[selectedMove.Machine].Last;
 
-            return candidateAllocations.MinBy(
-                (allocation) => solution.Makespan + allocation.operation.Value.GetProcessingTime(allocation.machine)
+
+            var jobPredecessor = operationLinkedListNode.Previous;
+            var jobReleaseDate = Convert.ToDouble(selectedMove.Operation.Job.ReleaseDate);
+
+            var startTime = Math.Max(
+                machinePredecessor != null ? CompletionTimes[machinePredecessor.Value.Id] : 0,
+                jobPredecessor != null ? CompletionTimes[jobPredecessor.Value.Id] : jobReleaseDate
             );
+
+            Path.Add(selectedMove.Allocation);
+            StartTimes.TryAdd(selectedMove.Operation.Id, startTime);
+            CompletionTimes.TryAdd(selectedMove.Operation.Id, startTime + selectedMove.Operation.GetProcessingTime(selectedMove.Machine));
+
+            // updating data structures
+            LoadingSequence[selectedMove.Machine].AddLast(selectedMove.Operation);
+        }
+
+        public virtual IFeasibleMove<Allocation> ProbabilityRule(IEnumerable<IFeasibleMove<Allocation>> feasibleMoves)
+        {
+            var sum = 0.0;
+            var rouletteWheel = new List<(IFeasibleMove<Allocation> Move, double Probability)>();
+
+            // create roulette wheel and evaluate greedy move for pseudorandom proportional rule at same time (in O(n))
+            foreach (var move in feasibleMoves)
+            {
+                var tauXy = move.GetPheromoneAmount(Context.PheromoneTrail); // pheromone amount
+                var etaXy = move.Weight.Inverse(); // heuristic information
+                var tauXyAlpha = Math.Pow(tauXy, Context.Parameters.Alpha); // pheromone amount raised to power alpha
+                var etaXyBeta = Math.Pow(etaXy, Context.Parameters.Beta); // heuristic information raised to power beta
+
+                double probFactor = tauXyAlpha * etaXyBeta;
+                rouletteWheel.Add((move, probFactor));
+                sum += probFactor;
+            }
+
+            // roulette wheel
+            var cumulative = 0.0;
+            var randomValue = Random.Shared.NextDouble() * sum;
+
+            foreach (var (move, probability) in rouletteWheel)
+            {
+                cumulative += probability;
+                if (randomValue <= cumulative)
+                    return move;
+            }
+
+            throw new InvalidOperationException("FATAL ERROR: No move was selected.");
         }
     }
 }

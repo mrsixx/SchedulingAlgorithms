@@ -1,5 +1,8 @@
 ﻿using Scheduling.Core.FJSP;
+using Scheduling.Core.Graph;
+using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
+using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
 {
@@ -13,16 +16,12 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
             Generation = generation;
             Context = context;
         }
-        
+
         public TContext Context { get; }
 
         public Instance Instance => Context.Instance;
 
-        public GreedySolution Solution { get; } = new();
-
         public HashSet<Allocation> Path { get; } = [];
-
-        public override double Makespan => Solution.Makespan;
 
         public override void Log()
         {
@@ -35,6 +34,14 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
 
                 Console.WriteLine("");
             }
+        }
+
+        public virtual void LocalPheromoneUpdate(Allocation selectedMove) { }
+
+        public IEnumerable<IFeasibleMove<Allocation>> GetFeasibleMoves(HashSet<Operation> unscheduledNodes)
+        {
+            return unscheduledNodes.SelectMany(candidateNode =>
+                candidateNode.EligibleMachines.Select(m => new FeasibleMoveV2(candidateNode, m)));
         }
     }
 }
