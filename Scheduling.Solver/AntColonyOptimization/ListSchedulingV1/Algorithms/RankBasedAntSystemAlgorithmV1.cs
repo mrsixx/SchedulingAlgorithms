@@ -67,11 +67,11 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
             {
                 // if using orientation, increase is proportional rank position and quality
-                var sum = topAnts.Select((ant, rank) =>
+                var delta = topAnts.Select((ant, rank) =>
                     ant.ConjunctiveGraph.Contains(orientation) ? (size - rank) * ant.Makespan.Inverse() : 0
                 ).Sum();
 
-                var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + sum;
+                var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta;
 
                 if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {orientation}");

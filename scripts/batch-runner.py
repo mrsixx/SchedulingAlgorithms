@@ -41,6 +41,8 @@ if __name__ == "__main__":
         'asv2-p': '--solver ASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --parallel',
         'rbasv1-i': '--solver RBASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5',
         'rbasv1-p': '--solver RBASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5 --parallel',
+        'rbasv2-i': '--solver RBASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5',
+        'rbasv2-p': '--solver RBASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5 --parallel',
         'easv1-i': '--solver EASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --elitistweight 100',
         'easv1-p': '--solver EASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --elitistweight 100 --parallel',
         'easv2-i': '--solver EASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --elitistweight 100',
