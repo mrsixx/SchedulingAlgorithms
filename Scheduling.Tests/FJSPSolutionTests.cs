@@ -19,7 +19,7 @@ namespace Scheduling.Tests
         #region Solvers batch
         public static IEnumerable<object[]> GetSolvers()
         {
-            Parameters parameters = new(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, ants: 10, iterations: 1, stagnantGenerationsAllowed: 1);
+            Parameters parameters = new(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, ants: 10, iterations: 2, stagnantGenerationsAllowed: 1);
             
             # region AS 
             yield return
@@ -90,6 +90,14 @@ namespace Scheduling.Tests
             yield return
             [
                 new AntColonySystemAlgorithmV1(parameters, phi: 0.5, new ParallelSolveApproach())
+            ];
+            yield return
+            [
+                new AntColonySystemAlgorithmV2(parameters, phi: 0.5,  new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new AntColonySystemAlgorithmV2(parameters, phi: 0.5, new ParallelSolveApproach())
             ];
             #endregion
 

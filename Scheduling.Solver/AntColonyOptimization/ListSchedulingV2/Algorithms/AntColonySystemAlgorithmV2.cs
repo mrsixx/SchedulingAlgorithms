@@ -1,14 +1,14 @@
-﻿using Scheduling.Core.Extensions;
+using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 using System.Diagnostics;
 
-namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
+namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
 {
-    public class AntColonySystemAlgorithmV1(Parameters parameters, double phi, ISolveApproach solveApproach)
-        : AntColonyV1AlgorithmSolver<AntColonySystemAlgorithmV1, AntColonySystemAntV1>(parameters, solveApproach)
+    public class AntColonySystemAlgorithmV2(Parameters parameters, double phi, ISolveApproach solveApproach)
+        : AntColonyV2AlgorithmSolver<AntColonySystemAlgorithmV2, AntColonySystemAntV2>(parameters, solveApproach)
     {
 
         /// <summary>
@@ -22,24 +22,23 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         public double Q0 { get; internal set; }
 
 
-        public override AntColonySystemAntV1[] BugsLife(int currentIteration)
+        public override AntColonySystemAntV2[] BugsLife(int currentIteration)
         {
-            AntColonySystemAntV1 BugSpawner(int id, int generation) => new(id, generation, this);
+            AntColonySystemAntV2 BugSpawner(int id, int generation) => new(id, generation, this);
 
             return SolveApproach.Solve(currentIteration, this, BugSpawner);
         }
 
         public override IFjspSolution Solve(Instance instance)
         {
-            Log($"Creating disjunctive graph...");
-            CreateDisjunctiveGraphModel(instance);
+            Instance = instance;
             Log($"Starting ACS algorithm with following parameters:");
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Phi= {Phi}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
-            Colony<AntColonySystemAntV1> colony = new();
+            Colony<AntColonySystemAntV2> colony = new();
             colony.Watch.Start();
             SetInitialPheromoneAmount(Parameters.Tau0);
-            Log($"Depositing {Parameters.Tau0} pheromone units over {DisjunctiveGraph.DisjuntionCount} disjunctions...");
+            Log($"Depositing {Parameters.Tau0} pheromone units over {PheromoneTrail.Count()} machine-operation pairs...");
             for (int i = 0; i < Parameters.Iterations; i++)
             {
                 var currentIteration = i + 1;
@@ -71,23 +70,19 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             if (colony.EmployeeOfTheMonth is not null)
                 Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
 
-            AntColonyOptimizationSolution<AntColonySystemAntV1> solution = new(colony);
+            AntColonyOptimizationSolution<AntColonySystemAntV2> solution = new(colony);
             Log($"Makespan: {solution.Makespan}");
 
             return solution;
         }
 
-        private void PheromoneOfflineUpdate(int currentIteration, IColony<AntColonySystemAntV1> colony)
+        private void PheromoneOfflineUpdate(int currentIteration, IColony<AntColonySystemAntV2> colony)
         {
             var iterationBestAnt = colony.IterationBests[currentIteration];
-            var bestGraphEdges = iterationBestAnt.ConjunctiveGraph.Edges
-                                .Where(e => e.HasAssociatedOrientation)
-                                .Select(e => e.AssociatedOrientation)
-                                .ToHashSet();
+            var bestSolutionPath = iterationBestAnt.Path;
 
             var delta = iterationBestAnt.Makespan.Inverse();
-
-            foreach (var orientation in bestGraphEdges)
+            foreach (var orientation in bestSolutionPath)
             {
                 if (orientation is not null && PheromoneTrail.TryGetValue(orientation, out double currentPheromoneAmount))
                 {

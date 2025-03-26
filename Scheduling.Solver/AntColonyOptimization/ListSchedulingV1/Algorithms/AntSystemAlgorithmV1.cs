@@ -33,7 +33,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 Log($"Running offline pheromone update...");
                 PheromoneUpdate(ants);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
-                Log($"Best so far makespan: {colony.EmployeeOfTheMonth.Makespan}");
+                Log($"Best so far makespan: {colony.EmployeeOfTheMonth?.Makespan}");
 
                 var generationsSinceLastImprovement = i - colony.LastProductiveGeneration;
                 if (generationsSinceLastImprovement > Parameters.StagnantGenerationsAllowed)
@@ -48,7 +48,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             Log("\nFinishing execution...");
 
             if (colony.EmployeeOfTheMonth is not null)
-                Log($"Better solution found by ant {colony.EmployeeOfTheMonth.Id} on #{colony.EmployeeOfTheMonth.Generation}th wave!");
+                Log($"Better solution found by ant {colony.EmployeeOfTheMonth?.Id} on #{colony.EmployeeOfTheMonth?.Generation}th wave!");
 
             AntColonyOptimizationSolution<AntSystemAntV1> solution = new(colony);
             Log($"Makespan: {solution.Makespan}");

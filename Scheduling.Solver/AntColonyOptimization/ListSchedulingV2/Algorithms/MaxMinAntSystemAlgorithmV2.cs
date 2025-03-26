@@ -1,6 +1,4 @@
 ﻿using Scheduling.Core.FJSP;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
@@ -44,7 +42,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
                 Log($"Running global pheromone update...");
                 PheromoneUpdate(colony);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
-                Log($"Best so far makespan: {colony.EmployeeOfTheMonth.Makespan}");
+                Log($"Best so far makespan: {colony.EmployeeOfTheMonth?.Makespan}");
 
                 var generationsSinceLastImprovement = i - colony.LastProductiveGeneration;
                 if (generationsSinceLastImprovement > Parameters.StagnantGenerationsAllowed)
