@@ -1,5 +1,7 @@
 ﻿using Scheduling.Solver.AntColonyOptimization;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV0;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms;
 using Scheduling.Solver.Greedy;
 using Scheduling.Solver.Interfaces;
 
@@ -23,9 +25,10 @@ namespace Scheduling.Console
                     return new ElitistAntSystemAlgorithmV1(parameters, args.E, solveApproach);
                 case "mmasv1":
                     return new MaxMinAntSystemAlgorithmV1(parameters, args.TauMin, args.TauMax, solveApproach);
-                //case "acsv0":
-                //    return new AntColonySystemV0Solver(
-                //        args.Alpha, args.Beta, args.Rho, args.Phi, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations, solveApproach);
+                case "mmasv2":
+                    return new MaxMinAntSystemAlgorithmV2(parameters, args.TauMin, args.TauMax, solveApproach);
+                case "acsv0":
+                    return new AntColonySystemAlgorithmV0(parameters, args.Phi, solveApproach);
                 case "acsv1":
                     return new AntColonySystemAlgorithmV1(parameters, args.Phi, solveApproach);
                 case "greedy":

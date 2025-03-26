@@ -24,7 +24,6 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
 
         public override IFjspSolution Solve(Instance instance)
         {
-            Log($"Creating disjunctive graph...");
             Instance = instance;
             Log($"Starting MMAS algorithm with following parameters:");
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Min pheromone = {TauMin}; Max pheromone = {TauMax}.");
