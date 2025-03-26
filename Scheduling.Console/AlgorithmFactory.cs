@@ -25,6 +25,8 @@ namespace Scheduling.Console
                     return new RankBasedAntSystemAlgorithmV1(parameters, args.RankSize, solveApproach);
                 case "easv1":
                     return new ElitistAntSystemAlgorithmV1(parameters, args.E, solveApproach);
+                case "easv2":
+                    return new ElitistAntSystemAlgorithmV2(parameters, args.E, solveApproach);
                 case "mmasv1":
                     return new MaxMinAntSystemAlgorithmV1(parameters, args.TauMin, args.TauMax, solveApproach);
                 case "mmasv2":

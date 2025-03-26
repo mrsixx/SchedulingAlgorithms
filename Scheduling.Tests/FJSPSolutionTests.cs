@@ -60,6 +60,14 @@ namespace Scheduling.Tests
             [
                 new ElitistAntSystemAlgorithmV1(parameters, e: 10, new ParallelSolveApproach())
             ];
+            yield return
+            [
+                new ElitistAntSystemAlgorithmV2(parameters, e: 10, new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new ElitistAntSystemAlgorithmV2(parameters, e: 10, new ParallelSolveApproach())
+            ];
             #endregion
 
             # region MMAS
