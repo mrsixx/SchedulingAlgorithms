@@ -2,7 +2,7 @@
 using Scheduling.Core.Extensions;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Core.Graph;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1;
+using Scheduling.Core.FJSP;
 using System.Diagnostics;
 using static Scheduling.Core.Enums.DirectionEnum;
 
@@ -34,6 +34,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
         public Node StartNode => Context.DisjunctiveGraph.Source;
 
         public Node FinalNode => Context.DisjunctiveGraph.Sink;
+
+        public Dictionary<Machine, Stack<Node>> LoadingSequence { get; } = [];
 
 
         public override void WalkAround()

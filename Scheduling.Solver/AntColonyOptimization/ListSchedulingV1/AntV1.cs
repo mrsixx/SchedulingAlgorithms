@@ -2,7 +2,7 @@ using QuikGraph.Algorithms;
 using Scheduling.Core.Extensions;
 using Scheduling.Core.Graph;
 using Scheduling.Solver.Interfaces;
-using Scheduling.Solver.Models;
+using Scheduling.Core.FJSP;
 using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
@@ -21,6 +21,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
         public TContext Context { get; }
 
         public ConjunctiveGraphModel ConjunctiveGraph { get; } = new();
+        
+        public virtual Dictionary<Machine, Stack<Node>> LoadingSequence { get; } = [];
 
         public override double Makespan => CompletionTimes[FinalNode.Operation.Id];
 

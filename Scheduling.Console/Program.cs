@@ -26,6 +26,7 @@ Parser.Default.ParseArguments<Arguments>(args)
         List<IFjspSolution> solutions = [];
         for (int i = 0; i < opt.Runs; i++)
         {
+            Console.WriteLine($"Run {i+1}/{opt.Runs}");
             var solution = solver.Solve(problemInstance);
                 solution.Log();
                 solutions.Add(solution);

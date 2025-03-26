@@ -13,8 +13,8 @@ namespace Scheduling.Tests
     public class FJSPSolutionTests
     {
         private IBenchmarkReaderService _readerService = new BenchmarkReaderService(null);
-        private const string BENCHMARK_FILE = "C:\\Users\\Matheus Ribeiro\\source\\repos\\mrsixx\\SchedulingAlgorithms\\Scheduling.Benchmarks\\Data\\6_Fattahi\\Fattahi12.fjs";
-        //private const string BENCHMARK_FILE = "//workspaces//SchedulingAlgorithms//Scheduling.Benchmarks//Data//6_Fattahi//Fattahi12.fjs";
+        //private const string BENCHMARK_FILE = "C:\\Users\\Matheus Ribeiro\\source\\repos\\mrsixx\\SchedulingAlgorithms\\Scheduling.Benchmarks\\Data\\6_Fattahi\\Fattahi12.fjs";
+        private const string BENCHMARK_FILE = "//workspaces//SchedulingAlgorithms//Scheduling.Benchmarks//Data//6_Fattahi//Fattahi12.fjs";
 
         #region Solvers batch
         public static IEnumerable<object[]> GetSolvers()

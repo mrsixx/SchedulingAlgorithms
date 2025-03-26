@@ -9,8 +9,6 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public int Generation { get; init; }
 
-        public virtual Dictionary<Machine, Stack<Node>> LoadingSequence { get; } = [];
-
         public virtual Dictionary<int, Machine> MachineAssignment { get; } = [];
 
         public virtual Dictionary<int, double> CompletionTimes { get; } = [];
