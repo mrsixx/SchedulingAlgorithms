@@ -75,16 +75,16 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
         {
             var bestSolutionPath = colony.BestSoFar.Path;
 
-            foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
+            foreach (var (allocation, currentPheromoneAmount) in PheromoneTrail)
             {
-                var orientationBelongsToBestGraph = bestSolutionPath.Contains(orientation);
+                var allocationBelongsToBestScheduling = bestSolutionPath.Contains(allocation);
                 // pheromone deposited only by best so far ant
-                var delta = orientationBelongsToBestGraph ? colony.BestSoFar.Makespan.Inverse() : 0;
+                var delta = allocationBelongsToBestScheduling ? colony.BestSoFar.Makespan.Inverse() : 0;
 
                 var updatedAmount = Math.Max(Math.Min((1 - Parameters.Rho) * currentPheromoneAmount + delta, TauMax), TauMin);
 
-                if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
-                    Log($"Offline Update pheromone failed on {orientation}");
+                if (!PheromoneTrail.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
+                    Log($"Offline Update pheromone failed on {allocation}");
             }
         }
     }

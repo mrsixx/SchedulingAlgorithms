@@ -1,0 +1,6 @@
+Instance;Approach;Solver;Makespan (min);Makespan (avg);Makespan (max);Makespan (std);CPU TIME(ms) (min);CPU TIME(ms) (avg);CPU TIME(ms) (max);CPU TIME(ms) (std)
+BrandimarteMk10;iterative;greedy;1176;1176,00;1176;0,00;3;10,97;55;16,04
+BrandimarteMk10;parallel;MMASV1;589;625,77;654;17,87;25694;47096,20;78250;12282,48
+BrandimarteMk10;parallel;MMASV2;469;500,53;521;13,05;1298;2222,07;2962;537,74
+BrandimarteMk10;iterative;MMASV2;473;498,43;525;13,67;1340;2443,10;3145;641,69
+BrandimarteMk10;iterative;MMASV1;598;626,10;645;12,95;31735;53472,27;70067;12388,26

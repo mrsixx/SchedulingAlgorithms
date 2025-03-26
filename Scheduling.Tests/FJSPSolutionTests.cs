@@ -30,6 +30,14 @@ namespace Scheduling.Tests
             [
                 new AntSystemAlgorithmV1(parameters, new ParallelSolveApproach())
             ];
+            yield return
+            [
+                new AntSystemAlgorithmV2(parameters, new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new AntSystemAlgorithmV2(parameters, new ParallelSolveApproach())
+            ];
             #endregion
 
             # region RBAS 

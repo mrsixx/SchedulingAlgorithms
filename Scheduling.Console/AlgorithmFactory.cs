@@ -19,6 +19,8 @@ namespace Scheduling.Console
             {
                 case "asv1":
                     return new AntSystemAlgorithmV1(parameters, solveApproach);
+                case "asv2":
+                    return new AntSystemAlgorithmV2(parameters, solveApproach);
                 case "rbasv1":
                     return new RankBasedAntSystemAlgorithmV1(parameters, args.RankSize, solveApproach);
                 case "easv1":

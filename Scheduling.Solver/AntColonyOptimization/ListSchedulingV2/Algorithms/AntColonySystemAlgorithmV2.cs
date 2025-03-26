@@ -82,15 +82,15 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
             var bestSolutionPath = iterationBestAnt.Path;
 
             var delta = iterationBestAnt.Makespan.Inverse();
-            foreach (var orientation in bestSolutionPath)
+            foreach (var allocation in bestSolutionPath)
             {
-                if (orientation is not null && PheromoneTrail.TryGetValue(orientation, out double currentPheromoneAmount))
+                if (allocation is not null && PheromoneTrail.TryGetValue(allocation, out double currentPheromoneAmount))
                 {
                     // new pheromone amount it's a convex combination between currentPheromoneAmount and delta 
                     var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + Parameters.Rho * delta;
 
-                    if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
-                        Log($"Offline Update pheromone failed on {orientation}");
+                    if (!PheromoneTrail.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
+                        Log($"Offline Update pheromone failed on {allocation}");
                 }
             }
         }
