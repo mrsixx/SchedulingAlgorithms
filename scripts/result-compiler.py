@@ -12,6 +12,9 @@ def listar_arquivos(dir, extensao):
             if arquivo.endswith(extensao):
                 filepath = os.path.join(root, arquivo)
                 match = re.search(r"^(?P<filename>[^\.]+)\.fjs\.(?P<benchmark>[^-]+)-(?P<solver>[^-]+)-(?P<approach>[^\.]+)\.csv$", arquivo)
+                if match is None: 
+                    break
+
                 file_obj = {
                     'path': filepath,
                     'filename': arquivo,

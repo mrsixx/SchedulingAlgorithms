@@ -1,0 +1,11 @@
+Instance;Approach;Solver;Makespan (min);Makespan (avg);Makespan (max);Makespan (std);CPU TIME(ms) (min);CPU TIME(ms) (avg);CPU TIME(ms) (max);CPU TIME(ms) (std)
+Fattahi12;iterative;ACSV2;495;530,50;547;17,41;84;135,80;207;41,43
+Fattahi12;parallel;MMASV2;488;518,70;542;17,16;88;139,80;222;48,50
+Fattahi12;parallel;EASV2;468;518,60;551;28,83;89;147,60;254;49,77
+Fattahi12;iterative;EASV2;504;525,60;543;12,37;65;149,60;210;48,11
+Fattahi12;parallel;RBASV2;470;516,10;544;19,80;80;141,40;199;38,56
+Fattahi12;iterative;MMASV2;470;516,00;544;21,32;46;130,30;223;48,62
+Fattahi12;iterative;ASV2;510;525,70;546;13,61;28;126,90;197;56,06
+Fattahi12;parallel;ASV2;469;517,70;547;22,78;122;171,30;236;42,91
+Fattahi12;parallel;ACSV2;511;531,60;551;14,03;59;99,30;136;25,19
+Fattahi12;iterative;RBASV2;481;508,70;533;16,61;29;124,70;243;63,47
