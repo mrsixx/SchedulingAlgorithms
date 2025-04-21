@@ -34,7 +34,7 @@ if __name__ == "__main__":
         os.makedirs(output_dir)
 
     approachs = {
-        #'greedy': '--solver greedy',
+        'greedy': '--solver greedy',
         'asv2-i': '--solver ASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100',
         'asv2-p': '--solver ASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --parallel',
         'rbasv2-i': '--solver RBASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5',

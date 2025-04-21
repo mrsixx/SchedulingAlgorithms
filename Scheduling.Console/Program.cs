@@ -33,14 +33,8 @@ Parser.Default.ParseArguments<Arguments>(args)
         }
 
         resultFileBuilderService.Export(opt.InstanceFile, opt.SolverName, opt.UseParallelApproach, solutions, outputDir: opt.OutputPath);
-        //if (opt.EnableDebug)
-        //{
-        //    graphExporterService.ExportDisjunctiveGraphToGraphviz(solution.Context.DisjunctiveGraph, opt.OutputFile);
-        //    graphExporterService.ExportConjunctiveGraphToGraphviz(
-        //        solution.Context.BestGraph,
-        //        solution.Context.BestSoFar.MachineAssignment,
-        //        solution.Context.BestSoFar.StartTimes,
-        //        solution.Context.BestSoFar.CompletionTimes,
-        //        $"{opt.OutputFile}.sol");
-        //}
+        resultFileBuilderService.ExportSolution(
+                opt.InstanceFile, opt.SolverName, 
+                opt.UseParallelApproach, solutions.MinBy(s => s.Makespan), 
+                outputDir: opt.OutputPath);
     });

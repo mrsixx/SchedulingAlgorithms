@@ -1,0 +1,13 @@
+https://stackoverflow.com/a/46861681
+
+
+./Scheduling.Console -i Fattahi12.fjs -o /home/ufabc/'Área de trabalho'/scheduling --runs 10 \
+--solver ASV1 --iterations 50 --ants 20 --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --parallel
+
+./Scheduling.Console -i BrandimarteMk15.fjs -o /home/ufabc/'Área de trabalho'/scheduling --runs 10 \
+--solver ASV2 --iterations 50 --ants 20 --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --parallel
+
+
+TODO: WHEN USING PARALLELL MODE, SHOW HOW MUCH THREADS IS IN USE
+https://stackoverflow.com/questions/46843863/how-to-run-a-net-core-console-application-on-linux/46861681#46861681
+https://learn.microsoft.com/en-us/dotnet/api/system.threading.threadpool.getminthreads?view=net-9.0&redirectedfrom=MSDN#System_Threading_ThreadPool_GetMinThreads_System_Int32__System_Int32__
