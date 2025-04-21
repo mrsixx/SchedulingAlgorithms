@@ -60,5 +60,12 @@ namespace Scheduling.Console
 
         [Option("runs", Required = false, HelpText = "# of algorithm runs.")]
         public int Runs { get; set; } = 1;
+
+        /// <summary>
+        /// Enable (DORIGO; STUTZLE, 2004) parameter settings for ACO algorithms without local search
+        /// </summary>
+        /// 
+        [Option("dorigo-touch", Required = false, HelpText = "Enable (DORIGO; STUTZLE, 2004) parameter settings for ACO algorithms without local search.")]
+        public bool DorigosThouch { get; init; } = false;
     }
 }

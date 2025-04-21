@@ -18,7 +18,7 @@ Parser.Default.ParseArguments<Arguments>(args)
         IResultFileBuilderService resultFileBuilderService = new ResultFileBuilderService();
 
         var problemInstance = benchmarkReaderService.ReadInstance(opt.InstanceFile);
-
+    
         var solver = algorithmFactory.GetSolverAlgorithm()
                         .WithLogger(logger, with: opt.Verbose);
 

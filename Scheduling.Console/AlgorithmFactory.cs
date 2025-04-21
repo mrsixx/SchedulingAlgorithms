@@ -18,6 +18,8 @@ namespace Scheduling.Console
             switch (args.SolverName.ToLowerInvariant().Trim())
             {
                 case "asv1":
+                    if(Arguments.DorigosThouch)
+                        parameters = new Parameters(1, 2.5, 0.5, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations); 
                     return new AntSystemAlgorithmV1(parameters, solveApproach);
                 case "asv2":
                     return new AntSystemAlgorithmV2(parameters, solveApproach);

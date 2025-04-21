@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Scheduling.Core\Scheduling.Core.csproj" />
+    <ProjectReference Include="..\Scheduling.Solver\Scheduling.Solver.csproj" />
   </ItemGroup>
 
 </Project>

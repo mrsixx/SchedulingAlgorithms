@@ -1,6 +1,7 @@
 ﻿using Scheduling.Benchmarks.Interfaces;
 using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
+using Scheduling.Solver.Greedy;
 using Scheduling.Core.Interfaces;
 
 namespace Scheduling.Benchmarks
@@ -50,7 +51,11 @@ namespace Scheduling.Benchmarks
                 })
                 .ToList();
 
-            return new Instance(jobs, machines);
+            var instance = new Instance(jobs, machines);
+            
+            instance.TrivialUpperBound = reader.TrivialUpperBound;
+            instance.UpperBound = new GreedyHeuristicAlgorithmSolver().Solve(instance).Makespan;
+            return instance;
         }
 
 

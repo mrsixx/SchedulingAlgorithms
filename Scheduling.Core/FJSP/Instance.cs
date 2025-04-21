@@ -6,5 +6,7 @@
         
         public IEnumerable<Machine> Machines { get; } = machines;
 
+        public double UpperBound { get;set; } = 0;
+        public double TrivialUpperBound { get;set; } = 0;
     }
 }
