@@ -40,7 +40,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
                 
             //    Console.WriteLine("");
                 Console.WriteLine($"Makespan: {Makespan}");
-            }
+            //}
         }
 
         public virtual void LocalPheromoneUpdate(Allocation selectedMove) { }
