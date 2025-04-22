@@ -13,13 +13,24 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         /// <summary>
         /// Elitist weight
         /// </summary>
-        public double E { get; init; } = e;
+        public double E { get; protected set; } = e;
+
+        public override void DorigosTouch(Instance instance)
+        {
+            Parameters.Alpha = 1;
+            Parameters.Rho = 0.5;
+            AntCount = instance.OperationCount;
+            E = AntCount;
+            Parameters.Tau0 = (E + AntCount).DividedBy(Parameters.Rho * instance.UpperBound);
+        }
 
         public override IFjspSolution Solve(Instance instance)
         {
+            Instance = instance;
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
             Log($"Starting EAS algorithm with following parameters:");
+            DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<ElitistAntSystemAntV1> colony = new();

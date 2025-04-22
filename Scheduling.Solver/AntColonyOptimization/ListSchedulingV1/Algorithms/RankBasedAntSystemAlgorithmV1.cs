@@ -1,6 +1,8 @@
 ﻿using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
+using Scheduling.Core.Graph;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 using System.Diagnostics;
@@ -12,13 +14,22 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         /// <summary>
         /// Elitist weight
         /// </summary>
-        public int RankSize { get; init; } = rankSize;
+        public int RankSize { get; private set; } = rankSize;
+        public override void DorigosTouch(Instance instance)
+        {
+            AntCount = instance.OperationCount;
+            Parameters.Rho = 0.1;
+            RankSize = 6;
+            Parameters.Tau0 = 1.DividedBy(Parameters.Rho * instance.UpperBound);
+        }
 
         public override IFjspSolution Solve(Instance instance)
         {
+            Instance = instance;
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
             Log($"Starting RBAS algorithm with following parameters:");
+            DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<RankBasedAntSystemAntV1> colony = new();
@@ -35,7 +46,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
                 Log($"Running offline pheromone update...");
-                PheromoneUpdate(ants);
+                PheromoneUpdate(colony, ants);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth?.Makespan}");
 
@@ -60,24 +71,30 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             return solution;
         }
 
-        private void PheromoneUpdate(RankBasedAntSystemAntV1[] ants)
+        private void PheromoneUpdate(IColony<RankBasedAntSystemAntV1> colony, RankBasedAntSystemAntV1[] ants)
         {
             var size = Math.Max(1, Math.Min(RankSize, ants.Length)); // ensures that size is an int between 1 and ants.Length
-            var topAnts = ants.OrderBy(a => a.Makespan).Take(size).ToArray();
+            var topAnts = ants.OrderBy(a => a.Makespan).Take(size - 1).ToArray();
+            var bestGraphEdges = colony.BestSoFar.ConjunctiveGraph.Edges
+                .Where(e => e.HasAssociatedOrientation)
+                .Select(e => e.AssociatedOrientation)
+                .ToHashSet();
             foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
             {
                 // if using orientation, increase is proportional rank position and quality
                 var delta = topAnts.Select((ant, rank) =>
-                    ant.ConjunctiveGraph.Contains(orientation) ? (size - rank) * ant.Makespan.Inverse() : 0
+                    ant.ConjunctiveGraph.Contains(orientation) ? (size - rank - 1) * ant.Makespan.Inverse() : 0
                 ).Sum();
 
-                var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta;
+                var allocationBelongsToBestScheduling = bestGraphEdges.Contains(orientation);
+                // pheromone deposited only by best so far ant
+                var deltaOpt = allocationBelongsToBestScheduling ? colony.BestSoFar.Makespan.Inverse() : 0;
+                var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta + RankSize * deltaOpt;
 
                 if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {orientation}");
             }
         }
-
         public override RankBasedAntSystemAntV1[] BugsLife(int currentIteration)
         {
             RankBasedAntSystemAntV1 BugSpawner(int id, int generation) => new(id, generation, this);

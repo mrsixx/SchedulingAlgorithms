@@ -11,7 +11,7 @@ namespace Scheduling.Benchmarks
         public Instance ReadInstance(string file)
         {
             Benchmark reader = Benchmark.FromFile(file);
-
+            
             Log($"Benchmark: {file}");
             Log($"Jobs: {reader.JobCount}; Operations: {reader.OperationCount}; Machines: {reader.MachineCount}");
             Log($"Trivial Upper bound: {reader.TrivialUpperBound}");
@@ -53,6 +53,7 @@ namespace Scheduling.Benchmarks
 
             var instance = new Instance(jobs, machines);
             
+            instance.MachinesPerOperation = reader.MachinePerOperationAvg;
             instance.TrivialUpperBound = reader.TrivialUpperBound;
             instance.UpperBound = new GreedyHeuristicAlgorithmSolver().Solve(instance).Makespan;
             return instance;

@@ -66,6 +66,6 @@ namespace Scheduling.Console
         /// </summary>
         /// 
         [Option("dorigo-touch", Required = false, HelpText = "Enable (DORIGO; STUTZLE, 2004) parameter settings for ACO algorithms without local search.")]
-        public bool DorigosThouch { get; init; } = false;
+        public bool DorigosTouch { get; init; } = false;
     }
 }

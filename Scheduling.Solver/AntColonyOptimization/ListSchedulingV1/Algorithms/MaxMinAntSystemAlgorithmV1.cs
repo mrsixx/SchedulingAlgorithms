@@ -1,6 +1,7 @@
 ﻿using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Ants;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 using System.Diagnostics;
@@ -14,12 +15,27 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         /// <summary>
         /// Max pheromone amount accepted over graph edges
         /// </summary>
-        public double TauMax { get; init; } = tauMax;
+        public double TauMax { get; private set; } = tauMax;
 
         /// <summary>
         /// Min pheromone amount accepted over graph edges
         /// </summary>
-        public double TauMin { get; init; } = tauMin;
+        public double TauMin { get; private set; } = tauMin;
+
+        public override void DorigosTouch(Instance instance)
+        {
+            Parameters.Alpha = 1;
+            Parameters.Rho = 0.02;
+            AntCount = instance.OperationCount;
+            TauMax = 1.DividedBy(Parameters.Rho * instance.UpperBound);
+            TauMin = TauMax.DividedBy(instance.MachinesPerOperation);
+        }
+
+        private void UpdatePheromoneTrailLimits(IColony<MaxMinAntSystemAntV1> colony)
+        {
+            TauMax = 1.DividedBy(Parameters.Rho * colony.BestSoFar.Makespan);
+            TauMin = TauMax.DividedBy(Instance.MachinesPerOperation);
+        }
 
         public override MaxMinAntSystemAntV1[] BugsLife(int currentIteration)
         {
@@ -30,9 +46,11 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 
         public override IFjspSolution Solve(Instance instance)
         {
+            Instance = instance;
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
             Log($"Starting MMAS algorithm with following parameters:");
+            DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Min pheromone = {TauMin}; Max pheromone = {TauMax}.");
             Stopwatch iSw = new();
             Colony<MaxMinAntSystemAntV1> colony = new();
@@ -50,6 +68,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 colony.UpdateBestPath(ants);
                 Log($"Running offline pheromone update...");
                 PheromoneUpdate(currentIteration, colony);
+                UpdatePheromoneTrailLimits(colony);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth?.Makespan}");
 

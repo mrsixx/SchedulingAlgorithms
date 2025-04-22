@@ -16,7 +16,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
         /// <summary>
         /// Amount of ants
         /// </summary>
-        public int AntCount { get; init; } = parameters.AntCount;
+        public int AntCount { get; protected set; } = parameters.AntCount;
 
         public Parameters Parameters { get; } = parameters;
 
@@ -36,6 +36,10 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
         public abstract IFjspSolution Solve(Instance instance);
 
         public abstract TAnt[] BugsLife(int currentIteration);
+
+        public Instance Instance { get; protected set; }
+
+        public abstract void DorigosTouch(Instance instance);
 
         protected void SetInitialPheromoneAmount(double amount)
         {

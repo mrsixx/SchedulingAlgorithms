@@ -12,7 +12,7 @@
         /// <summary>
         /// Weight of pheromone factor constant
         /// </summary>
-        public double Alpha { get; init; } = alpha;
+        public double Alpha { get; set; } = alpha;
 
         /// <summary>
         /// Weight of distance factor constant
@@ -22,13 +22,13 @@
         /// <summary>
         /// Pheromone evaporation rate constant
         /// </summary>
-        public double Rho { get; init; } = rho;
+        public double Rho { get; set; } = rho;
 
 
         /// <summary>
         /// Initial pheromone amount over graph edges
         /// </summary>
-        public double Tau0 { get; init; } = tau0;
+        public double Tau0 { get; set; } = tau0;
 
         /// <summary>
         /// Amount of ants

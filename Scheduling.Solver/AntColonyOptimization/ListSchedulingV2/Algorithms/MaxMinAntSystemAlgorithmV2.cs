@@ -13,17 +13,33 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
         /// <summary>
         /// Max pheromone amount accepted over graph edges
         /// </summary>
-        public double TauMax { get; init; } = tauMax;
+        public double TauMax { get; private set; } = tauMax;
 
         /// <summary>
         /// Min pheromone amount accepted over graph edges
         /// </summary>
-        public double TauMin { get; init; } = tauMin;
+        public double TauMin { get; private set; } = tauMin;
+
+        public override void DorigosTouch(Instance instance)
+        {
+            Parameters.Alpha = 1;
+            Parameters.Rho = 0.02;
+            AntCount = instance.OperationCount;
+            TauMax = 1.DividedBy(Parameters.Rho * instance.UpperBound);
+            TauMin = TauMax.DividedBy(instance.MachinesPerOperation);
+        }
+
+        private void UpdatePheromoneTrailLimits(IColony<MaxMinAntSystemAntV2> colony)
+        {
+            TauMax = 1.DividedBy(Parameters.Rho * colony.BestSoFar.Makespan);
+            TauMin = TauMax.DividedBy(colony.BestSoFar.Instance.MachinesPerOperation);
+        }
 
         public override IFjspSolution Solve(Instance instance)
         {
             Instance = instance;
             Log($"Starting MMAS algorithm with following parameters:");
+            DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Min pheromone = {TauMin}; Max pheromone = {TauMax}.");
             Stopwatch iSw = new();
             Colony<MaxMinAntSystemAntV2> colony = new();
@@ -41,6 +57,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
                 colony.UpdateBestPath(ants);
                 Log($"Running global pheromone update...");
                 PheromoneUpdate(colony);
+                UpdatePheromoneTrailLimits(colony);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth?.Makespan}");
 

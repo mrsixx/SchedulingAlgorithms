@@ -18,10 +18,13 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
 
         public Parameters Parameters { get; } = parameters;
 
+        public Instance Instance { get; protected set; }
+
+
         /// <summary>
         /// Pheromone decay coefficient
         /// </summary>
-        public double Phi { get; init; } = phi;
+        public double Phi { get; protected set; } = phi;
 
         /// <summary>
         /// Pseudorandom proportional rule parameter (between 0 and 1)
@@ -30,7 +33,16 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
 
         public ISolveApproach SolveApproach { get; } = solveApproach;
 
-        public int AntCount { get; } = parameters.AntCount;
+        public int AntCount { get; protected set; } = parameters.AntCount;
+
+        public void DorigosTouch(Instance instance)
+        {
+            Parameters.Alpha = 1;
+            AntCount = 10;
+            Phi = 0.1;
+            Parameters.Rho = 0.1;
+            Parameters.Tau0 = 1.0.DividedBy(instance.OperationCount * instance.UpperBound);
+        }
 
         public IPheromoneTrail<Orientation> PheromoneTrail { get; private set; }
 
@@ -46,9 +58,11 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
 
         public IFjspSolution Solve(Instance instance)
         {
+            Instance = instance;
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
             Log($"Starting ACS algorithm with following parameters:");
+            DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Phi= {Phi}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<AntColonySystemAntV0> colony = new();

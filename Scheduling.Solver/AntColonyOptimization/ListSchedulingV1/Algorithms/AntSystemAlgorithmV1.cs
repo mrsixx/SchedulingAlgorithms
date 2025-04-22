@@ -10,11 +10,21 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
     public class AntSystemAlgorithmV1(Parameters parameters, ISolveApproach solveApproach) : 
         AntColonyV1AlgorithmSolver<AntSystemAlgorithmV1, AntSystemAntV1>(parameters, solveApproach)
     {
+        public override void DorigosTouch(Instance instance)
+        {
+            Parameters.Alpha = 1;
+            Parameters.Rho = 0.5;
+            AntCount = instance.OperationCount;
+            Parameters.Tau0 = AntCount.DividedBy(instance.UpperBound);
+        }
+
         public override IFjspSolution Solve(Instance instance)
         {
+            Instance = instance;
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
             Log($"Starting AS algorithm with following parameters:");
+            DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<AntSystemAntV1> colony = new();

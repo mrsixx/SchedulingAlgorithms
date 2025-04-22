@@ -24,6 +24,8 @@ namespace Scheduling.Benchmarks
         /// </summary>
         public int OperationCount { get; private set; }
 
+        public double MachinePerOperationAvg { get; private set; }
+
         /// <summary>
         /// Task id of operation O_to for each task o of each job t
         /// </summary>
@@ -53,6 +55,7 @@ namespace Scheduling.Benchmarks
             benchmark.Name = fileName;
             benchmark.JobCount = int.Parse(splitted[0]);
             benchmark.MachineCount = int.Parse(splitted[1]);
+            benchmark.MachinePerOperationAvg = double.Parse(splitted[2]);
 
             benchmark.OperationCount = 0;
 
@@ -112,5 +115,6 @@ namespace Scheduling.Benchmarks
             benchmark.TrivialUpperBound = maxSumProcessingTimes;
             return benchmark;
         }
+
     }
 }

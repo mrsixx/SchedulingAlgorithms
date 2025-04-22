@@ -12,12 +12,20 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
         /// <summary>
         /// Elitist weight
         /// </summary>
-        public int RankSize { get; init; } = rankSize;
+        public int RankSize { get; protected set; } = rankSize;
+        public override void DorigosTouch(Instance instance)
+        {
+            AntCount = instance.OperationCount;
+            Parameters.Rho = 0.1;
+            RankSize = 6;
+            Parameters.Tau0 = 1.DividedBy(Parameters.Rho * instance.UpperBound);
+        }
 
         public override IFjspSolution Solve(Instance instance)
         {
             Instance = instance;
             Log($"Starting RBAS algorithm with following parameters:");
+            DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<RankBasedAntSystemAntV2> colony = new();
@@ -34,7 +42,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
                 Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
                 Log($"Running offline pheromone update...");
-                PheromoneUpdate(ants);
+                PheromoneUpdate(colony, ants);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth?.Makespan}");
 
@@ -59,18 +67,22 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
             return solution;
         }
 
-        private void PheromoneUpdate(RankBasedAntSystemAntV2[] ants)
+        private void PheromoneUpdate(IColony<RankBasedAntSystemAntV2> colony, RankBasedAntSystemAntV2[] ants)
         {
             var size = Math.Max(1, Math.Min(RankSize, ants.Length)); // ensures that size is an int between 1 and ants.Length
-            var topAnts = ants.OrderBy(a => a.Makespan).Take(size).ToArray();
+            var topAnts = ants.OrderBy(a => a.Makespan).Take(size-1).ToArray();
+            var bestSolutionPath = colony.BestSoFar.Path;
             foreach (var (allocation, currentPheromoneAmount) in PheromoneTrail)
             {
                 // if using allocation, increase is proportional rank position and quality
                 var delta = topAnts.Select((ant, rank) =>
-                    ant.Path.Contains(allocation) ? (size - rank) * ant.Makespan.Inverse() : 0
+                    ant.Path.Contains(allocation) ? (size - rank - 1) * ant.Makespan.Inverse() : 0
                 ).Sum();
 
-                var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta;
+                var allocationBelongsToBestScheduling = bestSolutionPath.Contains(allocation);
+                // pheromone deposited only by best so far ant
+                var deltaOpt = allocationBelongsToBestScheduling ? colony.BestSoFar.Makespan.Inverse() : 0;
+                var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta + RankSize * deltaOpt;
 
                 if (!PheromoneTrail.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {allocation}");

@@ -10,10 +10,19 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
     public class AntSystemAlgorithmV2(Parameters parameters, ISolveApproach solveApproach) : 
         AntColonyV2AlgorithmSolver<AntSystemAlgorithmV2, AntSystemAntV2>(parameters, solveApproach)
     {
+        public override void DorigosTouch(Instance instance)
+        {
+            Parameters.Alpha = 1;
+            Parameters.Rho = 0.5;
+            AntCount = instance.OperationCount;
+            Parameters.Tau0 = AntCount.DividedBy(instance.UpperBound);
+        }
+
         public override IFjspSolution Solve(Instance instance)
         {
             Instance = instance;
             Log($"Starting AS algorithm with following parameters:");
+            DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<AntSystemAntV2> colony = new();

@@ -4,6 +4,7 @@ using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 using System.Diagnostics;
+using System.Reflection.Metadata;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
 {
@@ -14,13 +15,22 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
         /// <summary>
         /// Pheromone decay coefficient
         /// </summary>
-        public double Phi { get; init; } = phi;
+        public double Phi { get; protected set; } = phi;
 
         /// <summary>
         /// Pseudorandom proportional rule parameter (between 0 and 1)
         /// </summary>
         public double Q0 { get; internal set; }
 
+
+        public override void DorigosTouch(Instance instance)
+        {
+            Parameters.Alpha = 1;
+            AntCount = 10;
+            Phi = 0.1;
+            Parameters.Rho = 0.1;
+            Parameters.Tau0 = 1.0.DividedBy(instance.OperationCount * instance.UpperBound);
+        }
 
         public override AntColonySystemAntV2[] BugsLife(int currentIteration)
         {
@@ -33,6 +43,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
         {
             Instance = instance;
             Log($"Starting ACS algorithm with following parameters:");
+            DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Phi= {Phi}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<AntColonySystemAntV2> colony = new();

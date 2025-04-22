@@ -12,11 +12,13 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
         /// <summary>
         /// Amount of ants
         /// </summary>
-        public int AntCount { get; init; } = parameters.AntCount;
+        public int AntCount { get; protected set; } = parameters.AntCount;
 
         public Parameters Parameters { get; } = parameters;
 
         public ISolveApproach SolveApproach { get; } = solveApproach;
+
+        public abstract void DorigosTouch(Instance instance);
 
         public IPheromoneTrail<Allocation> PheromoneTrail { get; protected set; }
 
