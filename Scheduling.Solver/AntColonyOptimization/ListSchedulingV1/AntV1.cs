@@ -138,20 +138,21 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
         public override void Log()
         {
             // print loading sequence
-            foreach (var machine in LoadingSequence.Keys)
-            {
-                Console.Write($"{machine.Id}: ");
-                foreach (var node in LoadingSequence[machine].Reverse())
-                    Console.Write($" {node}[{StartTimes[node.Operation.Id]}-{CompletionTimes[node.Operation.Id]}] ");
+            ////foreach (var machine in LoadingSequence.Keys)
+            ////{
+            ////    Console.Write($"{machine.Id}: ");
+            ////    foreach (var node in LoadingSequence[machine].Reverse())
+            ////        Console.Write($" {node}[{StartTimes[node.Operation.Id]}-{CompletionTimes[node.Operation.Id]}] ");
 
-                Console.WriteLine("");
-            }
+            ////    Console.WriteLine("");
+            ////}
 
-            // printing topological sort (acyclic evidence)
-            Console.WriteLine("Topological sort: ");
-            foreach (var node in ConjunctiveGraph.TopologicalSort())
-                Console.Write($" {node} ");
-            Console.WriteLine("");
+            //// printing topological sort (acyclic evidence)
+            //Console.WriteLine("Topological sort: ");
+            //foreach (var node in ConjunctiveGraph.TopologicalSort())
+            //    Console.Write($" {node} ");
+            //Console.WriteLine("");]
+            Console.WriteLine($"Makespan: {Makespan}");
         }
     }
 }

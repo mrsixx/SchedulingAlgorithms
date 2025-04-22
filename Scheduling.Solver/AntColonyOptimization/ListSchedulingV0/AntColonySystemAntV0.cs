@@ -65,7 +65,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
 
         public override void Log()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Makespan: {Makespan}");
         }
 
 

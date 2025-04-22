@@ -29,16 +29,16 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
         public override void Log()
         {
             // print loading sequence
-            foreach (var machine in LoadingSequence.Keys)
-            {
-                Console.Write($"{machine.Id}: ");
-                var operation = LoadingSequence[machine].First;
-                while(operation != null){
-                    Console.Write($" {operation.Value.Id}[{StartTimes[operation.Value.Id]}-{CompletionTimes[operation.Value.Id]}] ");
-                    operation = operation.Next;
-                }
+            //foreach (var machine in LoadingSequence.Keys)
+            //{
+            //    Console.Write($"{machine.Id}: ");
+            //    var operation = LoadingSequence[machine].First;
+            //    while(operation != null){
+            //        Console.Write($" {operation.Value.Id}[{StartTimes[operation.Value.Id]}-{CompletionTimes[operation.Value.Id]}] ");
+            //        operation = operation.Next;
+            //    }
                 
-                Console.WriteLine("");
+            //    Console.WriteLine("");
                 Console.WriteLine($"Makespan: {Makespan}");
             }
         }
