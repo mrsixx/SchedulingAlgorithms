@@ -2,7 +2,7 @@ const fs = require('fs');
 var tsort = require('tsort');
 var groupBy = require('lodash.groupby');
 
-const FILENAME = 'instance.json';
+const FILENAME = 'Ribeiro3.json';
 
 function readFile(err, json) {
     if(err) {
@@ -10,9 +10,9 @@ function readFile(err, json) {
         return;
     }
 
-    const { processos, maqXproc: processoMaquinas, menorInicio: inicio, maiorFim: fim } = JSON.parse(json);
+    const { processos, maqXproc: processoMaquinas, menorInicio, maiorFim } = JSON.parse(json);
 
-    console.log('Dumb makespan', new Date(fim).getTime() - new Date(inicio).getTime());
+    console.log('Dumb makespan', new Date(maiorFim).getTime() - new Date(menorInicio).getTime());
     const processosPorOs = groupBy(processos, p => p.OS);
     const processosPorMaquina = groupBy(processoMaquinas, p => p.MaquinaId);
     const maquinasPorProcesso = groupBy(processoMaquinas, p => p.ProcessoId);
@@ -43,7 +43,9 @@ function readFile(err, json) {
     const content = makeFileContent({
         nJobs: jobs.size,
         nMachines: machines.size,
-        jobData: instanceCube
+        jobData: instanceCube,
+        inicio: menorInicio, 
+        fim: maiorFim
     });
 
     fs.writeFile(`${FILENAME}.fjs`, content, (err) => {
@@ -55,7 +57,7 @@ function readFile(err, json) {
 }
 
 
-function makeFileContent({ nJobs, nMachines, jobData }) {
+function makeFileContent({ nJobs, nMachines, jobData, inicio, fim }) {
     const rows = [];
     let pairsCount = 0;
     let operationsCount = 0;
@@ -64,7 +66,8 @@ function makeFileContent({ nJobs, nMachines, jobData }) {
         operationsCount += numOperations;
         const operationData = job.map(op => {
             const numMachines = op.length;
-            const machinesData = op.map(em => `${em[0]} ${Math.floor(em[1]* 3600000)}`).join(' ');
+            // processing time in seconds
+            const machinesData = op.map(em => `${em[0]} ${Math.floor(em[1]* 3600)}`).join(' ');
             pairsCount += numMachines;
             return `${numMachines} ${machinesData}`;
             
