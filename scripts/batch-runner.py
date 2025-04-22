@@ -33,45 +33,32 @@ if __name__ == "__main__":
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+
     approachs = {
         'greedy': '--solver greedy',
-        'asv2-i': '--solver ASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100',
-        'asv2-p': '--solver ASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --parallel',
-        'rbasv2-i': '--solver RBASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5',
-        'rbasv2-p': '--solver RBASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5 --parallel',
-        'easv2-i': '--solver EASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --elitistweight 100',
-        'easv2-p': '--solver EASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --elitistweight 100 --parallel',
-        'mmasv2-i': '--solver MMASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --taumin 10 --taumax 1000',
-        'mmasv2-p': '--solver MMASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --taumin 10 --taumax 1000 --parallel',
-        'acsv2-i': '--solver ACSV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04',
-        'acsv2-p': '--solver ACSV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04 --parallel',
+        'asv1-i': '--solver ASV1 --iterations 50 --beta 1.4',
+        'asv1-p': '--solver ASV1 --iterations 50 --beta 1.4 --parallel',
+        'asv2-i': '--solver ASV2 --iterations 50 --beta 1.4',
+        'asv2-p': '--solver ASV2 --iterations 50 --beta 1.4 --parallel',
+        'rbasv1-i': '--solver RBASV1 --iterations 50 --beta 1.4',
+        'rbasv1-p': '--solver RBASV1 --iterations 50 --beta 1.4 --parallel',
+        'rbasv2-i': '--solver RBASV2 --iterations 50 --beta 1.4 ',
+        'rbasv2-p': '--solver RBASV2 --iterations 50 --beta 1.4  --parallel',
+        'easv1-i': '--solver EASV1 --iterations 50 --beta 1.4',
+        'easv1-p': '--solver EASV1 --iterations 50 --beta 1.4 --parallel',
+        'easv2-i': '--solver EASV2 --iterations 50 --beta 1.4',
+        'easv2-p': '--solver EASV2 --iterations 50 --beta 1.4 --parallel',
+        'mmasv1-i': '--solver MMASV1 --iterations 50 --beta 1.4',
+        'mmasv1-p': '--solver MMASV1 --iterations 50 --beta 1.4 --parallel',
+        'mmasv2-i': '--solver MMASV2 --iterations 50 --beta 1.4',
+        'mmasv2-p': '--solver MMASV2 --iterations 50 --beta 1.4 --parallel',
+        'acsv0-i': '--solver ACSV0 --iterations 50 --beta 1.4',
+        'acsv0-p': '--solver ACSV0 --iterations 50 --beta 1.4 --parallel',
+        'acsv1-i': '--solver ACSV1 --iterations 50 --beta 1.4',
+        'acsv1-p': '--solver ACSV1 --iterations 50 --beta 1.4 --parallel',
+        'acsv2-i': '--solver ACSV2 --iterations 50 --beta 1.4',
+        'acsv2-p': '--solver ACSV2 --iterations 50 --beta 1.4 --parallel',
     }
-
-    # approachs = {
-    #     'greedy': '--solver greedy',
-    #     'asv1-i': '--solver ASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100',
-    #     'asv1-p': '--solver ASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --parallel',
-    #     'asv2-i': '--solver ASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100',
-    #     'asv2-p': '--solver ASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --parallel',
-    #     'rbasv1-i': '--solver RBASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5',
-    #     'rbasv1-p': '--solver RBASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5 --parallel',
-    #     'rbasv2-i': '--solver RBASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5',
-    #     'rbasv2-p': '--solver RBASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --ranksize 5 --parallel',
-    #     'easv1-i': '--solver EASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --elitistweight 100',
-    #     'easv1-p': '--solver EASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --elitistweight 100 --parallel',
-    #     'easv2-i': '--solver EASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --elitistweight 100',
-    #     'easv2-p': '--solver EASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --elitistweight 100 --parallel',
-    #     'mmasv1-i': '--solver MMASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --taumin 10 --taumax 1000',
-    #     'mmasv1-p': '--solver MMASV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --taumin 10 --taumax 1000 --parallel',
-    #     'mmasv2-i': '--solver MMASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --taumin 10 --taumax 1000',
-    #     'mmasv2-p': '--solver MMASV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --taumin 10 --taumax 1000 --parallel',
-    #     'acsv0-i': '--solver ACSV0 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04',
-    #     'acsv0-p': '--solver ACSV0 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04 --parallel',
-    #     'acsv1-i': '--solver ACSV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04',
-    #     'acsv1-p': '--solver ACSV1 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04 --parallel',
-    #     'acsv2-i': '--solver ACSV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04',
-    #     'acsv2-p': '--solver ACSV2 --iterations 50 --ants 20  --alpha 1 --beta 1.4 --rho 0.01 --tau0 100 --phi 0.04 --parallel',
-    # }
 
     i = 0
     benchmarks_group = benchmarks.items()
