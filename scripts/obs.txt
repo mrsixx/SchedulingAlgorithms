@@ -31,3 +31,23 @@ https://learn.microsoft.com/en-us/dotnet/api/system.threading.threadpool.getmint
 2nd - rodar em alguns benchmarks uma comparação entre o v0 e o v1
 
 3th - rodar nos mesmos benchmarks uma comparação entre o v1 e o V2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#cmd 
+DIR="runs/run_folder" && mkdir -p "$DIR" && python3 SchedulingAlgorithms/scripts/batch-runner_test.py "$DIR" | tee "$DIR/run.log"
+
+
