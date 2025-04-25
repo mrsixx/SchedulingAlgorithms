@@ -37,6 +37,7 @@ https://learn.microsoft.com/en-us/dotnet/api/system.threading.threadpool.getmint
 
 
 
+chmod +x auto_push.sh
 
 
 
@@ -46,8 +47,10 @@ https://learn.microsoft.com/en-us/dotnet/api/system.threading.threadpool.getmint
 
 
 
+#pipeline execução
+eval "$(ssh-agent -s)" ssh-add /home/matheus.antonio/.ssh/id_ed25519
 
-#cmd 
-DIR="runs/run_folder" && mkdir -p "$DIR" && python3 SchedulingAlgorithms/scripts/batch-runner_test.py "$DIR" | tee "$DIR/run.log"
+DIR="runs/teste_push" && mkdir -p "$DIR" && python3 SchedulingAlgorithms/scripts/batch-runner.py "$DIR" "test" | tee "$DIR/.log"
+
 
 

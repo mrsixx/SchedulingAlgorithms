@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+import time
 from timeit import default_timer as timer
 from datetime import timedelta, datetime
 
@@ -24,17 +25,17 @@ def listar_benchmarks(dir, extensao):
 
 def commit(repo_dir, message):
 	bash_file = "/home/matheus.antonio/Documents/PGC/SchedulingAlgorithms/scripts/auto_push.sh"
-	subprocess.run([bash_file, repo_dir, message])
+	subprocess.run([bash_file, repo_dir, message], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def log(msg):
-	print(f'[{datetime.now().strftime('%m/%d/%Y %I:%M:%S %p')}] {msg}')
+	print(f'[{datetime.now().strftime('%m/%d/%Y %I:%M:%S %p')}] ORCHESTRATOR: {msg}')
 
 if __name__ == "__main__":
 	runs = 1
 	iterations = 1
-	output_dir = f'//home//matheus.antonio//Documents//PGC//{sys.argv[1]}'
-	benchmarks_dir = '//home//matheus.antonio//Documents//PGC//SchedulingAlgorithms//Scheduling.Benchmarks//Data//test//'
-	scheduler_dir = '//home//matheus.antonio//Documents//PGC//scheduler//Scheduling.Console'
+	output_dir = f'/home/matheus.antonio/Documents/PGC/{sys.argv[1]}'
+	benchmarks_dir = f'/home/matheus.antonio/Documents/PGC/SchedulingAlgorithms/Scheduling.Benchmarks/Data/{sys.argv[2]}/'
+	scheduler_dir = '/home/matheus.antonio/Documents/PGC/scheduler/Scheduling.Console'
 	benchmarks = listar_benchmarks(benchmarks_dir, '.fjs')
 	fails = []
 
@@ -86,21 +87,26 @@ if __name__ == "__main__":
 				log(f'Solvers restantes: {list(map(lambda s: s[0],solver_queue))}')
 				cmd = f'{scheduler_dir} -i {file} -o {output_dir} -v --runs {runs} {params}'
 				try:
-					resultado = subprocess.run(
-						[cmd], shell=True,
+					proc = subprocess.Popen(
+						cmd, 
+						shell=True,
 						cwd=output_dir,
-						check=True,
-						# stdout=subprocess.PIPE,
-						# stderr=subprocess.PIPE,
-						text=True
+						stdout=subprocess.PIPE,
+						stderr=subprocess.STDOUT,
+						text=True,
+						bufsize=1
 					)
-					if resultado.returncode != 0:
+					for line in proc.stdout:
+						print(line, end='', flush=True)
+					proc.wait()
+					if proc.returncode != 0:
 						fails.append([solver, f'return code {resultado.returncode}', file])
-				except subprocess.CalledProcessError as e:
+				except subprocess.SubprocessError as e:
 					fails.append([solver, e, file])
 
 				log(f'Finalizando com {solver}')
 				commit(output_dir, f'Resultados {solver} para instância {j}/{len(files)} de {name} {[{datetime.now().strftime('%m/%d/%Y %I:%M:%S %p')}]}')
+				time.sleep(5)
 			end = timer()
 			log(f'Finalizando instâncias de {name} em {timedelta(seconds=end-start)}...\n')
 
