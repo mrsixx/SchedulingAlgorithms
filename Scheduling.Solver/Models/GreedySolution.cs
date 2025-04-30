@@ -12,6 +12,8 @@ namespace Scheduling.Solver.Models
 
         public Dictionary<int, Machine> MachineAssignment { get; } = [];
 
+        public Dictionary<Machine, double> MachineOccupancy {get;} = [];
+
         public double Makespan => CompletionTimes.Count > 0 ? CompletionTimes.MaxBy(c => c.Value).Value : 0;
 
         public Stopwatch Watch { get; } = new();

@@ -15,7 +15,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
         public int RankSize { get; protected set; } = rankSize;
         public override void DorigosTouch(Instance instance)
         {
-            AntCount = instance.OperationCount;
+            AntCount = instance.Jobs.Count();
             Parameters.Rho = 0.1;
             RankSize = 6;
             Parameters.Tau0 = 1.DividedBy(Parameters.Rho * instance.UpperBound);
@@ -26,7 +26,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
             Instance = instance;
             Log($"Starting RBAS algorithm with following parameters:");
             DorigosTouch(instance);
-            Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Initial pheromone = {Parameters.Tau0}.");
+            Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Rank size = {RankSize}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<RankBasedAntSystemAntV2> colony = new();
             colony.Watch.Start();

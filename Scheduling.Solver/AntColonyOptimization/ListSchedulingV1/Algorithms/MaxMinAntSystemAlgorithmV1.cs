@@ -26,7 +26,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         {
             Parameters.Alpha = 1;
             Parameters.Rho = 0.02;
-            AntCount = instance.OperationCount;
+            AntCount = instance.Jobs.Count();
             TauMax = 1.DividedBy(Parameters.Rho * instance.UpperBound);
             TauMin = TauMax.DividedBy(instance.MachinesPerOperation);
         }

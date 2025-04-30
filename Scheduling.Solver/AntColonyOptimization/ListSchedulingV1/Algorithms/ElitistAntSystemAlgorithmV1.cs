@@ -19,7 +19,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         {
             Parameters.Alpha = 1;
             Parameters.Rho = 0.5;
-            AntCount = instance.OperationCount;
+            AntCount = instance.Jobs.Count();
             E = AntCount;
             Parameters.Tau0 = (E + AntCount).DividedBy(Parameters.Rho * instance.UpperBound);
         }
@@ -31,7 +31,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             CreateDisjunctiveGraphModel(instance);
             Log($"Starting EAS algorithm with following parameters:");
             DorigosTouch(instance);
-            Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Initial pheromone = {Parameters.Tau0}.");
+            Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Elitist weight: {E}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<ElitistAntSystemAntV1> colony = new();
             colony.Watch.Start();

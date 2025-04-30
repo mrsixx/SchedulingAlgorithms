@@ -14,7 +14,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         {
             Parameters.Alpha = 1;
             Parameters.Rho = 0.5;
-            AntCount = instance.OperationCount;
+            AntCount = instance.Jobs.Count();
             Parameters.Tau0 = AntCount.DividedBy(instance.UpperBound);
         }
 

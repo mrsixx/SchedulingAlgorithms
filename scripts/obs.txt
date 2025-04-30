@@ -54,3 +54,7 @@ DIR="runs/teste_push" && mkdir -p "$DIR" && python3 SchedulingAlgorithms/scripts
 
 
 
+zip -r myarchive.zip my_directory
+
+
+zip releases/scheduler_20250430.zip Scheduling.Console/bin/Release/net8.0/linux-x64/publish/
