@@ -51,6 +51,8 @@ namespace Scheduling.Solver.Greedy
 
                 // updating data structures
                 loadingSequence[machine].AddLast(operation.Value);
+                solution.MachineOccupancy[machine] += operation.Value.GetProcessingTime(machine);
+
                 if (operation.Next is null)
                     unscheduledJobOperations.Remove(operation.Value.Job);
                 else
@@ -68,27 +70,14 @@ namespace Scheduling.Solver.Greedy
             return solution;
         }
 
-        // private (LinkedListNode<Operation>, Machine) GetGreedyMachineAllocation(Dictionary<Job, LinkedListNode<Operation>> unscheduledJobOperations, GreedySolution solution)
-        // {
-        //     var candidateAllocations = unscheduledJobOperations.Values
-        //                                                 .SelectMany(operation => operation.Value.EligibleMachines
-        //                                                                     .Select(machine => (operation, machine)));
-        //     var lessBusyMachine = candidateAllocations.MinBy(om => solution.MachineOccupancy[om.machine]);
-        //     return candidateAllocations
-        //         .Where(om => om.machine.Equals(lessBusyMachine.machine))
-        //         .MaxBy(om => om.operation.Value.GetProcessingTime(om.machine)
-        //     );
-        // }
-
-        private (LinkedListNode<Operation>, Machine) GetGreedyMachineAllocation
-            (Dictionary<Job, LinkedListNode<Operation>> unscheduledJobOperations, GreedySolution solution)
+        private (LinkedListNode<Operation>, Machine) GetGreedyMachineAllocation(Dictionary<Job, LinkedListNode<Operation>> unscheduledJobOperations, GreedySolution solution)
         {
             var candidateAllocations = unscheduledJobOperations.Values
                                                         .SelectMany(operation => operation.Value.EligibleMachines
                                                                             .Select(machine => (operation, machine)));
-
-            var makespan = solution.Makespan;
-            return candidateAllocations.MinBy(om => makespan + om.operation.Value.GetProcessingTime(om.machine));
+            return candidateAllocations.MinBy(om =>
+                solution.MachineOccupancy[om.machine] + om.operation.Value.GetProcessingTime(om.machine)
+            );
         }
     }
 }
