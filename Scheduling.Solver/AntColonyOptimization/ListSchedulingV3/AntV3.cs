@@ -111,7 +111,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
             return unscheduledNodes.SelectMany(candidateNode =>
             {
                 return DisjunctiveGraph.IncomingArcs<DisjunctiveArc>(candidateNode)
-                    .Where(arc => scheduledNodes.Contains(arc.Tail))
+                    .Where(arc => scheduledNodes.Contains(arc.Tail) && 
+                                  (arc.Tail is DummyOperationVertex || MachineAssignment[arc.Tail.Id].Id == arc.Machine.Id)) //only disjunctions with same tail machine
                     .Select(arc => new Orientation(arc));
             });
         }
