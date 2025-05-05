@@ -121,38 +121,10 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
             ConjunctiveDigraph = Context.GraphBuilderService.BuildConjunctiveDigraph(DisjunctiveGraph, Selection);
         }
 
-        //public void SinksToSink()
-        //{
-        //    var sinks = ConjunctiveGraph.Sinks().ToList();
-        //    foreach (var sink in sinks)
-        //    {
-        //        if (sink.Equals(FinalNode)) continue;
-        //        var machine = MachineAssignment[sink.Operation.Id];
-
-        //        Disjunction disjunction = sink.IncidentDisjunctions.First(
-        //            d => d.Machine.Equals(machine) && d.Other(sink).Equals(FinalNode)
-        //        );
-
-        //        var orientation = disjunction.Orientations.First(c => c.Target == FinalNode);
-        //        ConjunctiveGraph.AddConjunctionAndVertices(orientation);
-        //        CompletionTimes[FinalNode.Operation.Id] = Math.Max(CompletionTimes[FinalNode.Operation.Id], CompletionTimes[sink.Operation.Id]);
-        //    }
-        //}
-
         public virtual void LocalPheromoneUpdate(DisjunctiveArc selectedMove) { }
 
         public override void Log()
         {
-            // print loading sequence
-            ////foreach (var machine in LoadingSequence.Keys)
-            ////{
-            ////    Console.Write($"{machine.Id}: ");
-            ////    foreach (var node in LoadingSequence[machine].Reverse())
-            ////        Console.Write($" {node}[{StartTimes[node.Operation.Id]}-{CompletionTimes[node.Operation.Id]}] ");
-
-            ////    Console.WriteLine("");
-            ////}
-
             //// printing topological sort (acyclic evidence)
             Console.WriteLine("Topological sort: ");
             foreach (var node in ConjunctiveDigraph.TopologicalSort())

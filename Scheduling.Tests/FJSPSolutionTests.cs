@@ -8,6 +8,7 @@ using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms;
+using System.Linq;
 
 namespace Scheduling.Tests
 {
@@ -132,6 +133,14 @@ namespace Scheduling.Tests
             [
                 new AntColonySystemAlgorithmV2(parameters, phi: 0.5, new ParallelSolveApproach())
             ];
+            yield return
+            [
+                new AntColonySystemAlgorithmV3(parameters, phi: 0.5,  new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new AntColonySystemAlgorithmV3(parameters, phi: 0.5, new ParallelSolveApproach())
+            ];
             #endregion
 
             yield return
@@ -141,6 +150,24 @@ namespace Scheduling.Tests
             
         }
         #endregion
+
+        [Theory]
+        [MemberData(nameof(GetSolvers))]
+        public void FjspSolution_EligibleMachineRestriction_MustBeSatisfied(IFlexibleJobShopSchedulingSolver solver)
+        {
+            var instance = _readerService.ReadInstance(BENCHMARK_FILE);
+            var solution = solver.Solve(instance);
+
+            foreach (var job in instance.Jobs)
+            {
+                foreach (var operation in job.Operations)
+                {
+                    Assert.True(solution.MachineAssignment.ContainsKey(operation.Id), $"Restriction 0 was violated: No machine allocation for operation {operation.Id}");
+                    var allocation = solution.MachineAssignment[operation.Id];
+                    Assert.True(operation.EligibleMachines.Contains(allocation), $"Restriction 0 was violated: Forbiden allocation for {operation.Id}");
+                }
+            }
+        }
 
         [Theory]
         [MemberData(nameof(GetSolvers))]

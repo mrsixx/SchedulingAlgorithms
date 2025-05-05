@@ -42,6 +42,8 @@ namespace Scheduling.Console
                     return new AntColonySystemAlgorithmV1(parameters, args.Phi, solveApproach);
                 case "acsv2":
                     return new AntColonySystemAlgorithmV2(parameters, args.Phi, solveApproach);
+                case "acsv3":
+                    return new AntColonySystemAlgorithmV3(parameters, args.Phi, solveApproach);
                 case "greedy":
                     return new GreedyHeuristicAlgorithmSolver();
 
