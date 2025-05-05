@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Ants
 {
-    class ElitistAntSystemAntV3
+    public class ElitistAntSystemAntV3(int id, int generation, ElitistAntSystemAlgorithmV3 context) : AntV3<ElitistAntSystemAntV3, ElitistAntSystemAlgorithmV3>(id, generation, context)
     {
+        public override void WalkAround()
+        {
+            ListSchedulingV3Heuristic<ElitistAntSystemAlgorithmV3, ElitistAntSystemAntV3>.Construct(this);
+        }
     }
 }
