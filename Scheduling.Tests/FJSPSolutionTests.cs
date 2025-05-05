@@ -7,14 +7,15 @@ using Scheduling.Solver.Greedy;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms;
 
 namespace Scheduling.Tests
 {
     public class FJSPSolutionTests
     {
         private IBenchmarkReaderService _readerService = new BenchmarkReaderService(null);
-        //private const string BENCHMARK_FILE = "C:\\Users\\Matheus Ribeiro\\source\\repos\\mrsixx\\SchedulingAlgorithms\\Scheduling.Benchmarks\\Data\\6_Fattahi\\Fattahi12.fjs";
-        private const string BENCHMARK_FILE = "//workspaces//SchedulingAlgorithms//Scheduling.Benchmarks//Data//6_Fattahi//Fattahi12.fjs";
+        private const string BENCHMARK_FILE = "C:\\Users\\Matheus Ribeiro\\source\\repos\\mrsixx\\SchedulingAlgorithms\\Scheduling.Benchmarks\\Data\\6_Fattahi\\Fattahi12.fjs";
+        //private const string BENCHMARK_FILE = "//workspaces//SchedulingAlgorithms//Scheduling.Benchmarks//Data//6_Fattahi//Fattahi12.fjs";
 
         #region Solvers batch
         public static IEnumerable<object[]> GetSolvers()
@@ -37,6 +38,14 @@ namespace Scheduling.Tests
             yield return
             [
                 new AntSystemAlgorithmV2(parameters, new ParallelSolveApproach())
+            ];
+            yield return
+            [
+                new AntSystemAlgorithmV3(parameters, new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new AntSystemAlgorithmV3(parameters, new ParallelSolveApproach())
             ];
             #endregion
 
@@ -163,7 +172,8 @@ namespace Scheduling.Tests
                 foreach (var operation in job.Operations)
                 {
                     if (previousOperation is not null)
-                        Assert.True(solution.StartTimes[operation.Id] >= solution.CompletionTimes[previousOperation.Id], "Restriction 2 was violated");
+                        Assert.True(solution.StartTimes[operation.Id] >= solution.CompletionTimes[previousOperation.Id],
+                            $"Restriction 2 was violated: operation {operation.Id} starting ({solution.StartTimes[operation.Id]}) before {previousOperation.Id} finish ({solution.CompletionTimes[previousOperation.Id]})");
 
                     previousOperation = operation;
                 }

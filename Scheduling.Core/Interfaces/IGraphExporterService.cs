@@ -8,9 +8,9 @@ namespace Scheduling.Core.Interfaces
         void ExportDisjunctiveGraphToGraphviz(DisjunctiveGraphModel graph,  string outputFile);
 
         void ExportConjunctiveGraphToGraphviz(ConjunctiveGraphModel graph, 
-            Dictionary<Operation, Machine> mu,
-            Dictionary<Operation, double> startTimes,
-            Dictionary<Operation, double> completionTimes,
+            Dictionary<int, Machine> mu,
+            Dictionary<int, double> startTimes,
+            Dictionary<int, double> completionTimes,
             string outputFile);
     }
 }

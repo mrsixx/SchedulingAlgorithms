@@ -1,5 +1,4 @@
 ﻿using Scheduling.Core.FJSP;
-using Scheduling.Core.Graph;
 
 namespace Scheduling.Solver.AntColonyOptimization
 {

@@ -2,6 +2,7 @@
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV0;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms;
 using Scheduling.Solver.Greedy;
 using Scheduling.Solver.Interfaces;
 
@@ -21,6 +22,8 @@ namespace Scheduling.Console
                     return new AntSystemAlgorithmV1(parameters, solveApproach);
                 case "asv2":
                     return new AntSystemAlgorithmV2(parameters, solveApproach);
+                case "asv3":
+                    return new AntSystemAlgorithmV3(parameters, solveApproach);
                 case "rbasv1":
                     return new RankBasedAntSystemAlgorithmV1(parameters, args.RankSize, solveApproach);
                 case "rbasv2":

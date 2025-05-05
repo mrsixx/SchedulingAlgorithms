@@ -12,9 +12,9 @@ namespace Scheduling.Core.Services
     public class GraphExporterService : IGraphExporterService
     {
         public void ExportConjunctiveGraphToGraphviz(ConjunctiveGraphModel graph,
-            Dictionary<Operation, Machine> mu,
-            Dictionary<Operation, double> startTimes,
-            Dictionary<Operation, double> completionTimes,
+            Dictionary<int, Machine> mu,
+            Dictionary<int, double> startTimes,
+            Dictionary<int, double> completionTimes,
             string outputFile)
         {
             var colors = Enum.GetValues(typeof(KnownColor))
@@ -40,12 +40,12 @@ namespace Scheduling.Core.Services
                         args.VertexFormat.Label = "⊥";
                     else if (args.Vertex.IsSinkNode)
                     {
-                        args.VertexFormat.Label = $"T  [{completionTimes[operation]}]";
+                        args.VertexFormat.Label = $"T  [{completionTimes[operation.Id]}]";
                     }
                     else
                     {
                         args.VertexFormat.Label = args.Vertex.Id.ToString();
-                        var machine = mu[args.Vertex.Operation];
+                        var machine = mu[args.Vertex.Operation.Id];
                         if (!colorDictionary.ContainsKey(machine.Id))
                         {
                             var color = colors[Random.Shared.Next(0, colors.Count)];
@@ -56,7 +56,7 @@ namespace Scheduling.Core.Services
                         args.VertexFormat.Style = GraphvizVertexStyle.Filled;
                         args.VertexFormat.FillColor = colorDictionary[machine.Id];
                         args.VertexFormat.FontColor = GraphvizColor.White;
-                        args.VertexFormat.Label = $"{args.Vertex.Id} [{startTimes[operation]}]";
+                        args.VertexFormat.Label = $"{args.Vertex.Id} [{startTimes[operation.Id]}]";
                     }
 
                 };
@@ -124,7 +124,7 @@ namespace Scheduling.Core.Services
                             }
 
                             args.EdgeFormat.StrokeColor  = colorDictionary[edge.Machine.Id];
-                            //args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = $"({edge.ProcessingTime.Item1};{edge.ProcessingTime.Item2})", FontColor = colorDictionary[edge.Machine.Id] };
+                            args.EdgeFormat.Label = new GraphvizEdgeLabel { Value = $"(M{edge.Machine.Id})", FontColor = colorDictionary[edge.Machine.Id] };
                         }
                     }
                     else if (args.Edge is Conjunction arc)

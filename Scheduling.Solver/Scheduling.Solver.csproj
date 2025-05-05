@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="AntColonyOptimization\ListSchedulingV3\Interface\**" />
+    <EmbeddedResource Remove="AntColonyOptimization\ListSchedulingV3\Interface\**" />
+    <None Remove="AntColonyOptimization\ListSchedulingV3\Interface\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Scheduling.Core\Scheduling.Core.csproj" />
   </ItemGroup>
 
