@@ -29,7 +29,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             Instance = instance;
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
-            Log($"Starting EAS algorithm with following parameters:");
+            Log($"Starting EASV1 algorithm with following parameters:");
             DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Elitist weight: {E}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();

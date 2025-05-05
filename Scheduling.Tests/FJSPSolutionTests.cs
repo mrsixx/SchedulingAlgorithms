@@ -105,8 +105,15 @@ namespace Scheduling.Tests
             [
                 new MaxMinAntSystemAlgorithmV2(parameters, tauMin: 100, tauMax: 200, new ParallelSolveApproach())
             ];
+            yield return
+            [
+                new MaxMinAntSystemAlgorithmV3(parameters, tauMin: 100, tauMax: 200, new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new MaxMinAntSystemAlgorithmV3(parameters, tauMin: 100, tauMax: 200, new ParallelSolveApproach())
+            ];
             #endregion
-
 
             #region ACS
             yield return

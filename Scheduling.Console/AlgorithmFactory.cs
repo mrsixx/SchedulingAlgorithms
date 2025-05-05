@@ -36,6 +36,8 @@ namespace Scheduling.Console
                     return new MaxMinAntSystemAlgorithmV1(parameters, args.TauMin, args.TauMax, solveApproach);
                 case "mmasv2":
                     return new MaxMinAntSystemAlgorithmV2(parameters, args.TauMin, args.TauMax, solveApproach);
+                case "mmasv3":
+                    return new MaxMinAntSystemAlgorithmV3(parameters, args.TauMin, args.TauMax, solveApproach);
                 case "acsv0":
                     return new AntColonySystemAlgorithmV0(parameters, args.Phi, solveApproach);
                 case "acsv1":

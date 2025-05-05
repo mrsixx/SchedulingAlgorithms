@@ -21,7 +21,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
         public override IFjspSolution Solve(Instance instance)
         {
             Instance = instance;
-            Log($"Starting AS algorithm with following parameters:");
+            Log($"Starting ASV2 algorithm with following parameters:");
             DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
