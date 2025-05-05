@@ -11,9 +11,6 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 {
     public class RankBasedAntSystemAlgorithmV1(Parameters parameters, int rankSize,ISolveApproach solveApproach) : AntColonyV1AlgorithmSolver<RankBasedAntSystemAlgorithmV1, RankBasedAntSystemAntV1>(parameters, solveApproach)
     {
-        /// <summary>
-        /// Elitist weight
-        /// </summary>
         public int RankSize { get; private set; } = rankSize;
         public override void DorigosTouch(Instance instance)
         {

@@ -67,6 +67,14 @@ namespace Scheduling.Tests
             [
                 new RankBasedAntSystemAlgorithmV2(parameters, rankSize: 5, new ParallelSolveApproach())
             ];
+            yield return
+            [
+                new RankBasedAntSystemAlgorithmV3(parameters, rankSize: 5, new IterativeSolveApproach())
+            ];
+            yield return
+            [
+                new RankBasedAntSystemAlgorithmV3(parameters, rankSize: 5, new ParallelSolveApproach())
+            ];
             #endregion
 
             # region EAS
