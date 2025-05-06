@@ -29,7 +29,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
 
         public HashSet<Node> RemainingNodes { get; } = [];
 
-        public override double Makespan { get; }
+        public override double Makespan => CompletionTimes.Values.Max();
 
         public Node StartNode => Context.DisjunctiveGraph.Source;
 
