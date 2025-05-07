@@ -92,8 +92,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             var iterationBestAnt = colony.IterationBests[currentIteration];
             var bestGraphEdges = iterationBestAnt.ConjunctiveGraph.Edges
                                 .Where(e => e.HasAssociatedOrientation)
-                                .Select(e => e.AssociatedOrientation)
-                                .ToHashSet();
+                                .Select(e => e.AssociatedOrientation);
 
             var delta = iterationBestAnt.Makespan.Inverse();
 

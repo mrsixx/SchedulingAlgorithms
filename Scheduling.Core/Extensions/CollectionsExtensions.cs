@@ -11,7 +11,11 @@ namespace Scheduling.Core.Extensions
 
         public static bool DoesNotContain<T>(this IEnumerable<T> @list, Func<T, bool> predicate) => !list.Any(predicate);
 
-
+        public static void ForEach<T>(this IEnumerable<T> @list, Action<T> action)
+        {
+            foreach (var item in list)
+                action(item);
+        }
 
 
         public static void AddRange<T>(this HashSet<T> set, IEnumerable<T> enumerable)

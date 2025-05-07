@@ -4,7 +4,6 @@ using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 using System.Diagnostics;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Model;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
 {
@@ -23,7 +22,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
         {
             Instance = instance;
             Log($"Creating disjunctive graph...");
-            CreateDisjunctiveGraphModel(instance);
+            CreatePrecedenceDigraph(instance);
             Log($"Starting ASV3 algorithm with following parameters:");
             DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Initial pheromone = {Parameters.Tau0}.");
@@ -69,16 +68,16 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
 
         private void PheromoneUpdate(AntSystemAntV3[] ants)
         {
-            foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
+            foreach (var (allocation, currentPheromoneAmount) in PheromoneTrail)
             {
-                var antsUsingOrientation = ants.Where(ant => ant.Selection.Contains(orientation)).ToHashSet();
+                var antsUsingOrientation = ants.Where(ant => ant.Allocations.Contains(allocation));
 
                 // if the ant is not using this orientation, then its contribution to delta is 0
                 var delta = antsUsingOrientation.Sum(ant => ant.Makespan.Inverse());
                 var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta;
 
-                if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
-                    Log($"Offline Update pheromone failed on {orientation}");
+                if (!PheromoneTrail.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
+                    Log($"Offline Update pheromone failed on {allocation}");
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
@@ -46,7 +47,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
         {
             Instance = instance;
             Log($"Creating disjunctive graph...");
-            CreateDisjunctiveGraphModel(instance);
+            CreatePrecedenceDigraph(instance);
             Log($"Starting MMASV3 algorithm with following parameters:");
             DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Min pheromone = {TauMin}; Max pheromone = {TauMax}.");
@@ -65,7 +66,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
                 Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
                 Log($"Running offline pheromone update...");
-                PheromoneUpdate(currentIteration, colony);
+                PheromoneUpdate(colony);
                 UpdatePheromoneTrailLimits(colony);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth?.Makespan}");
@@ -91,18 +92,20 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
             return solution;
         }
 
-        private void PheromoneUpdate(int currentIteration, IColony<MaxMinAntSystemAntV3> colony)
+        private void PheromoneUpdate(IColony<MaxMinAntSystemAntV3> colony)
         {
-            foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
+            var bestSolution = colony.BestSoFar.Allocations;
+
+            foreach (var (allocation, currentPheromoneAmount) in PheromoneTrail)
             {
-                var orientationBelongsToBestGraph = colony.BestSoFar.Selection.Contains(orientation);
+                var allocationBelongsToBestScheduling = bestSolution.Contains(allocation);
                 // pheromone deposited only by best so far ant
-                var delta = orientationBelongsToBestGraph ? colony.BestSoFar.Makespan.Inverse() : 0;
+                var delta = allocationBelongsToBestScheduling ? colony.BestSoFar.Makespan.Inverse() : 0;
 
                 var updatedAmount = Math.Max(Math.Min((1 - Parameters.Rho) * currentPheromoneAmount + delta, TauMax), TauMin);
 
-                if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
-                    Log($"Offline Update pheromone failed on {orientation}");
+                if (!PheromoneTrail.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
+                    Log($"Offline Update pheromone failed on {allocation}");
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using Scheduling.Core.FJSP;
+﻿using Scheduling.Core.Extensions;
+using Scheduling.Core.FJSP;
 using Scheduling.Core.Interfaces;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
@@ -26,8 +27,8 @@ namespace Scheduling.Solver.Greedy
             Log($"Starting greedy algorithm");
             var unscheduledJobOperations = new Dictionary<Job, LinkedListNode<Operation>>();
             var loadingSequence = new Dictionary<Machine, LinkedList<Operation>>();
-            instance.Jobs.ToList().ForEach(job => unscheduledJobOperations.Add(job, job.Operations.First));
-            instance.Machines.ToList().ForEach(m => {
+            instance.Jobs.ForEach(job => unscheduledJobOperations.Add(job, job.Operations.First));
+            instance.Machines.ForEach(m => {
                 loadingSequence.Add(m, new LinkedList<Operation>());
                 solution.MachineOccupancy.Add(m, 0);
             });

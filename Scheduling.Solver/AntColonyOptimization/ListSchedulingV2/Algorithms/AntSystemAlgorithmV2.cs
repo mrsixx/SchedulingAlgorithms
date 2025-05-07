@@ -68,7 +68,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
         {
             foreach (var (allocation, currentPheromoneAmount) in PheromoneTrail)
             {
-                var antsUsingAllocation = ants.Where(ant => ant.Path.Contains(allocation)).ToHashSet();
+                var antsUsingAllocation = ants.Where(ant => ant.Path.Contains(allocation));
 
                 // if the ant is not using this allocation, then its contribution to delta is 0
                 var delta = antsUsingAllocation.Sum(ant => ant.Makespan.Inverse());

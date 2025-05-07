@@ -1,4 +1,5 @@
 using Scheduling.Core.Extensions;
+using Scheduling.Core.FJSP;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms;
 using Scheduling.Solver.Interfaces;
 

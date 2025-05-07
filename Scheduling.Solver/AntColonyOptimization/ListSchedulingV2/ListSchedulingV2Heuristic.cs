@@ -1,3 +1,4 @@
+using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
@@ -10,8 +11,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
         {
             // creating data structures
             var unscheduledOperations = new HashSet<Operation>();
-            ant.Instance.Jobs.ToList().ForEach(job => unscheduledOperations.Add(job.Operations.First.Value));
-            ant.Instance.Machines.ToList().ForEach(m => ant.LoadingSequence.Add(m, new LinkedList<Operation>()));
+            ant.Instance.Jobs.ForEach(job => unscheduledOperations.Add(job.Operations.First.Value));
+            ant.Instance.Machines.ForEach(m => ant.LoadingSequence.Add(m, new LinkedList<Operation>()));
 
             while (unscheduledOperations.Any())
             {

@@ -1,8 +1,6 @@
 ﻿
 using Scheduling.Core.Extensions;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Model;
-using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Ants
 {
@@ -17,16 +15,16 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Ants
         /// Create feasible moves set and use pseudo probability rule to choose one
         /// </summary>
         /// <returns></returns>
-        public override IFeasibleMove<DisjunctiveArc> ProbabilityRule(IEnumerable<IFeasibleMove<DisjunctiveArc>> feasibleMoves)
+        public override FeasibleMoveV3 ProbabilityRule(IEnumerable<FeasibleMoveV3> feasibleMoves)
         {
             return PseudoProbabilityRule(feasibleMoves);
         }
 
-        private IFeasibleMove<DisjunctiveArc> PseudoProbabilityRule(IEnumerable<IFeasibleMove<DisjunctiveArc>> feasibleMoves)
+        private FeasibleMoveV3 PseudoProbabilityRule(IEnumerable<FeasibleMoveV3> feasibleMoves)
         {
             var sum = 0.0;
-            var rouletteWheel = new List<(IFeasibleMove<DisjunctiveArc> Move, double Probability)>();
-            IFeasibleMove<DisjunctiveArc> greedyMove = null;
+            var rouletteWheel = new List<(FeasibleMoveV3 Move, double Probability)>();
+            FeasibleMoveV3 greedyMove = null;
             var greedyFactor = double.MinValue;
             // create roulette wheel and evaluate greedy move for pseudorandom proportional rule at same time (in O(n))
             foreach (var move in feasibleMoves)
@@ -63,10 +61,10 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Ants
             throw new InvalidOperationException("FATAL ERROR: No move was selected.");
         }
 
-        public override void LocalPheromoneUpdate(DisjunctiveArc selectedMove)
+        public override void LocalPheromoneUpdate(FeasibleMoveV3 selectedMove)
         {
-            if (!context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) ||
-                !context.PheromoneTrail.TryUpdate(selectedMove, (1 - context.Phi) * currentPheromoneValue + context.Phi * context.Parameters.Tau0, currentPheromoneValue))
+            if (!context.PheromoneTrail.TryGetValue(selectedMove.Allocation, out double currentPheromoneValue) ||
+                !context.PheromoneTrail.TryUpdate(selectedMove.Allocation, (1 - context.Phi) * currentPheromoneValue + context.Phi * context.Parameters.Tau0, currentPheromoneValue))
                 Console.WriteLine("Unable to decay pheromone after construction step...");
         }
     }

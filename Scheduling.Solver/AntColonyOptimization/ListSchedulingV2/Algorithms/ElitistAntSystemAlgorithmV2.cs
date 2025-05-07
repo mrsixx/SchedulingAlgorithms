@@ -76,7 +76,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
             var bestSoFarDelta = colony.BestSoFar.Makespan.Inverse();
             foreach (var (allocation, currentPheromoneAmount) in PheromoneTrail)
             {
-                var antsUsingAllocation = ants.Where(ant => ant.Path.Contains(allocation)).ToHashSet();
+                var antsUsingAllocation = ants.Where(ant => ant.Path.Contains(allocation));
 
                 // if the ant is not using this orientation, then its contribution to delta is 0
                 var delta = antsUsingAllocation.Sum(ant => ant.Makespan.Inverse());

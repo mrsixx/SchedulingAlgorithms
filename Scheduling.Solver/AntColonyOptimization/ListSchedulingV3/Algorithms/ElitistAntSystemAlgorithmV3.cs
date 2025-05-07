@@ -4,6 +4,7 @@ using Scheduling.Solver.Models;
 using System.Diagnostics;
 using Scheduling.Core.Extensions;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Ants;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
 {
@@ -28,7 +29,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
         {
             Instance = instance;
             Log($"Creating disjunctive graph...");
-            CreateDisjunctiveGraphModel(instance);
+            CreatePrecedenceDigraph(instance);
             Log($"Starting EASV3 algorithm with following parameters:");
             DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Elitist weight: {E}; Initial pheromone = {Parameters.Tau0}.");
@@ -72,24 +73,24 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
             return solution;
         }
 
+
         private void PheromoneUpdate(ElitistAntSystemAntV3[] ants, IColony<ElitistAntSystemAntV3> colony)
         {
-            var bestSoFarSolution = colony.BestSoFar.Selection;
+            var bestSoFarSolution = colony.BestSoFar.Allocations;
             var bestSoFarDelta = colony.BestSoFar.Makespan.Inverse();
-            foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
+            foreach (var (allocation, currentPheromoneAmount) in PheromoneTrail)
             {
-                var antsUsingOrientation = ants.Where(ant => ant.Selection.Contains(orientation)).ToHashSet();
+                var antsUsingAllocation = ants.Where(ant => ant.Allocations.Contains(allocation));
 
                 // if the ant is not using this orientation, then its contribution to delta is 0
-                var delta = antsUsingOrientation.Sum(ant => ant.Makespan.Inverse());
-                var elitistReinforcement = bestSoFarSolution.Contains(orientation) ? bestSoFarDelta : 0;
+                var delta = antsUsingAllocation.Sum(ant => ant.Makespan.Inverse());
+                var elitistReinforcement = bestSoFarSolution.Contains(allocation) ? bestSoFarDelta : 0;
                 var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta + E * elitistReinforcement;
 
-                if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
-                    Log($"Offline Update pheromone failed on {orientation}");
+                if (!PheromoneTrail.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
+                    Log($"Offline Update pheromone failed on {allocation}");
             }
         }
-
         public override ElitistAntSystemAntV3[] BugsLife(int currentIteration)
         {
             ElitistAntSystemAntV3 BugSpawner(int id, int generation) => new(id, generation, this);

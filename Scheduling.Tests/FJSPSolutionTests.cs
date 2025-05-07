@@ -9,6 +9,7 @@ using Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms;
 using System.Linq;
+using Scheduling.Core.Extensions;
 
 namespace Scheduling.Tests
 {
@@ -197,7 +198,7 @@ namespace Scheduling.Tests
         public void FjspSolution_ReleaseDateRestriction_MustBeSatisfied(IFlexibleJobShopSchedulingSolver solver)
         {
             var instance = _readerService.ReadInstance(BENCHMARK_FILE);
-            instance.Jobs.ToList().ForEach(j => j.ReleaseDate = Random.Shared.Next(10, 100));
+            instance.Jobs.ForEach(j => j.ReleaseDate = Random.Shared.Next(10, 100));
             var solution = solver.Solve(instance);
             
             foreach (var job in instance.Jobs)

@@ -1,16 +1,13 @@
 ﻿using Scheduling.Core.FJSP;
 using Scheduling.Core.Interfaces;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Interfaces;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Model;
 using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
 {
     public abstract class AntColonyV3AlgorithmSolver<TSelf, TAnt>(Parameters parameters, ISolveApproach solveApproach) :
-        IAntColonyAlgorithm<DisjunctiveArc, TAnt> where TSelf : AntColonyV3AlgorithmSolver<TSelf, TAnt>
+        IAntColonyAlgorithm<Allocation, TAnt> where TSelf : AntColonyV3AlgorithmSolver<TSelf, TAnt>
     {
         protected ILogger? Logger;
-        public IDigraphBuilderService GraphBuilderService;
 
 
         /// <summary>
@@ -22,9 +19,9 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
 
         public ISolveApproach SolveApproach { get; } = solveApproach;
 
-        public DisjunctiveDigraph DisjunctiveGraph { get; private set; }
+        public PrecedenceDigraph PrecedenceDigraph { get; private set; }
 
-        public IPheromoneTrail<DisjunctiveArc> PheromoneTrail { get; protected set; }
+        public IPheromoneTrail<Allocation> PheromoneTrail { get; protected set; }
 
         public IFlexibleJobShopSchedulingSolver WithLogger(ILogger logger, bool with = false)
         {
@@ -43,17 +40,17 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
 
         protected void SetInitialPheromoneAmount(double amount)
         {
-            PheromoneTrail = solveApproach.CreatePheromoneTrail<DisjunctiveArc>();
-
-            foreach (var arc in DisjunctiveGraph.ArcSet.OfType<DisjunctiveArc>())
-                if (!PheromoneTrail.TryAdd(arc, amount))
-                    Log($"Error on adding pheromone over {arc}");
+            PheromoneTrail = solveApproach.CreatePheromoneTrail<Allocation>();
+            foreach (var job in Instance.Jobs)
+                foreach (var operation in job.Operations)
+                    foreach (var machine in operation.EligibleMachines)
+                        if (!PheromoneTrail.TryAdd(new Allocation(operation, machine), amount))
+                            Log($"Error on adding pheromone over O{operation.Id}M{machine.Id}");
         }
 
-        protected void CreateDisjunctiveGraphModel(Instance instance)
+        protected void CreatePrecedenceDigraph(Instance instance)
         {
-            GraphBuilderService = new DigraphBuilderService(Logger);
-            DisjunctiveGraph = GraphBuilderService.BuildDisjunctiveDigraph(instance);
+            PrecedenceDigraph = new PrecedenceDigraph(instance);
         }
 
         public void Log(string message) => Logger?.Log(message);

@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Scheduling.Core\Scheduling.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="AntColonyOptimization\ListSchedulingV3\Model\" />
+  </ItemGroup>
+
 </Project>

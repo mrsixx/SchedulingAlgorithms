@@ -1,9 +1,5 @@
-﻿using Scheduling.Core.Graph;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Model;
+﻿using Scheduling.Core.Extensions;
 using Scheduling.Solver.DataStructures;
-using System.Xml.Linq;
-using Scheduling.Core.Extensions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
 {
@@ -11,48 +7,51 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
         where TContext : AntColonyV3AlgorithmSolver<TContext, TAnt>
         where TAnt : AntV3<TAnt, TContext>
     {
+
         public static void Construct(TAnt ant)
         {
-            ant.InitializeDataStructures();
+            // creating data structures
 
-            var conjunctiveDegreeCounters = new Dictionary<AbstractVertex, int>();
-            ant.DisjunctiveGraph.VertexSet.ToList().ForEach(
-                node => conjunctiveDegreeCounters.Add(node, ant.DisjunctiveGraph.NeighbourhoodIn<ConjunctiveArc>(node).Count)
+            ant.InitializeDataStructures();
+            var scheduledOperations = new HashSet<OperationVertex>();
+            var unscheduledOperations = new HashSet<OperationVertex>();
+            var inDegreeCounters = new Dictionary<OperationVertex, int>();
+
+            ant.PrecedenceDigraph.VertexSet.ForEach(o =>
+                inDegreeCounters.Add(o, ant.PrecedenceDigraph.NeighbourhoodIn(o).Count)
             );
 
-            // we start with source scheduled
-            HashSet<AbstractVertex> unscheduledNodes = [];
-            HashSet<AbstractVertex> scheduledNodes = [ant.DisjunctiveGraph.Source];
-            ReleaseVertexSuccessors(ant, ant.DisjunctiveGraph.Source, conjunctiveDegreeCounters, scheduledNodes, unscheduledNodes);
+            inDegreeCounters.Where(o => o.Value == 0)
+                            .ForEach(o => unscheduledOperations.Add(o.Key));
 
-            while (unscheduledNodes.Any())
+
+            while (unscheduledOperations.Any())
             {
-                var feasibleMoves = ant.GetFeasibleMoves(unscheduledNodes, scheduledNodes).ToList();
-                if (feasibleMoves.IsEmpty()) break;
+                var feasibleMoves = ant.GetFeasibleMoves(unscheduledOperations, scheduledOperations);
+                var nextMove = ant.ProbabilityRule(feasibleMoves);
 
-                var nextMove = ant.ProbabilityRule(feasibleMoves) as Orientation;
+                ant.EvaluateCompletionTime(nextMove);
+                ant.LocalPheromoneUpdate(nextMove);
+                unscheduledOperations.Remove(nextMove.Vertex);
 
-                ant.EvaluateCompletionTime(nextMove.Arc);
-                ant.LocalPheromoneUpdate(nextMove.Arc);
-
-                // update data structures
-                unscheduledNodes.Remove(nextMove.Arc.Head);
-                scheduledNodes.Add(nextMove.Arc.Head);
-
-                ReleaseVertexSuccessors(ant, nextMove.Arc.Head, conjunctiveDegreeCounters, scheduledNodes, unscheduledNodes);
+                ReleaseVertexSuccessors(ant, nextMove.Vertex, inDegreeCounters, scheduledOperations, unscheduledOperations);
             }
 
-            ant.ExtractConjunctiveDigraph();
+            // creating mu function
+            foreach (var (m, operations) in ant.LoadingSequence)
+                foreach (var o in operations)
+                    ant.MachineAssignment.Add(o.Id, m);
         }
 
-        private static void ReleaseVertexSuccessors(TAnt ant, AbstractVertex u, Dictionary<AbstractVertex, int> vertexCounters, HashSet<AbstractVertex> scheduledNodes, HashSet<AbstractVertex> unscheduledNodes)
+        private static void ReleaseVertexSuccessors(TAnt ant, OperationVertex u, Dictionary<OperationVertex, int> vertexCounters, HashSet<OperationVertex> scheduledNodes, HashSet<OperationVertex> unscheduledNodes)
         {
-            foreach (var v in ant.DisjunctiveGraph.NeighbourhoodOut<ConjunctiveArc>(u))
-            {
-                vertexCounters[v] -= 1;
-                if (scheduledNodes.DoesNotContain(x => x.Id == v.Id) && vertexCounters[v] == 0)
-                    unscheduledNodes.Add(v);
-            }
+            ant.PrecedenceDigraph.NeighbourhoodOut(u)
+                .ForEach(v =>
+                {
+                    vertexCounters[v] -= 1;
+                    if (vertexCounters[v] == 0 && scheduledNodes.DoesNotContain(v))
+                        unscheduledNodes.Add(v);
+                });
         }
     }
 }

@@ -4,6 +4,7 @@ using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 using System.Diagnostics;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Ants;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
 {
@@ -22,7 +23,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
         {
             Instance = instance;
             Log($"Creating disjunctive graph...");
-            CreateDisjunctiveGraphModel(instance);
+            CreatePrecedenceDigraph(instance);
             Log($"Starting RBASV3 algorithm with following parameters:");
             DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Rank size = {RankSize}; Initial pheromone = {Parameters.Tau0}.");
@@ -70,21 +71,21 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
         {
             var size = Math.Max(1, Math.Min(RankSize, ants.Length)); // ensures that size is an int between 1 and ants.Length
             var topAnts = ants.OrderBy(a => a.Makespan).Take(size - 1).ToArray();
-            
-            foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
+            var bestSolution = colony.BestSoFar.Allocations;
+            foreach (var (allocation, currentPheromoneAmount) in PheromoneTrail)
             {
-                // if using orientation, increase is proportional rank position and quality
+                // if using allocation, increase is proportional rank position and quality
                 var delta = topAnts.Select((ant, rank) =>
-                    ant.Selection.Contains(orientation) ? (size - rank - 1) * ant.Makespan.Inverse() : 0
+                    ant.Allocations.Contains(allocation) ? (size - rank - 1) * ant.Makespan.Inverse() : 0
                 ).Sum();
 
-                var allocationBelongsToBestScheduling = colony.BestSoFar.Selection.Contains(orientation);
+                var allocationBelongsToBestScheduling = bestSolution.Contains(allocation);
                 // pheromone deposited only by best so far ant
                 var deltaOpt = allocationBelongsToBestScheduling ? colony.BestSoFar.Makespan.Inverse() : 0;
                 var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta + RankSize * deltaOpt;
 
-                if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
-                    Log($"Offline Update pheromone failed on {orientation}");
+                if (!PheromoneTrail.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
+                    Log($"Offline Update pheromone failed on {allocation}");
             }
         }
         public override RankBasedAntSystemAntV3[] BugsLife(int currentIteration)

@@ -24,8 +24,7 @@ namespace Scheduling.Core.Services
             graph.AddVertex(graph.Sink);
             graph.Source.Operation.EligibleMachines.AddRange(fjspInstance.Machines);
             graph.Machines.AddRange(fjspInstance.Machines);
-            fjspInstance.Jobs.ToList()
-                .ForEach(job =>
+            fjspInstance.Jobs.ForEach(job =>
             {
                 // 1st operation of each job linked with source
                 Node previousNode = graph.Source;
@@ -45,8 +44,7 @@ namespace Scheduling.Core.Services
             });
 
             // create disjunctions between every operation running on same pool
-            graph.GeneratePossibleDisjunctions().ToList()
-                .ForEach(disjunction => graph.AddDisjunction(disjunction));
+            graph.GeneratePossibleDisjunctions().ForEach(disjunction => graph.AddDisjunction(disjunction));
             return graph;
         }
     }

@@ -1,9 +1,5 @@
 ﻿using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Model;
-using Scheduling.Solver.DataStructures;
-using Scheduling.Solver.Interfaces;
-using static Scheduling.Core.Enums.DirectionEnum;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
 {
@@ -20,64 +16,57 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
 
         public TContext Context { get; }
 
-        public ConjunctiveDigraph ConjunctiveDigraph { get; protected set; }
-
-        public HashSet<DisjunctiveArc> Selection { get; } = [];
-
-        public virtual Dictionary<Machine, HashSet<AbstractVertex>> LoadingSequence { get; } = [];
+        public virtual Dictionary<Machine, List<Operation>> LoadingSequence { get; } = [];
 
         public override double Makespan => CompletionTimes.Values.Max();
 
-        public DisjunctiveDigraph DisjunctiveGraph => Context.DisjunctiveGraph;
+        public PrecedenceDigraph PrecedenceDigraph => Context.PrecedenceDigraph;
 
-        public DummyOperationVertex StartNode => DisjunctiveGraph.Source;
-
-        public DummyOperationVertex FinalNode => DisjunctiveGraph.Sink;
+        public HashSet<Allocation> Allocations { get; } = [];
 
         public void InitializeDataStructures()
         {
             // Initialize starting and completion times for each operation
-            DisjunctiveGraph.VertexSet.ToList().ForEach(vertex =>
+            PrecedenceDigraph.VertexSet.ForEach(vertex =>
             {
                 CompletionTimes.Add(vertex.Id, 0);
                 StartTimes.Add(vertex.Id, 0);
             });
 
             // Initialize loading sequences for each machine
-            DisjunctiveGraph.Instance.Machines.ToList().ForEach(machine =>
-                LoadingSequence.Add(machine, [DisjunctiveGraph.Source])
+            PrecedenceDigraph.Instance.Machines.ForEach(machine =>
+                LoadingSequence.Add(machine, [])
             );
         }
 
-        public void EvaluateCompletionTime(DisjunctiveArc selectedMove)
+        public void EvaluateCompletionTime(FeasibleMoveV3 selectedMove)
         {
-            var (tail, machine, head) = selectedMove;
+            // evaluate start e completion times
+            var machinePredecessor = LoadingSequence[selectedMove.Machine].LastOrDefault();
+            var criticalPredecessor =
+                PrecedenceDigraph
+                    .NeighbourhoodIn(selectedMove.Vertex)
+                    .MaxBy(predecessor => CompletionTimes[predecessor.Operation.Id]);
 
-            var machinePredecessor = LoadingSequence[machine].Last();
-            var criticalPredecessor = 
-                DisjunctiveGraph
-                    .IncomingArcs<ConjunctiveArc>(head)
-                    .MaxBy(VertexCompletionTime);
+            var jobReleaseDate = Convert.ToDouble(selectedMove.Operation.Job.ReleaseDate);
 
-            var machineCompletionTime = CompletionTimes[machinePredecessor.Id];
-            var criticalPredecessorCompletionTime = criticalPredecessor is not null ? VertexCompletionTime(criticalPredecessor) : 0;
-            var processingTime = (head is OperationVertex o) ? o.Operation.GetProcessingTime(machine) : 0;
+            var startTime = Math.Max(
+                machinePredecessor != null ? CompletionTimes[machinePredecessor.Id] : 0,
+                criticalPredecessor != null ? CompletionTimes[criticalPredecessor.Operation.Id] : jobReleaseDate
+            );
 
-            // update loading sequence, starting and completion times
-            StartTimes[head.Id] = Math.Max(machineCompletionTime, criticalPredecessorCompletionTime);
-            CompletionTimes[head.Id] = StartTimes[head.Id] + processingTime;
-            LoadingSequence[machine].Add(head);
+            Allocations.Add(selectedMove.Allocation);
+            StartTimes[selectedMove.Operation.Id] = startTime;
+            CompletionTimes[selectedMove.Operation.Id] = startTime + selectedMove.Operation.GetProcessingTime(selectedMove.Machine);
 
-            if (!MachineAssignment.TryAdd(head.Id, machine))
-                throw new Exception($"Machine already assigned to this operation");
-
-            Selection.Add(selectedMove);
+            // updating data structures
+            LoadingSequence[selectedMove.Machine].Add(selectedMove.Operation);
         }
 
-        public virtual IFeasibleMove<DisjunctiveArc> ProbabilityRule(IEnumerable<IFeasibleMove<DisjunctiveArc>> feasibleMoves)
+        public virtual FeasibleMoveV3 ProbabilityRule(IEnumerable<FeasibleMoveV3> feasibleMoves)
         {
             var sum = 0.0;
-            var rouletteWheel = new List<(IFeasibleMove<DisjunctiveArc> Move, double Probability)>();
+            var rouletteWheel = new List<(FeasibleMoveV3 Move, double Probability)>();
 
             // create roulette wheel and evaluate greedy move for pseudorandom proportional rule at same time (in O(n))
             foreach (var move in feasibleMoves)
@@ -106,45 +95,19 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
             throw new InvalidOperationException("FATAL ERROR: No move was selected.");
         }
 
-        public IEnumerable<IFeasibleMove<DisjunctiveArc>> GetFeasibleMoves(HashSet<AbstractVertex> unscheduledNodes, HashSet<AbstractVertex> scheduledNodes)
+        public IEnumerable<FeasibleMoveV3> GetFeasibleMoves(HashSet<OperationVertex> unscheduledNodes, HashSet<OperationVertex> scheduledNodes)
         {
-            return unscheduledNodes.SelectMany(candidateNode =>
-            {
-                return DisjunctiveGraph.IncomingArcs<DisjunctiveArc>(candidateNode)
-                    .Where(arc => scheduledNodes.Contains(arc.Tail) && 
-                                  (arc.Tail is DummyOperationVertex || MachineAssignment[arc.Tail.Id].Id == arc.Machine.Id)) //only disjunctions with same tail machine
-                    .Select(arc => new Orientation(arc));
-            });
+            return unscheduledNodes.SelectMany(candidateOperation =>
+                candidateOperation.Operation.EligibleMachines.Select(m => new FeasibleMoveV3(candidateOperation, m)));
         }
 
-        public void ExtractConjunctiveDigraph()
-        {
-            ConjunctiveDigraph = Context.GraphBuilderService.BuildConjunctiveDigraph(DisjunctiveGraph, Selection);
-        }
-
-        public virtual void LocalPheromoneUpdate(DisjunctiveArc selectedMove) { }
+        public virtual void LocalPheromoneUpdate(FeasibleMoveV3 selectedMove) { }
 
         public override void Log()
         {
-            //// printing topological sort (acyclic evidence)
-            Console.WriteLine("Topological sort: ");
-            foreach (var node in ConjunctiveDigraph.TopologicalSort())
-                Console.Write($" {node} ");
             Console.WriteLine("");
             Console.WriteLine($"Makespan: {Makespan}");
         }
 
-        private double VertexCompletionTime(ConjunctiveArc conjunction)
-        {
-            var (tail, head) = conjunction;
-
-            if (tail is DummyOperationVertex src && src.Equals(StartNode))
-            {
-                var o = head as OperationVertex;
-                return o.Operation.Job.ReleaseDate;
-            }
-
-            return CompletionTimes[tail.Id];
-        }
     }
 }

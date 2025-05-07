@@ -40,7 +40,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
         {
             Instance = instance;
             Log($"Creating disjunctive graph...");
-            CreateDisjunctiveGraphModel(instance);
+            CreatePrecedenceDigraph(instance);
             Log($"Starting ACSV3 algorithm with following parameters:");
             DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Phi= {Phi}; Initial pheromone = {Parameters.Tau0}.");
@@ -91,7 +91,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
             var iterationBestAnt = colony.IterationBests[currentIteration];
 
             var delta = iterationBestAnt.Makespan.Inverse();
-            foreach (var orientation in iterationBestAnt.Selection)
+            foreach (var orientation in iterationBestAnt.Allocations)
             {
                 if (orientation is not null && PheromoneTrail.TryGetValue(orientation, out double currentPheromoneAmount))
                 {

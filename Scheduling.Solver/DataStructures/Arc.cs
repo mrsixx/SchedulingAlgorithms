@@ -1,14 +1,14 @@
 ﻿namespace Scheduling.Solver.DataStructures
 {
-    public abstract class Arc(AbstractVertex tail, AbstractVertex head)
+    public abstract class Arc<TVertex>(TVertex tail, TVertex head) where TVertex : AbstractVertex
     {
-        public AbstractVertex Tail { get; set; } = tail;
+        public TVertex Tail { get; set; } = tail;
 
-        public AbstractVertex Head { get; set; } = head;
+        public TVertex Head { get; set; } = head;
 
         public double Weight { get; set; }
 
-        public void Deconstruct(out AbstractVertex tail, out AbstractVertex head)
+        public void Deconstruct(out TVertex tail, out TVertex head)
         {
             tail = Tail;
             head = Head;
