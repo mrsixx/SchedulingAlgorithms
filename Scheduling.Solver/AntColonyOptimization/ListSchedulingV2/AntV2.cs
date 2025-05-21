@@ -21,7 +21,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
 
         public HashSet<Allocation> Path { get; } = [];
 
-        public  Dictionary<Machine, LinkedList<Operation>> LoadingSequence { get; } = [];
+        public  Dictionary<Machine, List<Operation>> LoadingSequence { get; } = [];
 
         //TODO: cache this        
         public override double Makespan => CompletionTimes.Any() ? CompletionTimes.MaxBy(c => c.Value).Value : 0;
@@ -86,14 +86,14 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
         public void EvaluateCompletionTime(FeasibleMoveV2 selectedMove, LinkedListNode<Operation> operationLinkedListNode)
         {
             // evaluate start e completion times
-            var machinePredecessor = LoadingSequence[selectedMove.Machine].Last;
+            var machinePredecessor = LoadingSequence[selectedMove.Machine].LastOrDefault();
 
 
             var jobPredecessor = operationLinkedListNode.Previous;
             var jobReleaseDate = Convert.ToDouble(selectedMove.Operation.Job.ReleaseDate);
 
             var startTime = Math.Max(
-                machinePredecessor != null ? CompletionTimes[machinePredecessor.Value.Id] : 0,
+                machinePredecessor != null ? CompletionTimes[machinePredecessor.Id] : 0,
                 jobPredecessor != null ? CompletionTimes[jobPredecessor.Value.Id] : jobReleaseDate
             );
 
@@ -102,7 +102,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
             CompletionTimes.TryAdd(selectedMove.Operation.Id, startTime + selectedMove.Operation.GetProcessingTime(selectedMove.Machine));
 
             // updating data structures
-            LoadingSequence[selectedMove.Machine].AddLast(selectedMove.Operation);
+            LoadingSequence[selectedMove.Machine].Add(selectedMove.Operation);
         }
     }
 }

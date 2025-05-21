@@ -12,7 +12,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
             // creating data structures
             var unscheduledOperations = new HashSet<Operation>();
             ant.Instance.Jobs.ForEach(job => unscheduledOperations.Add(job.Operations.First.Value));
-            ant.Instance.Machines.ForEach(m => ant.LoadingSequence.Add(m, new LinkedList<Operation>()));
+            ant.Instance.Machines.ForEach(m => ant.LoadingSequence.Add(m, new List<Operation>()));
 
             while (unscheduledOperations.Any())
             {

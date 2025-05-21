@@ -5,7 +5,7 @@ using Scheduling.Solver.Interfaces;
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
 {
     public abstract class AntColonyV3AlgorithmSolver<TSelf, TAnt>(Parameters parameters, ISolveApproach solveApproach) :
-        IAntColonyAlgorithm<Allocation, TAnt> where TSelf : AntColonyV3AlgorithmSolver<TSelf, TAnt>
+        IAntColonyAlgorithm<Allocation, TAnt> where TSelf : AntColonyV3AlgorithmSolver<TSelf, TAnt> where TAnt : BaseAnt<TAnt>
     {
         protected ILogger? Logger;
 
@@ -47,6 +47,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
                         if (!PheromoneTrail.TryAdd(new Allocation(operation, machine), amount))
                             Log($"Error on adding pheromone over O{operation.Id}M{machine.Id}");
         }
+
+        public abstract void PheromoneUpdate(IColony<TAnt> colony, TAnt[] ants, int currentIteration);
 
         protected void CreatePrecedenceDigraph(Instance instance)
         {

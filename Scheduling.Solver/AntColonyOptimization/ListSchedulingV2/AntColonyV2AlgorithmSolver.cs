@@ -1,11 +1,12 @@
 ﻿using Scheduling.Core.FJSP;
 using Scheduling.Core.Interfaces;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants;
 using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
 {
     public abstract class AntColonyV2AlgorithmSolver<TSelf, TAnt>(Parameters parameters, ISolveApproach solveApproach) :
-        IAntColonyAlgorithm<Allocation, TAnt> where TSelf : AntColonyV2AlgorithmSolver<TSelf, TAnt>
+        IAntColonyAlgorithm<Allocation, TAnt> where TSelf : AntColonyV2AlgorithmSolver<TSelf, TAnt> where TAnt : BaseAnt<TAnt>
     {
         protected ILogger? Logger;
 
@@ -43,6 +44,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
                         if (!PheromoneTrail.TryAdd(new Allocation(operation, machine), amount))
                             Log($"Error on adding pheromone over O{operation.Id}M{machine.Id}");
         }
+
+        public abstract void PheromoneUpdate(IColony<TAnt> colony, TAnt[] ants, int currentIteration);
 
         public Instance Instance { get; protected set; }
 

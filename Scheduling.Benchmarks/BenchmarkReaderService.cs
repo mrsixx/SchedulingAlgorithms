@@ -55,7 +55,7 @@ namespace Scheduling.Benchmarks
             
             instance.MachinesPerOperation = reader.MachinePerOperationAvg;
             instance.TrivialUpperBound = reader.TrivialUpperBound;
-            instance.UpperBound = new GreedyHeuristicAlgorithmSolver().Solve(instance).Makespan;
+            instance.UpperBound = new LeastLoadedMachineHeuristicAlgorithmSolver().Solve(instance).Makespan;
             return instance;
         }
 

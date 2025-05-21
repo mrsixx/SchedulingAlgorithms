@@ -6,7 +6,7 @@ using Scheduling.Solver.Models;
 
 namespace Scheduling.Solver.Greedy
 {
-    public class GreedyHeuristicAlgorithmSolver : IFlexibleJobShopSchedulingSolver
+    public class LeastLoadedMachineHeuristicAlgorithmSolver : IFlexibleJobShopSchedulingSolver
     {
         protected ILogger? Logger;
         public void Log(string message) => Logger?.Log(message);

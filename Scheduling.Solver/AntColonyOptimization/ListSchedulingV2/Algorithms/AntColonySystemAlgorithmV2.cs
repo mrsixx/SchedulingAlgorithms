@@ -62,7 +62,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
                 Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
                 Log($"Running offline pheromone update...");
-                PheromoneOfflineUpdate(currentIteration, colony);
+                PheromoneUpdate(colony, ants, currentIteration);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth?.Makespan}");
 
@@ -87,7 +87,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
             return solution;
         }
 
-        private void PheromoneOfflineUpdate(int currentIteration, IColony<AntColonySystemAntV2> colony)
+        public override void PheromoneUpdate(IColony<AntColonySystemAntV2> colony, AntColonySystemAntV2[] ants, int currentIteration)
         {
             var iterationBestAnt = colony.IterationBests[currentIteration];
             var bestSolutionPath = iterationBestAnt.Path;

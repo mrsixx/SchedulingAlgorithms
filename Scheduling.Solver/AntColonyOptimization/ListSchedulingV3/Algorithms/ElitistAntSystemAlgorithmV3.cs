@@ -1,10 +1,9 @@
-﻿using Scheduling.Core.FJSP;
+﻿using Scheduling.Core.Extensions;
+using Scheduling.Core.FJSP;
+using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Ants;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 using System.Diagnostics;
-using Scheduling.Core.Extensions;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Ants;
-using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
 {
@@ -48,7 +47,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
                 Log($"#{currentIteration}th wave ants has stopped after {iSw.Elapsed}!");
                 colony.UpdateBestPath(ants);
                 Log($"Running offline pheromone update...");
-                PheromoneUpdate(ants, colony);
+                PheromoneUpdate(colony, ants, currentIteration);
                 Log($"Iteration best makespan: {colony.IterationBests[currentIteration].Makespan}");
                 Log($"Best so far makespan: {colony.EmployeeOfTheMonth?.Makespan}");
 
@@ -73,8 +72,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
             return solution;
         }
 
-
-        private void PheromoneUpdate(ElitistAntSystemAntV3[] ants, IColony<ElitistAntSystemAntV3> colony)
+        public override void PheromoneUpdate(IColony<ElitistAntSystemAntV3> colony, ElitistAntSystemAntV3[] ants, int currentIteration)
         {
             var bestSoFarSolution = colony.BestSoFar.Allocations;
             var bestSoFarDelta = colony.BestSoFar.Makespan.Inverse();

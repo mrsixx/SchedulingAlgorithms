@@ -169,7 +169,7 @@ namespace Scheduling.Tests
 
             yield return
             [
-                new GreedyHeuristicAlgorithmSolver()
+                new LeastLoadedMachineHeuristicAlgorithmSolver()
             ];
             
         }

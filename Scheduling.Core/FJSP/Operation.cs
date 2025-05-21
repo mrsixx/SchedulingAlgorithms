@@ -18,19 +18,19 @@
 
         public bool Equals(Operation? other) => Id.Equals(other?.Id);
 
-        public double GetProcessingTime(Machine m)
+        public long GetProcessingTime(Machine m)
         {
             try
             {
-                if (m is null) return 0;
+                if (m is null) return Int64.MaxValue;
                 if (Id is SINK_ID) return 0;
-                if (Id is SOURCE_ID) return Convert.ToDouble(Job.ReleaseDate);
+                if (Id is SOURCE_ID) return Job.ReleaseDate;
 
                 return ProcessingTimes[m];
             }
             catch (Exception)
             {
-                return 0;
+                return Int64.MaxValue;
             }
         }
 
