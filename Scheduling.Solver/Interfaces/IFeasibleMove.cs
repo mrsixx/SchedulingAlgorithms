@@ -4,6 +4,6 @@ namespace Scheduling.Solver.Interfaces
     {
         public double Weight { get; }
 
-        public double GetPheromoneAmount(IPheromoneTrail<T> trail);
+        public double GetPheromoneAmount(IPheromoneStructure<T> trail);
     }
 }

@@ -17,7 +17,7 @@ namespace Scheduling.Solver.Interfaces
         /// <summary>
         /// Pheromone trail data structure
         /// </summary>
-        IPheromoneTrail<TPheromonePoint> PheromoneTrail { get; }
+        IPheromoneStructure<TPheromonePoint> PheromoneStructure { get; }
 
         TAnt[] BugsLife(int currentIteration);
 

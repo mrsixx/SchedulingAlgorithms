@@ -14,7 +14,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
 
         public Operation Operation => Allocation.Operation;
 
-        public double GetPheromoneAmount(IPheromoneTrail<Allocation> trail)
+        public double GetPheromoneAmount(IPheromoneStructure<Allocation> trail)
         {
             if (trail.TryGetValue(Allocation, out var pheromone))
                 return pheromone;

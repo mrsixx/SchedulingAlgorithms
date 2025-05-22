@@ -76,7 +76,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 .Where(e => e.HasAssociatedOrientation)
                 .Select(e => e.AssociatedOrientation)
                 .ToHashSet();
-            foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
+            foreach (var (orientation, currentPheromoneAmount) in PheromoneStructure)
             {
                 // if using orientation, increase is proportional rank position and quality
                 var delta = topAnts.Select((ant, rank) =>
@@ -88,7 +88,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 var deltaOpt = allocationBelongsToBestScheduling ? colony.BestSoFar.Makespan.Inverse() : 0;
                 var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta + RankSize * deltaOpt;
 
-                if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
+                if (!PheromoneStructure.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {orientation}");
             }
         }

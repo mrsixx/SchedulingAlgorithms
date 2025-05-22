@@ -28,7 +28,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
             Colony<AntSystemAntV2> colony = new();
             colony.Watch.Start();
             SetInitialPheromoneAmount(Parameters.Tau0);
-            Log($"Depositing {Parameters.Tau0} pheromone units over {PheromoneTrail.Count()} machine-operation pairs...");
+            Log($"Depositing {Parameters.Tau0} pheromone units over {PheromoneStructure.Count()} machine-operation pairs...");
             for (int i = 0; i < Parameters.Iterations; i++)
             {
                 var currentIteration = i + 1;
@@ -66,7 +66,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
 
         public override void PheromoneUpdate(IColony<AntSystemAntV2> colony, AntSystemAntV2[] ants, int currentIteration)
         {
-            foreach (var (allocation, currentPheromoneAmount) in PheromoneTrail)
+            foreach (var (allocation, currentPheromoneAmount) in PheromoneStructure)
             {
                 var antsUsingAllocation = ants.Where(ant => ant.Path.Contains(allocation));
 
@@ -74,7 +74,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
                 var delta = antsUsingAllocation.Sum(ant => ant.Makespan.Inverse());
                 var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta;
 
-                if (!PheromoneTrail.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
+                if (!PheromoneStructure.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {allocation}");
             }
         }

@@ -24,7 +24,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
 
         public DisjunctiveGraphModel DisjunctiveGraph { get; private set; }
 
-        public IPheromoneTrail<Orientation> PheromoneTrail { get; protected set; }
+        public IPheromoneStructure<Orientation> PheromoneStructure { get; protected set; }
 
         public IFlexibleJobShopSchedulingSolver WithLogger(ILogger logger, bool with = false)
         {
@@ -43,11 +43,11 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
 
         protected void SetInitialPheromoneAmount(double amount)
         {
-            PheromoneTrail = solveApproach.CreatePheromoneTrail<Orientation>();
+            PheromoneStructure = solveApproach.CreatePheromoneTrail<Orientation>();
 
             foreach (var disjunction in DisjunctiveGraph.Disjunctions)
                 foreach (var orientation in disjunction.Orientations)
-                    if (!PheromoneTrail.TryAdd(orientation, amount))
+                    if (!PheromoneStructure.TryAdd(orientation, amount))
                         Log($"Error on adding pheromone over {orientation}");
         }
 

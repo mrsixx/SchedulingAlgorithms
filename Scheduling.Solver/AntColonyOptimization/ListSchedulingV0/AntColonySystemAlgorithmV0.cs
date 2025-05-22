@@ -44,7 +44,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
             Parameters.Tau0 = 1.0.DividedBy(instance.OperationCount * instance.UpperBound);
         }
 
-        public IPheromoneTrail<Orientation> PheromoneTrail { get; private set; }
+        public IPheromoneStructure<Orientation> PheromoneStructure { get; private set; }
 
         public DisjunctiveGraphModel DisjunctiveGraph { get; private set; }
 
@@ -116,11 +116,11 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
 
         private void SetInitialPheromoneAmount(double amount)
         {
-            PheromoneTrail = solveApproach.CreatePheromoneTrail<Orientation>();
+            PheromoneStructure = solveApproach.CreatePheromoneTrail<Orientation>();
 
             foreach (var disjunction in DisjunctiveGraph.Disjunctions)
             foreach (var orientation in disjunction.Orientations)
-                if (!PheromoneTrail.TryAdd(orientation, amount))
+                if (!PheromoneStructure.TryAdd(orientation, amount))
                     Log($"Error on adding pheromone over {orientation}");
         }
 
@@ -136,12 +136,12 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
 
             foreach (var orientation in bestGraphEdges)
             {
-                if (orientation is not null && PheromoneTrail.TryGetValue(orientation, out double currentPheromoneAmount))
+                if (orientation is not null && PheromoneStructure.TryGetValue(orientation, out double currentPheromoneAmount))
                 {
                     // new pheromone amount it's a convex combination between currentPheromoneAmount and delta 
                     var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + Parameters.Rho * delta;
 
-                    if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
+                    if (!PheromoneStructure.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                         Log($"Offline Update pheromone failed on {orientation}");
                 }
             }

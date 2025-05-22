@@ -21,7 +21,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
 
         public abstract void DorigosTouch(Instance instance);
 
-        public IPheromoneTrail<Allocation> PheromoneTrail { get; protected set; }
+        public IPheromoneStructure<Allocation> PheromoneStructure { get; protected set; }
 
         public IFlexibleJobShopSchedulingSolver WithLogger(ILogger logger, bool with = false)
         {
@@ -36,12 +36,12 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
 
         protected void SetInitialPheromoneAmount(double amount)
         {
-            PheromoneTrail = solveApproach.CreatePheromoneTrail<Allocation>();
+            PheromoneStructure = solveApproach.CreatePheromoneTrail<Allocation>();
 
             foreach (var job in Instance.Jobs)
                 foreach (var operation in job.Operations)
                     foreach (var machine in operation.EligibleMachines)
-                        if (!PheromoneTrail.TryAdd(new Allocation(operation, machine), amount))
+                        if (!PheromoneStructure.TryAdd(new Allocation(operation, machine), amount))
                             Log($"Error on adding pheromone over O{operation.Id}M{machine.Id}");
         }
 

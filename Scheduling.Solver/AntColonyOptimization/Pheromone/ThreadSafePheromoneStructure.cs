@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 
 namespace Scheduling.Solver.AntColonyOptimization.Pheromone
 {
-    public class ThreadSafePheromoneTrail<TPheromonePoint> : IPheromoneTrail<TPheromonePoint> where TPheromonePoint : notnull
+    public class ThreadSafePheromoneStructure<TPheromonePoint> : IPheromoneStructure<TPheromonePoint> where TPheromonePoint : notnull
     {
         private readonly ConcurrentDictionary<TPheromonePoint, double> _trail = new();
 

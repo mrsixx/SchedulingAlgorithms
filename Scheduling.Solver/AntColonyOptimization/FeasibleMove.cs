@@ -17,7 +17,7 @@ namespace Scheduling.Solver.AntColonyOptimization
                                             ? Disjunction.Orientations[0]
                                             : Disjunction.Orientations[1];
 
-        public double GetPheromoneAmount(IPheromoneTrail<Orientation> trail)
+        public double GetPheromoneAmount(IPheromoneStructure<Orientation> trail)
         {
             if (trail.TryGetValue(DirectedEdge, out var pheromone))
                 return pheromone;

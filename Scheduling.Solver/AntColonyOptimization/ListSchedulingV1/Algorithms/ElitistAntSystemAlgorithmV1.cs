@@ -76,7 +76,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
         {
             var bestSoFarSolution = colony.BestSoFar.ConjunctiveGraph;
             var bestSoFarDelta = colony.BestSoFar.Makespan.Inverse();
-            foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
+            foreach (var (orientation, currentPheromoneAmount) in PheromoneStructure)
             {
                 var antsUsingOrientation = ants.Where(ant => ant.ConjunctiveGraph.Contains(orientation));
 
@@ -85,7 +85,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 var elitistReinforcement = bestSoFarSolution.Contains(orientation) ? bestSoFarDelta : 0;
                 var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta + E * elitistReinforcement;
 
-                if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
+                if (!PheromoneStructure.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {orientation}");
             }
         }

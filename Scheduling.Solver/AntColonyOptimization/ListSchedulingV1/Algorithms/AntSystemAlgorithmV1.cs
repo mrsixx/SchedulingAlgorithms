@@ -68,7 +68,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 
         private void PheromoneUpdate(AntSystemAntV1[] ants)
         {
-            foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
+            foreach (var (orientation, currentPheromoneAmount) in PheromoneStructure)
             {
                 var antsUsingOrientation = ants.Where(ant => ant.ConjunctiveGraph.Contains(orientation));
 
@@ -76,7 +76,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                 var delta = antsUsingOrientation.Sum(ant => ant.Makespan.Inverse());
                 var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta;
 
-                if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
+                if (!PheromoneStructure.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {orientation}");
             }
         }

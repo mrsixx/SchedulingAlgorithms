@@ -98,12 +98,12 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 
             foreach (var orientation in bestGraphEdges)
             {
-                if (orientation is not null && PheromoneTrail.TryGetValue(orientation, out double currentPheromoneAmount))
+                if (orientation is not null && PheromoneStructure.TryGetValue(orientation, out double currentPheromoneAmount))
                 {
                     // new pheromone amount it's a convex combination between currentPheromoneAmount and delta 
                     var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + Parameters.Rho * delta;
 
-                    if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
+                    if (!PheromoneStructure.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                         Log($"Offline Update pheromone failed on {orientation}");
                 }
             }

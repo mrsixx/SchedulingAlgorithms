@@ -100,7 +100,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
                                 .Select(e => e.AssociatedOrientation)
                                 .ToHashSet();
 
-            foreach (var (orientation, currentPheromoneAmount) in PheromoneTrail)
+            foreach (var (orientation, currentPheromoneAmount) in PheromoneStructure)
             {
                 var orientationBelongsToBestGraph = bestGraphEdges.Contains(orientation);
                 // pheromone deposited only by best so far ant
@@ -108,7 +108,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
 
                 var updatedAmount = Math.Max(Math.Min((1 - Parameters.Rho) * currentPheromoneAmount + delta, TauMax), TauMin);
 
-                if (!PheromoneTrail.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
+                if (!PheromoneStructure.TryUpdate(orientation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {orientation}");
             }
         }

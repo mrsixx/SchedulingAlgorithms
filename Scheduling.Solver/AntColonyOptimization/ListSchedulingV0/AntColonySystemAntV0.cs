@@ -112,7 +112,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
 
         public void LocalPheromoneUpdate(Orientation selectedMove)
         {
-            if (!Context.PheromoneTrail.TryGetValue(selectedMove, out double currentPheromoneValue) || !Context.PheromoneTrail.TryUpdate(selectedMove, (1 - Context.Phi) * currentPheromoneValue + Context.Phi * Context.Parameters.Tau0, currentPheromoneValue))
+            if (!Context.PheromoneStructure.TryGetValue(selectedMove, out double currentPheromoneValue) || !Context.PheromoneStructure.TryUpdate(selectedMove, (1 - Context.Phi) * currentPheromoneValue + Context.Phi * Context.Parameters.Tau0, currentPheromoneValue))
                 Console.WriteLine("Unable to decay pheromone after construction step...");
         }
 
@@ -140,7 +140,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
             // create roulette wheel and evaluate greedy move for pseudorandom proportional rule at same time (in O(n))
             foreach (var move in feasibleMoves)
             {
-                var tauXy = move.GetPheromoneAmount(Context.PheromoneTrail); // pheromone amount
+                var tauXy = move.GetPheromoneAmount(Context.PheromoneStructure); // pheromone amount
                 var etaXy = move.Weight.Inverse(); // heuristic information
                 var tauXyAlpha = Math.Pow(tauXy, Context.Parameters.Alpha); // pheromone amount raised to power alpha
                 var etaXyBeta = Math.Pow(etaXy, Context.Parameters.Beta); // heuristic information raised to power beta

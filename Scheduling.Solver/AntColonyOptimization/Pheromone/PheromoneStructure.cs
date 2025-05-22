@@ -1,10 +1,9 @@
-﻿using Scheduling.Core.Graph;
-using Scheduling.Solver.Interfaces;
+﻿using Scheduling.Solver.Interfaces;
 using System.Collections;
 
 namespace Scheduling.Solver.AntColonyOptimization.Pheromone
 {
-    public class PheromoneTrail<TPheromonePoint> : IPheromoneTrail<TPheromonePoint> where TPheromonePoint : notnull
+    public class PheromoneStructure<TPheromonePoint> : IPheromoneStructure<TPheromonePoint> where TPheromonePoint : notnull
     {
         private readonly Dictionary<TPheromonePoint, double> _trail = [];
 

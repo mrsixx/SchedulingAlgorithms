@@ -28,7 +28,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
             Colony<RankBasedAntSystemAntV2> colony = new();
             colony.Watch.Start();
             SetInitialPheromoneAmount(Parameters.Tau0);
-            Log($"Depositing {Parameters.Tau0} pheromone units over {PheromoneTrail.Count()} machine-operation pairs...");
+            Log($"Depositing {Parameters.Tau0} pheromone units over {PheromoneStructure.Count()} machine-operation pairs...");
             for (int i = 0; i < Parameters.Iterations; i++)
             {
                 var currentIteration = i + 1;
@@ -69,7 +69,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
             var size = Math.Max(1, Math.Min(RankSize, ants.Length)); // ensures that size is an int between 1 and ants.Length
             var topAnts = ants.OrderBy(a => a.Makespan).Take(size-1).ToArray();
             var bestSolutionPath = colony.BestSoFar.Path;
-            foreach (var (allocation, currentPheromoneAmount) in PheromoneTrail)
+            foreach (var (allocation, currentPheromoneAmount) in PheromoneStructure)
             {
                 // if using allocation, increase is proportional rank position and quality
                 var delta = topAnts.Select((ant, rank) =>
@@ -81,7 +81,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
                 var deltaOpt = allocationBelongsToBestScheduling ? colony.BestSoFar.Makespan.Inverse() : 0;
                 var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta + RankSize * deltaOpt;
 
-                if (!PheromoneTrail.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
+                if (!PheromoneStructure.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {allocation}");
             }
         }

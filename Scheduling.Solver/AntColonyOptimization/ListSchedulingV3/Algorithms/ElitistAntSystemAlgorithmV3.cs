@@ -36,7 +36,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
             Colony<ElitistAntSystemAntV3> colony = new();
             colony.Watch.Start();
             SetInitialPheromoneAmount(Parameters.Tau0);
-            Log($"Depositing {Parameters.Tau0} pheromone units over {PheromoneTrail.Count()} disjunctions...");
+            Log($"Depositing {Parameters.Tau0} pheromone units over {PheromoneStructure.Count()} disjunctions...");
             for (int i = 0; i < Parameters.Iterations; i++)
             {
                 var currentIteration = i + 1;
@@ -76,7 +76,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
         {
             var bestSoFarSolution = colony.BestSoFar.Allocations;
             var bestSoFarDelta = colony.BestSoFar.Makespan.Inverse();
-            foreach (var (allocation, currentPheromoneAmount) in PheromoneTrail)
+            foreach (var (allocation, currentPheromoneAmount) in PheromoneStructure)
             {
                 var antsUsingAllocation = ants.Where(ant => ant.Allocations.Contains(allocation));
 
@@ -85,7 +85,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
                 var elitistReinforcement = bestSoFarSolution.Contains(allocation) ? bestSoFarDelta : 0;
                 var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + delta + E * elitistReinforcement;
 
-                if (!PheromoneTrail.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
+                if (!PheromoneStructure.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {allocation}");
             }
         }

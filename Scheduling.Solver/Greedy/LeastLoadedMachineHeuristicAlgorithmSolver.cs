@@ -24,7 +24,7 @@ namespace Scheduling.Solver.Greedy
             solution.Watch.Start();
             
             // creating data structures
-            Log($"Starting greedy algorithm");
+            Log($"Starting LLM algorithm");
             var unscheduledJobOperations = new Dictionary<Job, LinkedListNode<Operation>>();
             var loadingSequence = new Dictionary<Machine, LinkedList<Operation>>();
             instance.Jobs.ForEach(job => unscheduledJobOperations.Add(job, job.Operations.First));
@@ -61,7 +61,7 @@ namespace Scheduling.Solver.Greedy
             }
             solution.Watch.Stop();
             Log($"Solution found after {solution.Watch.Elapsed}.");
-            Log("\nFinishing execution...");
+            Log("\nFinishing LLM execution...");
 
             // creating mu function
             foreach (var (m, operations) in loadingSequence)

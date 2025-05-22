@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Scheduling.Solver.AntColonyOptimization.IterativeSolveApproach" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAIAAAgAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\IterativeSolveApproach.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ParallelSolveApproach" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="16.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAIAAAgAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\ParallelSolveApproach.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.Pheromone.PheromoneStructure&lt;TPheromonePoint&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAABgAAAAAAECAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\Pheromone\PheromoneStructure.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.Pheromone.ThreadSafePheromoneStructure&lt;TPheromonePoint&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="15" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAABgAAAAAAACAAAAAAAAEAAAAABAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\Pheromone\ThreadSafePheromoneStructure.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.BaseAnt&lt;TSelf&gt;" Collapsed="true">
+    <Position X="6.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAICAAAAAAAAAAAAAAIAAAAAAAgAAAAABAAABAAAABA=</HashCode>
+      <FileName>AntColonyOptimization\BaseAnt.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.Colony&lt;TAnt&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="15" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEACAAAAAAAAAAiAAAAAAACAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\Colony.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.AntColonyV2AlgorithmSolver&lt;TSelf, TAnt&gt;" Collapsed="true">
+    <Position X="4.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAABIAAAEAAAAAAAAoBAgAAAAAQIAAAgAAAAE=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\AntColonyV2AlgorithmSolver.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.AntV2&lt;TSelf, TContext&gt;" Collapsed="true">
+    <Position X="8" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAJAAAAAAgAAAAJAAAAAAAAAAAgQAAAAQAAAAAAggAA=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\AntV2.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.FeasibleMoveV2" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="16.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEACAAAAAAEAAAAAAAAACAAAAAAAAEAAAAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\FeasibleMoveV2.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.ListSchedulingV2Heuristic&lt;TContext, TAnt&gt;" Collapsed="true">
+    <Position X="15" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\ListSchedulingV2Heuristic.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants.AntColonySystemAntV2" Collapsed="true">
+    <Position X="10.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAAAAAAAgAA=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\Ants\AntColonySystemAntV2.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants.AntSystemAntV2" Collapsed="true">
+    <Position X="5.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\Ants\AntSystemAntV2.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants.ElitistAntSystemAntV2" Collapsed="true">
+    <Position X="3.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\Ants\ElitistAntSystemAntV2.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms.AntColonySystemAlgorithmV2" Collapsed="true">
+    <Position X="1" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAABAAAAEAAAAAAAAIAAAAAAAgAABAAAAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\Algorithms\AntColonySystemAlgorithmV2.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms.AntSystemAlgorithmV2" Collapsed="true">
+    <Position X="3.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAABAAAAEAAAAAAAAIAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\Algorithms\AntSystemAlgorithmV2.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms.MaxMinAntSystemAlgorithmV2" Collapsed="true">
+    <Position X="5.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAABAAAAEAAAAAAAAIAAAAAAAAAAAAEAgAIAA=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\Algorithms\MaxMinAntSystemAlgorithmV2.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms.RankBasedAntSystemAlgorithmV2" Collapsed="true">
+    <Position X="7.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAEAABAAAAEAAAAAAAAIAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\Algorithms\RankBasedAntSystemAlgorithmV2.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants.MaxMinAntSystemAntV2" Collapsed="true">
+    <Position X="12.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\Ants\MaxMinAntSystemAntV2.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Ants.RankBasedAntSystemAntV2" Collapsed="true">
+    <Position X="8" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAA=</HashCode>
+      <FileName>AntColonyOptimization\ListSchedulingV2\Ants\RankBasedAntSystemAntV2.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="Scheduling.Solver.Interfaces.ISolveApproach" Collapsed="true">
+    <Position X="15" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAIAAAgAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Interfaces\ISolveApproach.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Scheduling.Solver.Interfaces.IPheromoneStructure&lt;TKey&gt;" Collapsed="true">
+    <Position X="18.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>Interfaces\IPheromoneStructure.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Scheduling.Solver.Interfaces.IFlexibleJobShopSchedulingSolver" Collapsed="true">
+    <Position X="0.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAIBAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Interfaces\IFlexibleJobShopSchedulingSolver.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Scheduling.Solver.Interfaces.IAntColonyAlgorithm&lt;TPheromonePoint, TAnt&gt;" Collapsed="true">
+    <Position X="0.75" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAgAAAAE=</HashCode>
+      <FileName>Interfaces\IAntColonyAlgorithm.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Scheduling.Solver.Interfaces.IColony&lt;TAnt&gt;" Collapsed="true">
+    <Position X="15" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEACAAAAAAAAAAiAAAAAAACAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>Interfaces\IColony.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Scheduling.Solver.Interfaces.IFjspSolution" Collapsed="true">
+    <Position X="16.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAgAAAIAAAAAAAgAAAAABAAABAAAAAA=</HashCode>
+      <FileName>Interfaces\IFjspSolution.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

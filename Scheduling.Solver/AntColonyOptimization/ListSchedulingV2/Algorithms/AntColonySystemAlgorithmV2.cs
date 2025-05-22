@@ -49,7 +49,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
             Colony<AntColonySystemAntV2> colony = new();
             colony.Watch.Start();
             SetInitialPheromoneAmount(Parameters.Tau0);
-            Log($"Depositing {Parameters.Tau0} pheromone units over {PheromoneTrail.Count()} machine-operation pairs...");
+            Log($"Depositing {Parameters.Tau0} pheromone units over {PheromoneStructure.Count()} machine-operation pairs...");
             for (int i = 0; i < Parameters.Iterations; i++)
             {
                 var currentIteration = i + 1;
@@ -95,12 +95,12 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
             var delta = iterationBestAnt.Makespan.Inverse();
             foreach (var allocation in bestSolutionPath)
             {
-                if (allocation is not null && PheromoneTrail.TryGetValue(allocation, out double currentPheromoneAmount))
+                if (allocation is not null && PheromoneStructure.TryGetValue(allocation, out double currentPheromoneAmount))
                 {
                     // new pheromone amount it's a convex combination between currentPheromoneAmount and delta 
                     var updatedAmount = (1 - Parameters.Rho) * currentPheromoneAmount + Parameters.Rho * delta;
 
-                    if (!PheromoneTrail.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
+                    if (!PheromoneStructure.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
                         Log($"Offline Update pheromone failed on {allocation}");
                 }
             }

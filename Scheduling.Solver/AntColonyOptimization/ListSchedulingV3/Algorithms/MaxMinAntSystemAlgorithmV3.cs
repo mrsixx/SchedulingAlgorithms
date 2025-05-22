@@ -54,7 +54,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
             Colony<MaxMinAntSystemAntV3> colony = new();
             colony.Watch.Start();
             SetInitialPheromoneAmount(TauMax);
-            Log($"Depositing {TauMax} pheromone units over {PheromoneTrail.Count()} disjunctions...");
+            Log($"Depositing {TauMax} pheromone units over {PheromoneStructure.Count()} disjunctions...");
             for (int i = 0; i < Parameters.Iterations; i++)
             {
                 var currentIteration = i + 1;
@@ -95,7 +95,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
         {
             var bestSolution = colony.BestSoFar.Allocations;
 
-            foreach (var (allocation, currentPheromoneAmount) in PheromoneTrail)
+            foreach (var (allocation, currentPheromoneAmount) in PheromoneStructure)
             {
                 var allocationBelongsToBestScheduling = bestSolution.Contains(allocation);
                 // pheromone deposited only by best so far ant
@@ -103,7 +103,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
 
                 var updatedAmount = Math.Max(Math.Min((1 - Parameters.Rho) * currentPheromoneAmount + delta, TauMax), TauMin);
 
-                if (!PheromoneTrail.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
+                if (!PheromoneStructure.TryUpdate(allocation, updatedAmount, currentPheromoneAmount))
                     Log($"Offline Update pheromone failed on {allocation}");
             }
         }

@@ -80,7 +80,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
             // create roulette wheel and evaluate greedy move for pseudorandom proportional rule at same time (in O(n))
             foreach (var move in feasibleMoves)
             {
-                var tauXy = move.GetPheromoneAmount(Context.PheromoneTrail); // pheromone amount
+                var tauXy = move.GetPheromoneAmount(Context.PheromoneStructure); // pheromone amount
                 var etaXy = move.Weight.Inverse(); // heuristic information
                 var tauXyAlpha = Math.Pow(tauXy, Context.Parameters.Alpha); // pheromone amount raised to power alpha
                 var etaXyBeta = Math.Pow(etaXy, Context.Parameters.Beta); // heuristic information raised to power beta
