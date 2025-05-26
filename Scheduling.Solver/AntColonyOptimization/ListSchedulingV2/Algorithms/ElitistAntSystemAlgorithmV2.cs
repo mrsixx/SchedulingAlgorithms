@@ -92,7 +92,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
         {
             ElitistAntSystemAntV2 BugSpawner(int id, int generation) => new(id, generation, this);
 
-            return SolveApproach.Solve(currentIteration, this, BugSpawner);
+            return SolveApproach.LastMarchOfTheAnts(currentIteration, this, BugSpawner);
         }
     }
 }

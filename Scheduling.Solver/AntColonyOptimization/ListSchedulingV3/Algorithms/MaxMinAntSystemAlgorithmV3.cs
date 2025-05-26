@@ -39,7 +39,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
         {
             MaxMinAntSystemAntV3 BugSpawner(int id, int generation) => new(id, generation, this);
 
-            return SolveApproach.Solve(currentIteration, this, BugSpawner);
+            return SolveApproach.LastMarchOfTheAnts(currentIteration, this, BugSpawner);
         }
 
         public override IFjspSolution Solve(Instance instance)

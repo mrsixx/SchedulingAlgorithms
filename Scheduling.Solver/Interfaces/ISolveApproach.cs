@@ -1,4 +1,5 @@
 ﻿using Scheduling.Solver.AntColonyOptimization;
+using System.Collections.Generic;
 
 namespace Scheduling.Solver.Interfaces
 {
@@ -6,7 +7,7 @@ namespace Scheduling.Solver.Interfaces
     {
         IPheromoneStructure<TPheromonePoint> CreatePheromoneTrail<TPheromonePoint>() where TPheromonePoint : notnull;
 
-        TAnt[] Solve<TPheromonePoint, TAnt>(int currentIteration,
+        TAnt[] LastMarchOfTheAnts<TPheromonePoint, TAnt>(int currentIteration,
                     IAntColonyAlgorithm<TPheromonePoint, TAnt> solverContext,
                     Func<int, int, TAnt> bugSpawner) where TAnt : BaseAnt<TAnt>;
     }

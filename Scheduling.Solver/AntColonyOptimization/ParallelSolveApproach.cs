@@ -8,7 +8,7 @@ namespace Scheduling.Solver.AntColonyOptimization
         public IPheromoneStructure<TPheromonePoint> CreatePheromoneTrail<TPheromonePoint>() where TPheromonePoint : notnull 
             => new ThreadSafePheromoneStructure<TPheromonePoint>();
 
-        public TAnt[] Solve<TPheromonePoint, TAnt>(
+        public TAnt[] LastMarchOfTheAnts<TPheromonePoint, TAnt>(
             int currentIteration, 
             IAntColonyAlgorithm<TPheromonePoint, TAnt> solverContext, 
             Func<int, int, TAnt> bugSpawner) where TAnt : BaseAnt<TAnt>

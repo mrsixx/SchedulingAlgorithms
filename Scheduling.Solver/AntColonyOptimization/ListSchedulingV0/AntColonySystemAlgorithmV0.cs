@@ -149,7 +149,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
 
         public AntColonySystemAntV0[] BugsLife(int currentIteration)
         {
-            return SolveApproach.Solve(currentIteration, this, BugSpawner);
+            return SolveApproach.LastMarchOfTheAnts(currentIteration, this, BugSpawner);
         }
         private AntColonySystemAntV0 BugSpawner(int id, int currentIteration) => new(id, currentIteration, this);
     }
