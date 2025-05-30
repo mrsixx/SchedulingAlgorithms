@@ -50,11 +50,11 @@ chmod +x auto_push.sh
 #pipeline execução
 eval "$(ssh-agent -s)" ssh-add /home/matheus.antonio/.ssh/id_ed25519
 
-DIR="runs/teste_push" && mkdir -p "$DIR" && python3 SchedulingAlgorithms/scripts/batch-runner.py "$DIR" "test" | tee "$DIR/.log"
+DIR="runs/6_Fattahi_050525_LSV3" && mkdir -p "$DIR" && python3 SchedulingAlgorithms/scripts/batch-runner.py "$DIR" "6_Fattahi" | tee "$DIR/.log"
 
 
 
 zip -r myarchive.zip my_directory
 
 
-zip releases/scheduler_20250430.zip Scheduling.Console/bin/Release/net8.0/linux-x64/publish/
+zip -r releases/scheduler_20250507.zip Scheduling.Console/bin/Release/net8.0/linux-x64/publish/

@@ -88,19 +88,6 @@ if __name__ == "__main__":
 		'acsv3-p': f'--solver ACSV3 --iterations {iterations} --lazygens {lazygens} --beta 1.4 --parallel',
 	}
 
-	elitSquadV2 = {
-		'rbasv2-p': f'--solver RBASV2 --iterations {iterations} --lazygens {lazygens} --beta 1.4  --parallel',
-		'mmasv2-p': f'--solver MMASV2 --iterations {iterations} --lazygens {lazygens} --beta 1.4 --parallel',
-		'acsv2-i': f'--solver ACSV2 --iterations {iterations} --lazygens {lazygens} --beta 1.4',
-		'acsv2-p': f'--solver ACSV2 --iterations {iterations} --lazygens {lazygens} --beta 1.4 --parallel',
-	}
-
-	elitSquadV3 = {
-		'rbasv3-p': f'--solver RBASV3 --iterations {iterations} --lazygens {lazygens} --beta 1.4  --parallel',
-		'mmasv3-p': f'--solver MMASV3 --iterations {iterations} --lazygens {lazygens} --beta 1.4 --parallel',
-		'acsv3-i': f'--solver ACSV3 --iterations {iterations} --lazygens {lazygens} --beta 1.4',
-		'acsv3-p': f'--solver ACSV3 --iterations {iterations} --lazygens {lazygens} --beta 1.4 --parallel',
-	}
 	approachs = {
 		'greedy': '--solver greedy',
 	}
@@ -113,10 +100,6 @@ if __name__ == "__main__":
 		approachs = {**approachs, **v2}
 	if 'V3' in versions:
 		approachs = {**approachs, **v3}
-	if 'V2SQUAD' in versions:
-		approachs = {**approachs, **elitSquadV2}
-	if 'V3SQUAD' in versions:
-		approachs = {**approachs, **elitSquadV3}
 
 	# endregion
 	
