@@ -57,4 +57,4 @@ DIR="runs/6_Fattahi_050525_LSV3" && mkdir -p "$DIR" && python3 SchedulingAlgorit
 zip -r myarchive.zip my_directory
 
 
-zip -r releases/scheduler_20250507.zip Scheduling.Console/bin/Release/net8.0/linux-x64/publish/
+zip -r releases/scheduler_20250530.zip Scheduling.Console/bin/Release/net8.0/linux-x64/publish/

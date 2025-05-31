@@ -24,7 +24,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
         
         public virtual Dictionary<Machine, Stack<Node>> LoadingSequence { get; } = [];
 
-        public override double Makespan => CompletionTimes[FinalNode.Operation.Id];
+        public override double Makespan => CompletionTimes.Values.Max();
 
         public DisjunctiveGraphModel DisjunctiveGraph => Context.DisjunctiveGraph;
 

@@ -2,7 +2,7 @@ const fs = require('fs');
 var tsort = require('tsort');
 var groupBy = require('lodash.groupby');
 
-const FILENAME = 'Ribeiro3.json';
+const FILENAME = 'RibeiroSuzarte4.json';
 
 function readFile(err, json) {
     if(err) {
@@ -36,7 +36,7 @@ function readFile(err, json) {
         const sort = graph.sort();
         const operationsData = sort.map(o => {
             const maquinasProcesso = maquinasPorProcesso[o];
-            return maquinasProcesso.map(m => [machines.get(m.MaquinaId.toString()),m.TempoProducao]);
+            return maquinasProcesso?.map(m => [machines.get(m.MaquinaId.toString()),m.TempoProducao]) || [];
         });
         return operationsData;
     });
@@ -48,7 +48,7 @@ function readFile(err, json) {
         fim: maiorFim
     });
 
-    fs.writeFile(`${FILENAME}.fjs`, content, (err) => {
+    fs.writeFile(`${FILENAME.replaceAll('.json', '')}.fjs`, content, (err) => {
         if (err)
           console.error(err);
         else
