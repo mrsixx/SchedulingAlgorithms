@@ -10,7 +10,7 @@ namespace Scheduling.Solver.Models
 
         public Dictionary<int, double> CompletionTimes { get; } = [];
 
-        public Dictionary<int, Machine> MachineAssignment { get; } = [];
+        public Dictionary<int, int> MachineAssignment { get; } = [];
 
         public Dictionary<Machine, double> MachineOccupancy {get;} = [];
 

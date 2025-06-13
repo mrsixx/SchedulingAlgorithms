@@ -18,7 +18,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
 
         public virtual Dictionary<Machine, List<Operation>> LoadingSequence { get; } = [];
 
-        public override double Makespan => CompletionTimes.Values.Max();
+        public double Makespan => Solution.Makespan;
 
         public PrecedenceDigraph PrecedenceDigraph => Context.PrecedenceDigraph;
 
@@ -29,8 +29,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
             // Initialize starting and completion times for each operation
             PrecedenceDigraph.VertexSet.ForEach(vertex =>
             {
-                CompletionTimes.Add(vertex.Id, 0);
-                StartTimes.Add(vertex.Id, 0);
+                Solution.CompletionTimes.Add(vertex.Id, 0);
+                Solution.StartTimes.Add(vertex.Id, 0);
             });
 
             // Initialize loading sequences for each machine
@@ -46,18 +46,18 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
             var criticalPredecessor =
                 PrecedenceDigraph
                     .NeighbourhoodIn(selectedMove.Vertex)
-                    .MaxBy(predecessor => CompletionTimes[predecessor.Operation.Id]);
+                    .MaxBy(predecessor => Solution.CompletionTimes[predecessor.Operation.Id]);
 
             var jobReleaseDate = Convert.ToDouble(selectedMove.Operation.Job.ReleaseDate);
 
             var startTime = Math.Max(
-                machinePredecessor != null ? CompletionTimes[machinePredecessor.Id] : 0,
-                criticalPredecessor != null ? CompletionTimes[criticalPredecessor.Operation.Id] : jobReleaseDate
+                machinePredecessor != null ? Solution.CompletionTimes[machinePredecessor.Id] : 0,
+                criticalPredecessor != null ? Solution.CompletionTimes[criticalPredecessor.Operation.Id] : jobReleaseDate
             );
 
             Allocations.Add(selectedMove.Allocation);
-            StartTimes[selectedMove.Operation.Id] = startTime;
-            CompletionTimes[selectedMove.Operation.Id] = startTime + selectedMove.Operation.GetProcessingTime(selectedMove.Machine);
+            Solution.StartTimes[selectedMove.Operation.Id] = startTime;
+            Solution.CompletionTimes[selectedMove.Operation.Id] = startTime + selectedMove.Operation.GetProcessingTime(selectedMove.Machine);
 
             // updating data structures
             LoadingSequence[selectedMove.Machine].Add(selectedMove.Operation);

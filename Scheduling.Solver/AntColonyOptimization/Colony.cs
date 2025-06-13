@@ -12,7 +12,7 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public Dictionary<int, TAnt> IterationBests { get; } = [];
 
-        public TAnt BestSoFar => IterationBests.MinBy(a => a.Value.Makespan).Value;
+        public TAnt BestSoFar => IterationBests.MinBy(a => a.Value.Solution.Makespan).Value;
 
         public int LastProductiveGeneration { get; private set; } = 0;
 
@@ -24,11 +24,11 @@ namespace Scheduling.Solver.AntColonyOptimization
             {
                 IterationBests.TryAdd(ant.Generation, ant);
 
-                if (ant.Makespan < IterationBests[ant.Generation].Makespan)
+                if (ant.Solution.Makespan < IterationBests[ant.Generation].Solution.Makespan)
                     IterationBests[ant.Generation] = ant;
 
                 var hasBestSolution = EmployeeOfTheMonth is not null;
-                var antFoundBetterPath = ant.Makespan < EmployeeOfTheMonth?.Makespan;
+                var antFoundBetterPath = ant.Solution.Makespan < EmployeeOfTheMonth?.Solution.Makespan;
                 if (hasBestSolution && !antFoundBetterPath) continue;
 
                 EmployeeOfTheMonth = ant;

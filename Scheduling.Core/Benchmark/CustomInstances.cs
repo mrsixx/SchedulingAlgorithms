@@ -40,9 +40,9 @@ namespace Scheduling.Core.Benchmark
 
             o3.EligibleMachines.AddRange(pool4);
 
-            job1.Operations.AddRange([o1, o2, o3]);
-            job2.Operations.AddRange([o4, o5]);
-            job3.Operations.AddRange([o6, o7, o8]);
+            //job1.Operations.AddRange([o1, o2, o3]);
+            //job2.Operations.AddRange([o4, o5]);
+            //job3.Operations.AddRange([o6, o7, o8]);
 
             var jobs = new List<Job> { job1, job2, job3 };
             return jobs;

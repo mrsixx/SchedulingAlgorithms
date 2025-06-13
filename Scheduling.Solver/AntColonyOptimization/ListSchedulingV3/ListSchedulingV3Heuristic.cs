@@ -40,7 +40,9 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
             // creating mu function
             foreach (var (m, operations) in ant.LoadingSequence)
                 foreach (var o in operations)
-                    ant.MachineAssignment.Add(o.Id, m);
+                    ant.Solution.MachineAssignment.Add(o.Id, m.Index);
+
+            ant.ImprovedSolution = ant.Solution;
         }
 
         private static void ReleaseVertexSuccessors(TAnt ant, OperationVertex u, Dictionary<OperationVertex, int> vertexCounters, HashSet<OperationVertex> scheduledNodes, HashSet<OperationVertex> unscheduledNodes)
@@ -53,5 +55,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
                         unscheduledNodes.Add(v);
                 });
         }
+
+
     }
 }

@@ -10,14 +10,14 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
             Instance = instance;
             foreach (var job in instance.Jobs)
             {
-                var previous = job.Operations.First;
-                while (previous is not null)
+                var previous = job.Operations[0];
+                var operationsLength = job.Operations.Length;
+                for (var i = 1; i < operationsLength; i++)
                 {
-                    var current = previous.Next;
-                    if (current is not null)
-                        AddArc(
-                            new PrecedenceArc(new(previous.Value), new(current.Value))
-                        );
+                    var current = job.Operations[i];
+                    AddArc(
+                        new PrecedenceArc(new(previous), new(current))
+                    );
                     previous = current;
                 }
             }

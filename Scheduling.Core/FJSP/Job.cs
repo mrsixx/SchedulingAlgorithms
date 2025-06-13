@@ -6,6 +6,6 @@
 
         public long ReleaseDate { get; set; }
 
-        public LinkedList<Operation> Operations { get; } = [];
+        public Operation[] Operations { get; set; } = [];
     }
 }

@@ -1,5 +1,4 @@
-﻿using Scheduling.Core.Benchmark;
-using Scheduling.Core.Extensions;
+﻿using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Graph;
 using Scheduling.Core.Interfaces;
@@ -29,14 +28,14 @@ namespace Scheduling.Core.Services
                 // 1st operation of each job linked with source
                 Node previousNode = graph.Source;
                 Operation? previousOperation = null;
-                var currentOperation = job.Operations.First;
-                while (currentOperation is not null)
+                var currentOperation = job.Operations[0];
+                var operationsLength = job.Operations.Length;
+                for (int i = 0; i < operationsLength; i++)
                 {
-                    var operationNode = new Node(currentOperation.Value);
+                    var operationNode = new Node(job.Operations[i]);
                     graph.AddVertex(operationNode);
                     graph.AddConjunction(previousNode, operationNode);
                     previousNode = operationNode;
-                    currentOperation = currentOperation.Next;
                 }
 
                 //last operation of each job linked with sink

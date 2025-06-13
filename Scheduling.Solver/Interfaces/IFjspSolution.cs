@@ -19,7 +19,7 @@ namespace Scheduling.Solver.Interfaces
         /// <summary>
         /// Machine Assignment by operation Id
         /// </summary>
-        Dictionary<int, Machine> MachineAssignment { get; }
+        Dictionary<int, int> MachineAssignment { get; }
 
         public Stopwatch Watch { get; }
 

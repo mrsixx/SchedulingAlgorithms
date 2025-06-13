@@ -1,6 +1,8 @@
 ﻿using Scheduling.Core.FJSP;
 using Scheduling.Core.Extensions;
 using Scheduling.Solver.Interfaces;
+using Scheduling.Solver.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
 {
@@ -21,10 +23,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
 
         public HashSet<Allocation> Path { get; } = [];
 
-        public  Dictionary<Machine, List<Operation>> LoadingSequence { get; } = [];
-
-        //TODO: cache this        
-        public override double Makespan => CompletionTimes.Any() ? CompletionTimes.MaxBy(c => c.Value).Value : 0;
+        public double Makespan => Solution.Makespan;
 
         public override void Log()
         {
@@ -83,26 +82,29 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
                 candidateNode.EligibleMachines.Select(m => new FeasibleMoveV2(candidateNode, m)));
         }
 
-        public void EvaluateCompletionTime(FeasibleMoveV2 selectedMove, LinkedListNode<Operation> operationLinkedListNode)
+        public void EvaluateCompletionTime(AntSolution antSolution, Allocation selectedMove)
         {
             // evaluate start e completion times
-            var machinePredecessor = LoadingSequence[selectedMove.Machine].LastOrDefault();
+            var machinePredecessor = antSolution.LoadingSequence[selectedMove.Machine.Index].LastOrDefault();
 
 
-            var jobPredecessor = operationLinkedListNode.Previous;
+            var jobPredecessor = !selectedMove.Operation.FirstOperation 
+                ? selectedMove.Operation.Job.Operations[selectedMove.Operation.Index - 1] 
+                : null;
+
             var jobReleaseDate = Convert.ToDouble(selectedMove.Operation.Job.ReleaseDate);
 
             var startTime = Math.Max(
-                machinePredecessor != null ? CompletionTimes[machinePredecessor.Id] : 0,
-                jobPredecessor != null ? CompletionTimes[jobPredecessor.Value.Id] : jobReleaseDate
+                machinePredecessor != null ? antSolution.CompletionTimes[machinePredecessor.Id] : 0,
+                jobPredecessor != null ? antSolution.CompletionTimes[jobPredecessor.Id] : jobReleaseDate
             );
 
-            Path.Add(selectedMove.Allocation);
-            StartTimes.TryAdd(selectedMove.Operation.Id, startTime);
-            CompletionTimes.TryAdd(selectedMove.Operation.Id, startTime + selectedMove.Operation.GetProcessingTime(selectedMove.Machine));
+            Path.Add(selectedMove);
+            antSolution.StartTimes.TryAdd(selectedMove.Operation.Id, startTime);
+            antSolution.CompletionTimes.TryAdd(selectedMove.Operation.Id, startTime + selectedMove.Operation.GetProcessingTime(selectedMove.Machine));
 
             // updating data structures
-            LoadingSequence[selectedMove.Machine].Add(selectedMove.Operation);
+            antSolution.LoadingSequence[selectedMove.Machine.Index].Add(selectedMove.Operation);
         }
     }
 }

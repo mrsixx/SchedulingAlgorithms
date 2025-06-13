@@ -188,7 +188,7 @@ namespace Scheduling.Tests
                 {
                     Assert.True(solution.MachineAssignment.ContainsKey(operation.Id), $"Restriction 0 was violated: No machine allocation for operation {operation.Id}");
                     var allocation = solution.MachineAssignment[operation.Id];
-                    Assert.True(operation.EligibleMachines.Contains(allocation), $"Restriction 0 was violated: Forbiden allocation for {operation.Id}");
+                    Assert.True(operation.EligibleMachines.Any(m => m.Index == allocation), $"Restriction 0 was violated: Forbiden allocation for {operation.Id}");
                 }
             }
         }
@@ -242,7 +242,7 @@ namespace Scheduling.Tests
 
             foreach (var machine in instance.Machines)
             {
-                var operations = solution.MachineAssignment.Where(mu => mu.Value == machine).Select(mu => mu.Key);
+                var operations = solution.MachineAssignment.Where(mu => mu.Value == machine.Index).Select(mu => mu.Key);
 
                 foreach (var o1 in operations)
                 {

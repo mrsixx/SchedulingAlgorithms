@@ -24,7 +24,7 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
         
         public virtual Dictionary<Machine, Stack<Node>> LoadingSequence { get; } = [];
 
-        public override double Makespan => CompletionTimes.Values.Max();
+        public double Makespan => Solution.Makespan;
 
         public DisjunctiveGraphModel DisjunctiveGraph => Context.DisjunctiveGraph;
 
@@ -37,8 +37,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
             // Initialize starting and completion times for each operation
             DisjunctiveGraph.Vertices.ToList().ForEach(node =>
             {
-                CompletionTimes.Add(node.Operation.Id, 0);
-                StartTimes.Add(node.Operation.Id, 0);
+                Solution.CompletionTimes.Add(node.Operation.Id, 0);
+                Solution.StartTimes.Add(node.Operation.Id, 0);
             });
             // Initialize loading sequences for each machine
             DisjunctiveGraph.Machines.ForEach(machine =>
@@ -57,15 +57,15 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
             //se a primeira operação do job, start time tem que ser maior ou igual release date, 
             var jobCompletionTime = jobPredecessorNode.Equals(StartNode)
                                                 ? node.Operation.Job.ReleaseDate  // release date if it's first operation
-                                                : CompletionTimes[jobPredecessorNode.Operation.Id]; // else it's predecessor completionTime
-            var machineCompletionTime = CompletionTimes[machinePredecessorNode.Operation.Id];
+                                                : Solution.CompletionTimes[jobPredecessorNode.Operation.Id]; // else it's predecessor completionTime
+            var machineCompletionTime = Solution.CompletionTimes[machinePredecessorNode.Operation.Id];
             var processingTime = node.Operation.GetProcessingTime(machine);
 
             // update loading sequence, starting and completion times
-            StartTimes[node.Operation.Id] = Math.Max(machineCompletionTime, jobCompletionTime);
-            CompletionTimes[node.Operation.Id] = StartTimes[node.Operation.Id] + processingTime;
+            Solution.StartTimes[node.Operation.Id] = Math.Max(machineCompletionTime, jobCompletionTime);
+            Solution.CompletionTimes[node.Operation.Id] = Solution.StartTimes[node.Operation.Id] + processingTime;
             LoadingSequence[machine].Push(node);
-            if (!MachineAssignment.TryAdd(node.Operation.Id, machine))
+            if (!Solution.MachineAssignment.TryAdd(node.Operation.Id, machine.Index))
                 throw new Exception($"Machine already assigned to this operation");
 
             ConjunctiveGraph.AddConjunctionAndVertices(selectedMove);
@@ -121,15 +121,15 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
             foreach (var sink in sinks)
             {
                 if (sink.Equals(FinalNode)) continue;
-                var machine = MachineAssignment[sink.Operation.Id];
+                var machine = Solution.MachineAssignment[sink.Operation.Id];
 
                 Disjunction disjunction = sink.IncidentDisjunctions.First(
-                    d => d.Machine.Equals(machine) && d.Other(sink).Equals(FinalNode)
+                    d => d.Machine.Index == machine && d.Other(sink).Equals(FinalNode)
                 );
 
                 var orientation = disjunction.Orientations.First(c => c.Target == FinalNode);
                 ConjunctiveGraph.AddConjunctionAndVertices(orientation);
-                CompletionTimes[FinalNode.Operation.Id] = Math.Max(CompletionTimes[FinalNode.Operation.Id], CompletionTimes[sink.Operation.Id]);
+                Solution.CompletionTimes[FinalNode.Operation.Id] = Math.Max(Solution.CompletionTimes[FinalNode.Operation.Id], Solution.CompletionTimes[sink.Operation.Id]);
             }
         }
 

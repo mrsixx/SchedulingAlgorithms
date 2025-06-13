@@ -18,8 +18,8 @@ namespace Scheduling.Benchmarks
 
             var machines = Enumerable
                 .Range(1, reader.MachineCount)
-                .Select(machineId => new Machine(machineId))
-                .ToList();
+                .Select(machineId => new Machine(machineId){Index = machineId-1})
+                .ToArray();
 
             var jobs = Enumerable
                 .Range(1, reader.JobCount)
@@ -27,7 +27,8 @@ namespace Scheduling.Benchmarks
                 {
                     Job job = new(jobId);
                     var opCount = reader.JobOperationCount[jobIdx];
-                    var operations = Enumerable.Range(0, opCount).Select((opIdx) =>
+                    job.Operations = new Operation[opCount];
+                    Enumerable.Range(0, opCount).ForEach((opIdx) =>
                     {
                         var oId = reader.OperationId[jobIdx][opIdx] + 1;
                         long[] processingTimes = reader.ProcessingTime[oId - 1];
@@ -41,12 +42,12 @@ namespace Scheduling.Benchmarks
                         Operation operation = new(oId, dict)
                         {
                             JobId = jobId,
-                            Job = job
+                            Job = job,
+                            Index = opIdx
                         };
                         operation.EligibleMachines.AddRange(eligibleMachines);
-                        return operation;
+                        job.Operations[opIdx] = operation;
                     });
-                    job.Operations.AddRange(operations);
                     return job;
                 })
                 .ToList();

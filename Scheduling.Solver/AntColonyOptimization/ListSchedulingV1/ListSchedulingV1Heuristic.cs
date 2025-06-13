@@ -37,7 +37,9 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1
                 });
             }
 
+            ant.ImprovedSolution = ant.Solution;
             ant.SinksToSink();
+
         }
     }
 }

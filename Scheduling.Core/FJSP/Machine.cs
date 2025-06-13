@@ -5,6 +5,7 @@ namespace Scheduling.Core.FJSP
     {
         public int Id { get; set; } = id;
 
+        public int Index { get; init; }
         public override int GetHashCode() => Id;
 
         public override bool Equals(object obj) {

@@ -34,11 +34,12 @@ namespace Scheduling.Tests
             // subsequent operations turns into conjunctions
             foreach (var job in instance.Jobs)
             {
-                var operation = job.Operations.First;
-                while (operation.Next is not null)
+                var operationsLength = job.Operations.Length;
+                for (int i = 1; i < operationsLength; i++)
                 {
-                    Assert.True(disjunctiveGraphModel.HasConjunction(operation.Value.Id, operation.Next.Value.Id));
-                    operation = operation.Next;
+                    var previousOperation = job.Operations[i - 1];
+                    var currentOperation = job.Operations[i];
+                    Assert.True(disjunctiveGraphModel.HasConjunction(previousOperation.Id, currentOperation.Id));
                 }
             }
         }
@@ -71,7 +72,7 @@ namespace Scheduling.Tests
             var pool2 = new List<Machine> { new(3) };
             var pool3 = new List<Machine> { new(4), new(5) };
             var pool4 = new List<Machine> { new(6) };
-            List<Machine> machines = [.. pool1, .. pool2, .. pool3, .. pool4];
+            Machine[] machines = [.. pool1, .. pool2, .. pool3, .. pool4];
             machines.ForEach(setWeight);
 
             Job job1 = new(1), job2 = new(2), job3 = new(3);
@@ -91,9 +92,9 @@ namespace Scheduling.Tests
 
             o3.EligibleMachines.AddRange(pool4);
 
-            job1.Operations.AddRange([o1, o2, o3]);
-            job2.Operations.AddRange([o4, o5]);
-            job3.Operations.AddRange([o6, o7, o8]);
+            //job1.Operations.AddRange([o1, o2, o3]);
+            //job2.Operations.AddRange([o4, o5]);
+            //job3.Operations.AddRange([o6, o7, o8]);
 
             var jobs = new List<Job> { job1, job2, job3 };
 

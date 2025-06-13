@@ -25,11 +25,11 @@ namespace Scheduling.Solver.Greedy
             
             // creating data structures
             Log($"Starting LLM algorithm");
-            var unscheduledJobOperations = new Dictionary<Job, LinkedListNode<Operation>>();
-            var loadingSequence = new Dictionary<Machine, LinkedList<Operation>>();
-            instance.Jobs.ForEach(job => unscheduledJobOperations.Add(job, job.Operations.First));
+            var unscheduledJobOperations = new Dictionary<Job, Operation>();
+            var loadingSequence = new Dictionary<Machine, List<Operation>>();
+            instance.Jobs.ForEach(job => unscheduledJobOperations.Add(job, job.Operations[0]));
             instance.Machines.ForEach(m => {
-                loadingSequence.Add(m, new LinkedList<Operation>());
+                loadingSequence.Add(m, new List<Operation>());
                 solution.MachineOccupancy.Add(m, 0);
             });
 
@@ -38,26 +38,26 @@ namespace Scheduling.Solver.Greedy
                 var (operation, machine) = GetGreedyMachineAllocation(unscheduledJobOperations, solution);
 
                 // evaluate start e completion times
-                var machinePredecessor = loadingSequence[machine].Last;
-                var jobPredecessor = operation.Previous;
-                var jobReleaseDate = Convert.ToDouble(operation.Value.Job.ReleaseDate);
+                var machinePredecessor = loadingSequence[machine].LastOrDefault();
+                var jobPredecessor = !operation.FirstOperation ? operation.Job.Operations[operation.Index - 1] : null;
+                var jobReleaseDate = Convert.ToDouble(operation.Job.ReleaseDate);
 
                 var startTime = Math.Max(
-                    machinePredecessor != null ? solution.CompletionTimes[machinePredecessor.Value.Id] : 0,
-                    jobPredecessor != null ? solution.CompletionTimes[jobPredecessor.Value.Id] : jobReleaseDate
+                    machinePredecessor != null ? solution.CompletionTimes[machinePredecessor.Id] : 0,
+                    jobPredecessor != null ? solution.CompletionTimes[jobPredecessor.Id] : jobReleaseDate
                 );
 
-                solution.StartTimes.TryAdd(operation.Value.Id, startTime);
-                solution.CompletionTimes.TryAdd(operation.Value.Id, startTime + operation.Value.GetProcessingTime(machine));
+                solution.StartTimes.TryAdd(operation.Id, startTime);
+                solution.CompletionTimes.TryAdd(operation.Id, startTime + operation.GetProcessingTime(machine));
 
                 // updating data structures
-                loadingSequence[machine].AddLast(operation.Value);
-                solution.MachineOccupancy[machine] += operation.Value.GetProcessingTime(machine);
+                loadingSequence[machine].Add(operation);
+                solution.MachineOccupancy[machine] += operation.GetProcessingTime(machine);
 
-                if (operation.Next is null)
-                    unscheduledJobOperations.Remove(operation.Value.Job);
+                if (operation.LastOperation)
+                    unscheduledJobOperations.Remove(operation.Job);
                 else
-                    unscheduledJobOperations[operation.Value.Job] = operation.Next;
+                    unscheduledJobOperations[operation.Job] = operation.Job.Operations[operation.Index + 1];
             }
             solution.Watch.Stop();
             Log($"Solution found after {solution.Watch.Elapsed}.");
@@ -66,18 +66,18 @@ namespace Scheduling.Solver.Greedy
             // creating mu function
             foreach (var (m, operations) in loadingSequence)
                 foreach (var o in operations)
-                    solution.MachineAssignment.Add(o.Id, m);
+                    solution.MachineAssignment.Add(o.Id, m.Index);
 
             return solution;
         }
 
-        private (LinkedListNode<Operation>, Machine) GetGreedyMachineAllocation(Dictionary<Job, LinkedListNode<Operation>> unscheduledJobOperations, GreedySolution solution)
+        private (Operation, Machine) GetGreedyMachineAllocation(Dictionary<Job, Operation> unscheduledJobOperations, GreedySolution solution)
         {
             var candidateAllocations = unscheduledJobOperations.Values
-                                                        .SelectMany(operation => operation.Value.EligibleMachines
+                                                        .SelectMany(operation => operation.EligibleMachines
                                                                             .Select(machine => (operation, machine)));
             return candidateAllocations.MinBy(om =>
-                solution.MachineOccupancy[om.machine] + om.operation.Value.GetProcessingTime(om.machine)
+                solution.MachineOccupancy[om.machine] + om.operation.GetProcessingTime(om.machine)
             );
         }
     }

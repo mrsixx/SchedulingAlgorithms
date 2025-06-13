@@ -10,7 +10,13 @@
 
         public int JobId { get; set; }
 
+        public int Index { get; set; }
+
         public Job Job { get; init; }
+
+        public bool FirstOperation => Index < 1;
+
+        public bool LastOperation => Index + 1 >= Job.Operations.Length;
 
         private Dictionary<Machine, long> ProcessingTimes { get; } = processingTimes;
 

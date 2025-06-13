@@ -1,4 +1,5 @@
 ﻿using Scheduling.Core.FJSP;
+using Scheduling.Solver.Models;
 
 namespace Scheduling.Solver.AntColonyOptimization
 {
@@ -8,13 +9,9 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public int Generation { get; init; }
 
-        public virtual Dictionary<int, Machine> MachineAssignment { get; } = [];
+        public AntSolution Solution { get; set; } = new AntSolution();
 
-        public virtual Dictionary<int, double> CompletionTimes { get; } = [];
-
-        public virtual Dictionary<int, double> StartTimes { get; } = [];
-
-        public abstract double Makespan { get; }
+        public AntSolution? ImprovedSolution { get; set; } = null;
 
         public abstract void WalkAround();
 
