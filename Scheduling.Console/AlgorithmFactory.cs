@@ -15,7 +15,12 @@ namespace Scheduling.Console
         public IFlexibleJobShopSchedulingSolver GetSolverAlgorithm()
         {
             ISolveApproach solveApproach = Arguments.UseParallelApproach ? new ParallelSolveApproach() : new IterativeSolveApproach();
-            Parameters parameters = new Parameters(args.Alpha, args.Beta, args.Rho, args.Tau0, args.Ants, args.Iterations, args.AllowedStagnantGenerations);
+            Parameters parameters = new Parameters(
+                args.Alpha, args.Beta, args.Rho, 
+                args.Tau0, args.Ants, args.Iterations, 
+                args.AllowedStagnantGenerations, args.DisableLocalSearch, args.EnableDorigosTouch
+            );
+
             switch (args.SolverName.ToLowerInvariant().Trim())
             {
                 case "asv1":

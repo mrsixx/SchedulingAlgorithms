@@ -50,7 +50,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV1.Algorithms
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
             Log($"Starting MMASV1 algorithm with following parameters:");
-            DorigosTouch(instance);
+            if (Parameters.EnableDorigosTouch)
+                DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Min pheromone = {TauMin}; Max pheromone = {TauMax}.");
             Stopwatch iSw = new();
             Colony<MaxMinAntSystemAntV1> colony = new();

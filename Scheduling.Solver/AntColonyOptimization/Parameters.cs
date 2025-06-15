@@ -1,4 +1,6 @@
-﻿namespace Scheduling.Solver.AntColonyOptimization
+﻿using System.Runtime.InteropServices;
+
+namespace Scheduling.Solver.AntColonyOptimization
 {
     public record Parameters(
         double alpha,
@@ -7,7 +9,9 @@
         double tau0,
         int ants,
         int iterations,
-        int stagnantGenerationsAllowed)
+        int stagnantGenerationsAllowed,
+        bool disableLocalSearch,
+        bool enableDorigosTouch)
     {
         /// <summary>
         /// Weight of pheromone factor constant
@@ -44,5 +48,15 @@
         /// How long should ants continue without improving the solution
         /// </summary>
         public int StagnantGenerationsAllowed { get; init; } = stagnantGenerationsAllowed;
+
+        /// <summary>
+        /// Disable Local Search
+        /// </summary>
+        public bool DisableLocalSearch { get; init; } = disableLocalSearch;
+
+        /// <summary>
+        /// Enable Dorigo's Parametrization
+        /// </summary>
+        public bool EnableDorigosTouch { get; init; } = enableDorigosTouch;
     }
 }

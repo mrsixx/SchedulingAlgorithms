@@ -42,7 +42,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms
             Log($"Creating disjunctive graph...");
             CreatePrecedenceDigraph(instance);
             Log($"Starting ACSV3 algorithm with following parameters:");
-            DorigosTouch(instance);
+            if (Parameters.EnableDorigosTouch)
+                DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Phi= {Phi}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<AntColonySystemAntV3> colony = new();

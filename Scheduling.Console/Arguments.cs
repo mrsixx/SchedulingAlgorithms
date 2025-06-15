@@ -4,6 +4,8 @@ namespace Scheduling.Console
 {
     internal class Arguments
     {
+        #region Solver 
+        
         [Option('i', "input", Required = true, HelpText = "Instance file path.")]
         public string InstanceFile { get; set; } = "";
 
@@ -15,6 +17,32 @@ namespace Scheduling.Console
 
         [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
         public bool Verbose { get; set; }
+
+        [Option("parallel", Required = false, HelpText = "Use parallel approach to solve.")]
+        public bool UseParallelApproach { get; set; }
+
+        [Option("disable-local-search", Required = false, HelpText = "Disable local search.")]
+        public bool DisableLocalSearch { get; set; }
+        
+        [Option("enable-dorigos-touch", Required = false, HelpText = "Enable Dorigo's parametrization.")]
+        public bool EnableDorigosTouch { get; set; }
+
+        [Option("runs", Required = false, HelpText = "# of algorithm runs.")]
+        public int Runs { get; set; } = 1;
+
+        [Option("ants", Required = false, HelpText = "ACO: Number of ants.")]
+        public int Ants { get; set; } = 300;
+
+        [Option("iterations", Required = false, HelpText = "ACO: Number of iterations.")]
+        public int Iterations { get; set; } = 100;
+
+        [Option("lazygens", Required = false, HelpText = "ACO: Number of allowed stagnant generations.")]
+        public int AllowedStagnantGenerations { get; set; } = 20;
+
+        #endregion
+
+
+        #region Hiperparameters 
 
         [Option("alpha", Required = false, HelpText = "ACO: Alpha parameter.")]
         public double Alpha { get; set; } = 0.9;
@@ -43,22 +71,6 @@ namespace Scheduling.Console
         [Option("taumin", Required = false, HelpText = "MMAS: Min pheromone amount.")]
         public double TauMin { get; set; } = 0.001;
 
-        [Option("ants", Required = false, HelpText = "ACO: Number of ants.")]
-        public int Ants { get; set; } = 300;
-
-        [Option("iterations", Required = false, HelpText = "ACO: Number of iterations.")]
-        public int Iterations { get; set; } = 100;
-
-        [Option("lazygens", Required = false, HelpText = "ACO: Number of allowed stagnant generations.")]
-        public int AllowedStagnantGenerations { get; set; } = 20;
-
-        [Option("parallel", Required = false, HelpText = "Use parallel approach to solve.")]
-        public bool UseParallelApproach { get; set; }
-
-        [Option("debug", Required = false, HelpText = "Enable debug.")]
-        public bool EnableDebug { get; set; }
-
-        [Option("runs", Required = false, HelpText = "# of algorithm runs.")]
-        public int Runs { get; set; } = 1;
+        #endregion
     }
 }

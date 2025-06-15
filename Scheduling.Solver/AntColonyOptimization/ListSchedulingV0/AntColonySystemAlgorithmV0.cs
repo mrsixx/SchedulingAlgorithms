@@ -62,7 +62,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
             Log($"Creating disjunctive graph...");
             CreateDisjunctiveGraphModel(instance);
             Log($"Starting ACS algorithm with following parameters:");
-            DorigosTouch(instance);
+            if (Parameters.EnableDorigosTouch) 
+                DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Phi= {Phi}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<AntColonySystemAntV0> colony = new();

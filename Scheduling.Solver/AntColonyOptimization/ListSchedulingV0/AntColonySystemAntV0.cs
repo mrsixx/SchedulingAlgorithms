@@ -62,8 +62,6 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV0
                 RemainingNodes.Remove(selectedMove.Target);
             }
             LinkinToSink();
-
-            ImprovedSolution = Solution;
         }
 
         public override void Log()

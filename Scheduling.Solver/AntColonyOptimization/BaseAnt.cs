@@ -11,7 +11,9 @@ namespace Scheduling.Solver.AntColonyOptimization
 
         public AntSolution Solution { get; set; } = new AntSolution();
 
-        public AntSolution? ImprovedSolution { get; set; } = null;
+        //public AntSolution? ImprovedSolution { get; set; } = null;
+
+        public AntSolution? NonImprovedSolution { get; set; } = null;
 
         public abstract void WalkAround();
 

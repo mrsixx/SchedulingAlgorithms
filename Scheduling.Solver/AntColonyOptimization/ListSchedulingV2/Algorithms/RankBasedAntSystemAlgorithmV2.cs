@@ -22,7 +22,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
         {
             Instance = instance;
             Log($"Starting RBASV2 algorithm with following parameters:");
-            DorigosTouch(instance);
+            if (Parameters.EnableDorigosTouch)
+                DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Rank size = {RankSize}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<RankBasedAntSystemAntV2> colony = new();

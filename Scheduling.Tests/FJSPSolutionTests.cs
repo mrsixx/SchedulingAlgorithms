@@ -22,7 +22,7 @@ namespace Scheduling.Tests
         #region Solvers batch
         public static IEnumerable<object[]> GetSolvers()
         {
-            Parameters parameters = new(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, ants: 10, iterations: 2, stagnantGenerationsAllowed: 1);
+            Parameters parameters = new(alpha: 1.0, beta: 1.0, rho: 0.5, tau0: 100, ants: 10, iterations: 2, stagnantGenerationsAllowed: 1, false, false);
             
             # region AS 
             yield return

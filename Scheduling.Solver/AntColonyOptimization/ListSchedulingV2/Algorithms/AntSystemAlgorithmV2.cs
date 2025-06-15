@@ -22,7 +22,8 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms
         {
             Instance = instance;
             Log($"Starting ASV2 algorithm with following parameters:");
-            DorigosTouch(instance);
+            if (Parameters.EnableDorigosTouch)
+                DorigosTouch(instance);
             Log($"Alpha = {Parameters.Alpha}; Beta = {Parameters.Beta}; Rho = {Parameters.Rho}; Initial pheromone = {Parameters.Tau0}.");
             Stopwatch iSw = new();
             Colony<AntSystemAntV2> colony = new();

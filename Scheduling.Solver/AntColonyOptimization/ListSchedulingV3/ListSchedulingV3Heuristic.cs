@@ -42,7 +42,6 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV3
                 foreach (var o in operations)
                     ant.Solution.MachineAssignment.Add(o.Id, m.Index);
 
-            ant.ImprovedSolution = ant.Solution;
         }
 
         private static void ReleaseVertexSuccessors(TAnt ant, OperationVertex u, Dictionary<OperationVertex, int> vertexCounters, HashSet<OperationVertex> scheduledNodes, HashSet<OperationVertex> unscheduledNodes)
