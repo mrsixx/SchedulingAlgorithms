@@ -11,7 +11,6 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
     {
         public static AntSolution Run(TAnt ant)
         {
-            //TODO: enable/disable local search
             HashSet<AntSolution> neighbors = GenerateNeighbours(ant);
             if (neighbors.Any())
             {
@@ -125,6 +124,12 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
             foreach (var kvPair in antSolution.LoadingSequence)
             {
                 copy.LoadingSequence.Add(kvPair.Key, [.. kvPair.Value]);
+            }
+
+
+            foreach (var kvPair in antSolution.CriticalPredecessors)
+            {
+                copy.CriticalPredecessors.Add(kvPair.Key, null);
             }
 
             // creating mu function

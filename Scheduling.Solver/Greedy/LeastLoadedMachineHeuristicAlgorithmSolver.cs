@@ -1,15 +1,18 @@
 ﻿using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
 using Scheduling.Core.Interfaces;
+using Scheduling.Solver.Algorithms;
 using Scheduling.Solver.Interfaces;
 using Scheduling.Solver.Models;
 
 namespace Scheduling.Solver.Greedy
 {
-    public class LeastLoadedMachineHeuristicAlgorithmSolver : IFlexibleJobShopSchedulingSolver
+    public class LeastLoadedMachineHeuristicAlgorithmSolver(bool withLocalSearch = false) : IFlexibleJobShopSchedulingSolver
     {
         protected ILogger? Logger;
         public void Log(string message) => Logger?.Log(message);
+
+        public bool DisableLocalSearch { get; } = !withLocalSearch;
 
         public IFlexibleJobShopSchedulingSolver WithLogger(ILogger logger, bool with = false)
         {
@@ -22,37 +25,52 @@ namespace Scheduling.Solver.Greedy
         {
             var solution = new GreedySolution();
             solution.Watch.Start();
-            
+
             // creating data structures
             Log($"Starting LLM algorithm");
             var unscheduledJobOperations = new Dictionary<Job, Operation>();
-            var loadingSequence = new Dictionary<Machine, List<Operation>>();
-            instance.Jobs.ForEach(job => unscheduledJobOperations.Add(job, job.Operations[0]));
-            instance.Machines.ForEach(m => {
-                loadingSequence.Add(m, new List<Operation>());
+            instance.Jobs.ForEach(job =>
+            {
+                job.Operations.ForEach(o => solution.CriticalPredecessors.Add(o.Id, null));
+                unscheduledJobOperations.Add(job, job.Operations[0]);
+            });
+            instance.Machines.ForEach(m =>
+            {
+                solution.LoadingSequence.Add(m.Index, []);
                 solution.MachineOccupancy.Add(m, 0);
             });
 
             while (unscheduledJobOperations.Any())
             {
                 var (operation, machine) = GetGreedyMachineAllocation(unscheduledJobOperations, solution);
-
                 // evaluate start e completion times
-                var machinePredecessor = loadingSequence[machine].LastOrDefault();
-                var jobPredecessor = !operation.FirstOperation ? operation.Job.Operations[operation.Index - 1] : null;
-                var jobReleaseDate = Convert.ToDouble(operation.Job.ReleaseDate);
+                List<Operation> predecessors = [];
+                if (!operation.FirstOperation) //non initial operations
+                    predecessors.Add(operation.Job.Operations[operation.Index - 1]);
 
-                var startTime = Math.Max(
-                    machinePredecessor != null ? solution.CompletionTimes[machinePredecessor.Id] : 0,
-                    jobPredecessor != null ? solution.CompletionTimes[jobPredecessor.Id] : jobReleaseDate
-                );
+                if (solution.LoadingSequence[machine.Index].Any()) // if exist machine predecessor
+                    predecessors.Add(solution.LoadingSequence[machine.Index].Last());
 
+
+                var startTime = Convert.ToDouble(operation.Job.ReleaseDate); // s(o) >= r_j for all o \in \underline{\pi_j}
+                if (predecessors.Any())
+                {
+                    var criticalPredecessor = predecessors.MaxBy(p => solution.CompletionTimes[p.Id]);
+                    var criticalPredecessorCompletionTime = criticalPredecessor != null
+                        ? solution.CompletionTimes[criticalPredecessor.Id]
+                        : 0;
+
+                    solution.CriticalPredecessors[operation.Id] = criticalPredecessor;
+                    startTime = Math.Max(startTime, criticalPredecessorCompletionTime);
+                }
+
+                var completionTime = startTime + operation.GetProcessingTime(machine);
                 solution.StartTimes.TryAdd(operation.Id, startTime);
-                solution.CompletionTimes.TryAdd(operation.Id, startTime + operation.GetProcessingTime(machine));
+                solution.CompletionTimes.TryAdd(operation.Id, completionTime);
 
                 // updating data structures
-                loadingSequence[machine].Add(operation);
-                solution.MachineOccupancy[machine] += operation.GetProcessingTime(machine);
+                solution.LoadingSequence[machine.Index].Add(operation);
+                solution.MachineOccupancy[machine] = completionTime;
 
                 if (operation.LastOperation)
                     unscheduledJobOperations.Remove(operation.Job);
@@ -64,11 +82,12 @@ namespace Scheduling.Solver.Greedy
             Log("\nFinishing LLM execution...");
 
             // creating mu function
-            foreach (var (m, operations) in loadingSequence)
+            foreach (var (m, operations) in solution.LoadingSequence)
                 foreach (var o in operations)
-                    solution.MachineAssignment.Add(o.Id, m.Index);
-
-            return solution;
+                    solution.MachineAssignment.Add(o.Id, m);
+            if (DisableLocalSearch)
+                return solution;
+            return FlexibleJobShopLocalSearchAlgorithm<GreedySolution>.Run(instance, solution);
         }
 
         private (Operation, Machine) GetGreedyMachineAllocation(Dictionary<Job, Operation> unscheduledJobOperations, GreedySolution solution)

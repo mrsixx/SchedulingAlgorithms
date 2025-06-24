@@ -1,5 +1,7 @@
 using Scheduling.Core.Extensions;
 using Scheduling.Core.FJSP;
+using Scheduling.Solver.Algorithms;
+using Scheduling.Solver.Models;
 
 namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
 {
@@ -11,7 +13,11 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
         {
             // creating data structures
             var unscheduledOperations = new HashSet<Operation>();
-            ant.Instance.Jobs.ForEach(job => unscheduledOperations.Add(job.Operations[0]));
+            ant.Instance.Jobs.ForEach(job =>
+            {
+                job.Operations.ForEach(o => ant.Solution.CriticalPredecessors.Add(o.Id, null));
+                unscheduledOperations.Add(job.Operations[0]);
+            });
             ant.Instance.Machines.ForEach(m => ant.Solution.LoadingSequence.Add(m.Index, []));
 
             while (unscheduledOperations.Any())
@@ -31,7 +37,9 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
             if (ant.Context.Parameters.DisableLocalSearch)
                 return;
             ant.NonImprovedSolution = ant.Solution;
-            ant.Solution = LocalSearchAlgorithm<TContext, TAnt>.Run(ant);
+            ant.Solution = FlexibleJobShopLocalSearchAlgorithm<AntSolution>.Run(ant.Instance, ant.Solution);
+
+            Console.WriteLine("");
         }
 
 

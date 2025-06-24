@@ -25,6 +25,16 @@ namespace Scheduling.Solver.Interfaces
 
         double Makespan { get; }
 
+        Dictionary<int, List<Operation>> LoadingSequence { get; }
+
+        /// <summary>
+        /// Last operation of critical path id
+        /// </summary>
+        int? CriticalOperationId { get; }
+
+        Dictionary<int, Operation?> CriticalPredecessors { get; }
+
+
         void Log();
     }
 }

@@ -85,19 +85,26 @@ namespace Scheduling.Solver.AntColonyOptimization.ListSchedulingV2
         public void EvaluateCompletionTime(AntSolution antSolution, Allocation selectedMove)
         {
             // evaluate start e completion times
-            var machinePredecessor = antSolution.LoadingSequence[selectedMove.Machine.Index].LastOrDefault();
+            List<Operation> predecessors = [];
+            if (!selectedMove.Operation.FirstOperation) //non initial operations
+                predecessors.Add(selectedMove.Operation.Job.Operations[selectedMove.Operation.Index - 1]);
+
+            if (antSolution.LoadingSequence[selectedMove.Machine.Index].Any()) // if exist machine predecessor
+                predecessors.Add(antSolution.LoadingSequence[selectedMove.Machine.Index].Last());
 
 
-            var jobPredecessor = !selectedMove.Operation.FirstOperation 
-                ? selectedMove.Operation.Job.Operations[selectedMove.Operation.Index - 1] 
-                : null;
+            var startTime = Convert.ToDouble(selectedMove.Operation.Job.ReleaseDate); // s(o) >= r_j for all o \in \underline{\pi_j}
+            if (predecessors.Any())
+            {
+                var criticalPredecessor = predecessors.MaxBy(p => antSolution.CompletionTimes[p.Id]);
+                var criticalPredecessorCompletionTime = criticalPredecessor != null
+                    ? antSolution.CompletionTimes[criticalPredecessor.Id]
+                    : 0;
 
-            var jobReleaseDate = Convert.ToDouble(selectedMove.Operation.Job.ReleaseDate);
+                antSolution.CriticalPredecessors[selectedMove.Operation.Id] = criticalPredecessor;
+                startTime = Math.Max(startTime, criticalPredecessorCompletionTime);
+            }
 
-            var startTime = Math.Max(
-                machinePredecessor != null ? antSolution.CompletionTimes[machinePredecessor.Id] : 0,
-                jobPredecessor != null ? antSolution.CompletionTimes[jobPredecessor.Id] : jobReleaseDate
-            );
 
             Path.Add(selectedMove);
             antSolution.StartTimes.TryAdd(selectedMove.Operation.Id, startTime);

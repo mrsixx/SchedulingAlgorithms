@@ -1,6 +1,7 @@
 ﻿using Scheduling.Solver.AntColonyOptimization;
 using Scheduling.Solver.Interfaces;
 using System.Diagnostics;
+using Scheduling.Core.FJSP;
 
 namespace Scheduling.Solver.Models
 {
@@ -13,6 +14,9 @@ namespace Scheduling.Solver.Models
         public Dictionary<int, int> MachineAssignment { get; } = colony.EmployeeOfTheMonth?.Solution?.MachineAssignment ?? [];
 
         public new double Makespan => colony.EmployeeOfTheMonth?.Solution?.Makespan ?? 0;
+        public Dictionary<int, List<Operation>> LoadingSequence { get; } = colony.EmployeeOfTheMonth?.Solution?.LoadingSequence ?? [];
+        public int? CriticalOperationId { get; } = colony.EmployeeOfTheMonth?.Solution?.CriticalOperationId;
+        public Dictionary<int, Operation?> CriticalPredecessors { get; } = colony.EmployeeOfTheMonth?.Solution?.CriticalPredecessors ?? [];
 
         public Stopwatch Watch => colony.Watch;
 

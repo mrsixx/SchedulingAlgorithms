@@ -56,7 +56,7 @@ namespace Scheduling.Console
                 case "acsv3":
                     return new AntColonySystemAlgorithmV3(parameters, args.Phi, solveApproach);
                 case "greedy":
-                    return new LeastLoadedMachineHeuristicAlgorithmSolver();
+                    return new LeastLoadedMachineHeuristicAlgorithmSolver(withLocalSearch: !parameters.DisableLocalSearch);
 
                 default:
                     throw new Exception("Algoritmo não implementado");

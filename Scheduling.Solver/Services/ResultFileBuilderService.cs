@@ -1,6 +1,7 @@
 
 using System.Text;
 using System.Text.Json;
+using Scheduling.Core.FJSP;
 using Scheduling.Solver.Interfaces;
 
 namespace Scheduling.Solver.Services
@@ -32,15 +33,16 @@ namespace Scheduling.Solver.Services
             writer.Write(sb);
         }
 
-        public void ExportSolution(string instanceFile, string solverName, bool parallelApproach, IFjspSolution solution, string outputDir = "")
+        public void ExportSolution(string instanceFile, string solverName, bool parallelApproach, IFjspSolution solution, bool withLocalSearch, string outputDir = "")
         {
             var approach = parallelApproach ? "parallel" : "iterative";
+            var localSeach = withLocalSearch ? "ls" : "";
             var fileName = Path.GetFileName(instanceFile);
             var filePath = string.IsNullOrWhiteSpace(outputDir) ? Path.GetDirectoryName(instanceFile) : outputDir;
             
             var benchmarkName = Directory.GetParent(instanceFile)?.Name ?? "Benchmark";
 
-            var outputFilename = $"{filePath}/{fileName}.{benchmarkName}-{solverName}-{approach}-m{solution.Makespan}-{DateTime.Now.Ticks}.json";
+            var outputFilename = $"{filePath}/{fileName}.{benchmarkName}-{solverName}-{approach}-{localSeach}-m{solution.Makespan}-{DateTime.Now.Ticks}.json";
             if (!Directory.Exists(filePath))
                 Directory.CreateDirectory(filePath);
 
@@ -48,7 +50,20 @@ namespace Scheduling.Solver.Services
             
             
             StringBuilder sb = new();
-            sb.AppendLine(JsonSerializer.Serialize(solution) ?? "");
+            var sol = new
+            {
+                Operations = solution.StartTimes.Keys,
+                Machines = solution.LoadingSequence.Keys,
+                solution.StartTimes,
+                solution.MachineAssignment,
+                LoadingSequence = solution.LoadingSequence.Aggregate(new List<List<int>>(), (acc, seq) =>
+                {
+                    var sequence = seq.Value.Select(o => o.Id).ToList();
+                    acc.Add(sequence);
+                    return acc;
+                })
+            };
+            sb.AppendLine(JsonSerializer.Serialize(sol) ?? "");
            
             writer.Write(sb);
         }

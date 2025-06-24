@@ -33,7 +33,7 @@ Parser.Default.ParseArguments<Arguments>(args)
         List<IFjspSolution> solutions = [];
         for (int i = 0; i < opt.Runs; i++)
         {
-            Console.WriteLine($"Run {i + 1}/{opt.Runs}");
+            Console.WriteLine($"Run {i + 1}/{opt.Runs} - {(opt.UseParallelApproach ? "parallel": "iterative")}; {(opt.DisableLocalSearch?"without": "with")} local search; {(opt.EnableDorigosTouch ? "with" : "without")} dorigo's touch");
             var solution = solver.Solve(problemInstance);
             solution.Log();
             solutions.Add(solution);
@@ -43,5 +43,6 @@ Parser.Default.ParseArguments<Arguments>(args)
         resultFileBuilderService.ExportSolution(
                 opt.InstanceFile, opt.SolverName,
                 opt.UseParallelApproach, solutions.MinBy(s => s.Makespan),
+                !opt.DisableLocalSearch,
                 outputDir: opt.OutputPath);
     });

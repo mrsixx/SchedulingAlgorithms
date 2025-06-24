@@ -13,5 +13,7 @@
         public double TrivialUpperBound { get;set; } = 0;
 
         public double MachinesPerOperation { get; set; } = 1;
+
+        public List<Operation> OperationsSet => Jobs.SelectMany(j => j.Operations).ToList();
     }
 }

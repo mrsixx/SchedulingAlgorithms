@@ -1,5 +1,6 @@
 ﻿using Scheduling.Solver.Interfaces;
 using System.Diagnostics;
+using Scheduling.Core.FJSP;
 using Machine = Scheduling.Core.FJSP.Machine;
 
 namespace Scheduling.Solver.Models
@@ -14,7 +15,12 @@ namespace Scheduling.Solver.Models
 
         public Dictionary<Machine, double> MachineOccupancy {get;} = [];
 
-        public double Makespan => CompletionTimes.Count > 0 ? CompletionTimes.MaxBy(c => c.Value).Value : 0;
+        public Dictionary<int, Operation?> CriticalPredecessors { get; } = [];
+
+        public Dictionary<int, List<Operation>> LoadingSequence { get; } = [];
+        public int? CriticalOperationId => CompletionTimes.Any() ? CompletionTimes.MaxBy(c => c.Value).Key : null;
+
+        public double Makespan => CriticalOperationId.HasValue ? CompletionTimes[CriticalOperationId.Value] : 0;
 
         public Stopwatch Watch { get; } = new();
 
