@@ -108,3 +108,7 @@ Onde:
 - 📌 **Obrigatório**: Todos os algoritmos requerem `--solver`, `--iterations` e `--ants`
 - 🔄 **Paralelizável**: Adicione `--parallel` para versões paralelas (exceto Greedy)
 - ⚠️ **Valores padrão**: Se omitidos, usam valores internos (consulte o PDF do TCC)
+
+---
+
+Made with ☕ and 🧠 by [Matheus]
