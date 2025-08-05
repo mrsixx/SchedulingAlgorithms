@@ -4,7 +4,7 @@ Este repositório contém a implementação de algoritmos de escalonamento desen
 
 **"O Escalonador dos Papéis: Abordagens heurísticas com colônias de formigas para o escalonamento flexível de trabalhos no contexto da indústria gráfica"**
 
-[Leia o trabalho completo aqui](TCC.pdf)
+[Leia o trabalho completo aqui](PGC_MATHEUS_RIBEIRO.pdf)
 
 ## Descrição
 
