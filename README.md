@@ -4,7 +4,9 @@ Este repositório contém a implementação de algoritmos de escalonamento desen
 
 **"O Escalonador dos Papéis: Abordagens heurísticas com colônias de formigas para o escalonamento flexível de trabalhos no contexto da indústria gráfica"**
 
-[Leia o trabalho completo aqui](PGC_MATHEUS_RIBEIRO.pdf)
+Os resultados dos experimentos podem ser encontrados [neste repositório](https://github.com/mrsixx/SchedulingAlgorithmsRuns).
+
+[Leia o trabalho completo aqui](PGC_MATHEUS_RIBEIRO.pdf) 
 
 ## Descrição
 
