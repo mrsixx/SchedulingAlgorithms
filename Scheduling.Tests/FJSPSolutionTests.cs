@@ -10,14 +10,22 @@ using Scheduling.Solver.AntColonyOptimization.ListSchedulingV2.Algorithms;
 using Scheduling.Solver.AntColonyOptimization.ListSchedulingV3.Algorithms;
 using System.Linq;
 using Scheduling.Core.Extensions;
+using Microsoft.Extensions.Configuration;
 
 namespace Scheduling.Tests
 {
     public class FJSPSolutionTests
     {
+        private readonly IConfiguration _configuration;
         private IBenchmarkReaderService _readerService = new BenchmarkReaderService(null);
-        private const string BENCHMARK_FILE = "C:\\Users\\Matheus Ribeiro\\source\\repos\\mrsixx\\SchedulingAlgorithms\\Scheduling.Benchmarks\\Data\\6_Fattahi\\Fattahi12.fjs";
-        //private const string BENCHMARK_FILE = "//workspaces//SchedulingAlgorithms//Scheduling.Benchmarks//Data//6_Fattahi//Fattahi12.fjs";
+
+        public FJSPSolutionTests()
+        {
+            _configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+        }
 
         #region Solvers batch
         public static IEnumerable<object[]> GetSolvers()
@@ -179,7 +187,7 @@ namespace Scheduling.Tests
         [MemberData(nameof(GetSolvers))]
         public void FjspSolution_EligibleMachineRestriction_MustBeSatisfied(IFlexibleJobShopSchedulingSolver solver)
         {
-            var instance = _readerService.ReadInstance(BENCHMARK_FILE);
+            var instance = _readerService.ReadInstance(_configuration["BenchmarkFile"]);
             var solution = solver.Solve(instance);
 
             foreach (var job in instance.Jobs)
@@ -197,7 +205,7 @@ namespace Scheduling.Tests
         [MemberData(nameof(GetSolvers))]
         public void FjspSolution_ReleaseDateRestriction_MustBeSatisfied(IFlexibleJobShopSchedulingSolver solver)
         {
-            var instance = _readerService.ReadInstance(BENCHMARK_FILE);
+            var instance = _readerService.ReadInstance(_configuration["BenchmarkFile"]);
             instance.Jobs.ForEach(j => j.ReleaseDate = Random.Shared.Next(10, 100));
             var solution = solver.Solve(instance);
             
@@ -214,7 +222,7 @@ namespace Scheduling.Tests
         [MemberData(nameof(GetSolvers))]
         public void FjspSolution_ConjunctiveRestriction_MustBeSatisfied(IFlexibleJobShopSchedulingSolver solver)
         {
-            var instance = _readerService.ReadInstance(BENCHMARK_FILE);
+            var instance = _readerService.ReadInstance(_configuration["BenchmarkFile"]);
             var solution = solver.Solve(instance);
 
             foreach (var job in instance.Jobs)
@@ -236,7 +244,7 @@ namespace Scheduling.Tests
         [MemberData(nameof(GetSolvers))]
         public void FjspSolution_DisjunctiveRestriction_MustBeSatisfied(IFlexibleJobShopSchedulingSolver solver)
         {
-            var instance = _readerService.ReadInstance(BENCHMARK_FILE);
+            var instance = _readerService.ReadInstance(_configuration["BenchmarkFile"]);
             var solution = solver.Solve(instance);
 
 
