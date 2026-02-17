@@ -367,3 +367,4 @@ MigrationBackup/
 FodyWeavers.xsd
 Scheduling.Console/Properties/launchSettings.json
 /Scheduling.Console/Properties/launchSettings.json
+/Scheduling.Tests/appsettings.json
